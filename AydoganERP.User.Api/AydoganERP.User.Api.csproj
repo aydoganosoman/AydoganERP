@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AydoganERP.Aspire\AydoganERP.Aspire.ServiceDefaults\AydoganERP.Aspire.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\AydoganERP.Base.Application\AydoganERP.Base.Application.csproj" />
+    <ProjectReference Include="..\AydoganERP.Base.Domain\AydoganERP.Base.Domain.csproj" />
+    <ProjectReference Include="..\AydoganERP.User.Application\AydoganERP.User.Application.csproj" />
+    <ProjectReference Include="..\AydoganERP.User.Domain\AydoganERP.User.Domain.csproj" />
+    <ProjectReference Include="..\AydoganERP.User.Infrastructure\AydoganERP.User.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FastEndpoints" Version="5.28.0" />
+    <PackageReference Include="FastEndpoints.Attributes" Version="5.28.0" />
+    <PackageReference Include="FastEndpoints.Security" Version="5.28.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>

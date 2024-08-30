@@ -1,0 +1,6 @@
+@AydoganERP.User.Api_HostAddress = http://localhost:5300
+
+GET {{AydoganERP.User.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

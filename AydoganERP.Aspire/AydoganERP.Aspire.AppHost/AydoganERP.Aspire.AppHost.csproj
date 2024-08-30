@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>69d99e5c-6fd5-4ad4-bfe6-0cf4d5b797c3</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AydoganERP.Customer.Api\AydoganERP.Customer.Api.csproj" />
+    <ProjectReference Include="..\..\AydoganERP.Gateway\AydoganERP.Gateway.csproj" />
+    <ProjectReference Include="..\..\AydoganERP.User.Api\AydoganERP.User.Api.csproj" />
+  </ItemGroup>
+
+</Project>

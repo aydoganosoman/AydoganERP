@@ -1,0 +1,164 @@
+schema {
+  query: CustomerQuery
+  mutation: CustomerMutation
+}
+
+enum ApplyPolicy {
+  BEFORE_RESOLVER
+  AFTER_RESOLVER
+  VALIDATION
+}
+
+type CustomerQuery {
+  customers(where: CustomerDtoFilterInput): GetListResponseOfCustomerDto!
+}
+
+type CustomerMutation {
+  createCustomer(createCommand: CreateCommandInput!): CustomerDto!
+  createCustomerOnlyName(
+    createCommand: CreateOnlyNameCommandInput!
+  ): CustomerDto!
+  updateCustomer(updateCommand: UpdateCommandInput!): CustomerDto!
+}
+
+input CustomerDtoFilterInput {
+  and: [CustomerDtoFilterInput!]
+  or: [CustomerDtoFilterInput!]
+  companyId: UuidOperationFilterInput
+}
+
+input UuidOperationFilterInput {
+  eq: UUID
+  neq: UUID
+  in: [UUID]
+  nin: [UUID]
+  gt: UUID
+  ngt: UUID
+  gte: UUID
+  ngte: UUID
+  lt: UUID
+  nlt: UUID
+  lte: UUID
+  nlte: UUID
+}
+
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+
+input CreateCommandInput {
+  name: String!
+  shortName: String!
+  segmentation: UUID!
+  category: UUID!
+  phone: String!
+  eMail: String!
+  fax: String!
+  city: Int!
+  town: Int!
+  address: String!
+  type: Int!
+  taxOffice: String!
+  taxNumber: String!
+  exchangeRateType: Int!
+  eInvoice: String!
+  ibaNs: [IBANCustomerCreateCommandInput!]!
+  authorizePeople: [AuthorizePersonCustomerCreateCommandInput!]!
+}
+
+type CustomerDto {
+  id: UUID!
+  name: String!
+  shortName: String
+  segmentation: CustomerSegmentationDto
+  category: CategoryDto
+  phone: String
+  eMail: String
+  fax: String
+  city: Int
+  town: Int
+  address: String
+  type: Int
+  taxOffice: String
+  taxNumber: String
+  exchangeRateType: Int
+  eInvoice: String
+  company: CompanyDto!
+}
+
+type GetListResponseOfCustomerDto {
+  items: [CustomerDto!]!
+  from: Int!
+  index: Int!
+  size: Int!
+  count: Int!
+  pages: Int!
+  hasPrevious: Boolean!
+  hasNext: Boolean!
+}
+
+input CreateOnlyNameCommandInput {
+  name: String!
+}
+
+input UpdateCommandInput {
+  id: UUID!
+  name: String!
+  shortName: String!
+  segmentation: UUID!
+  category: UUID!
+  phone: String!
+  eMail: String!
+  fax: String!
+  city: Int!
+  town: Int!
+  address: String!
+  type: Int!
+  taxOffice: String!
+  taxNumber: String!
+  exchangeRateType: Int!
+  eInvoice: String!
+  ibaNs: [IBANCustomerUpdateCommandInput!]!
+  authorizePeople: [AuthorizePersonCustomerUpdateCommandInput!]!
+}
+
+type CategoryDto {
+  id: UUID!
+  name: String!
+  color: String!
+}
+
+type CustomerSegmentationDto {
+  id: UUID!
+  name: String!
+  description: String!
+  discountRate: Float!
+  riskLevel: Int!
+}
+
+input AuthorizePersonCustomerCreateCommandInput {
+  name: String!
+  phone: String!
+  eMail: String!
+  notes: String!
+}
+
+input IBANCustomerCreateCommandInput {
+  number: String!
+}
+
+type CompanyDto {
+  id: UUID!
+  name: String!
+}
+
+input IBANCustomerUpdateCommandInput {
+  id: UUID!
+  number: String!
+}
+
+input AuthorizePersonCustomerUpdateCommandInput {
+  id: UUID!
+  name: String!
+  phone: String!
+  eMail: String!
+  notes: String!
+}
