@@ -11,9 +11,8 @@ public interface IEntity
 /// <summary>
 /// Base class for entities.
 /// </summary>
-public abstract class Entity<TId> : AuditableEntity, IEntity
+public abstract class Entity : AuditableEntity, IEntity
 {
-    public TId Id { get; set; }
 
     [NotMapped]
     private readonly ConcurrentQueue<IDomainEvent> _domainEvents = new ConcurrentQueue<IDomainEvent>();

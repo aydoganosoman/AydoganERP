@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AydoganERP.Base.Application\AydoganERP.Base.Application.csproj" />
+      <ProjectReference Include="..\AydoganERP.Company.Domain\AydoganERP.Company.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="CompanyManager\Commands\" />
+      <Folder Include="CompanyManager\Queries\" />
+    </ItemGroup>
+
+</Project>
