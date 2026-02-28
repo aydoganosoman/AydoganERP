@@ -31,6 +31,7 @@
       <ProjectReference Include="..\AydoganERP.Identity.Infrastructure\AydoganERP.Identity.Infrastructure.csproj" />
       <ProjectReference Include="..\AydoganERP.Inventory.Application\AydoganERP.Inventory.Application.csproj" />
       <ProjectReference Include="..\AydoganERP.Inventory.Infrastructure\AydoganERP.Inventory.Infrastructure.csproj" />
+      <ProjectReference Include="..\AydoganERP.Finance.Application\AydoganERP.Finance.Application.csproj" />
     </ItemGroup>
 
     <ItemGroup>

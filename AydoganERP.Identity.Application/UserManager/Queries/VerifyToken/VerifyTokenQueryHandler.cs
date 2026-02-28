@@ -1,8 +1,6 @@
 ﻿using AydoganERP.Base.Application.Common.Interfaces;
-using AydoganERP.Base.Domain.Modules.IdentityModule.Entities;
 using AydoganERP.Base.Domain.Modules.IdentityModule.Enums;
 using AydoganERP.Identity.Application.Models;
-using AydoganERP.Identity.Application.Repositories;
 using AydoganERP.Identity.Domain.Exceptions;
 using AydoganERP.Identity.Domain.Helpers;
 using MediatR;
@@ -14,22 +12,21 @@ public record VerifyTokenQuery(string RefreshToken) : IRequest<UserAuthModel>;
 
 public class VerifyTokenQueryHandler : IRequestHandler<VerifyTokenQuery, UserAuthModel>
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IBaseDbContext _baseDbContext;
     private readonly ICurrentUserService _currentUserService;
 
-    public VerifyTokenQueryHandler(IUserRepository userRepository,
+    public VerifyTokenQueryHandler(IBaseDbContext baseDbContext,
         ICurrentUserService currentUserService)
     {
-        _userRepository = userRepository;
+        _baseDbContext = baseDbContext;
         _currentUserService = currentUserService;
     }
 
     public async Task<UserAuthModel> Handle(VerifyTokenQuery request, CancellationToken cancellationToken)
     {
-        var dbContext = _userRepository.GetDbContext();
-        
-        var userEntity = await dbContext
-            .Set<User>()
+       
+        var userEntity = await _baseDbContext
+            .Users
             .Include(x => x.Company)
             .FirstOrDefaultAsync(x => x.Email == _currentUserService.UserEmail && x.Status == UserStatusEnum.Active);
 
@@ -38,6 +35,7 @@ public class VerifyTokenQueryHandler : IRequestHandler<VerifyTokenQuery, UserAut
         {
             user = new UserAuthModel(userEntity.Id,
                 userEntity.Role,
+                userEntity.CompanyId.HasValue ? userEntity.CompanyId.Value : null,
                 userEntity.Name,
                 userEntity.Title,
                 userEntity.Email,

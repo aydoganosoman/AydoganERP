@@ -12,18 +12,18 @@ public class ApplicationDbContextUserSeed
         IGeneratePasswordUtil generatePasswordUtil,
         ApplicationDbContext context)
     {
-        if (!context.Users.Any(x => x.Email == "stronger_osman@hotmail.com"))
-        {
-            User _user = User.Register(null,
-                generatePasswordUtil,
-                UserRoleEnum.SuperAdmin,
-                string.Empty,
-                "developer@mail.com",
-                "<<12111211>>",
-                md5Helper.GenerateMD5($"<<12111211>>"));
-
-            context.Users.Add(_user);
-        }
+        // if (!context.Users.Any(x => x.Email == "stronger_osman@hotmail.com"))
+        // {
+        //     User _user = User.Register(null,
+        //         generatePasswordUtil,
+        //         UserRoleEnum.SuperAdmin,
+        //         string.Empty,
+        //         "stronger_osman@hotmail.com",
+        //         "<<19Mayis1919>>",
+        //         md5Helper.GenerateMD5($"<<19Mayis1919>>"));
+        //
+        //     context.Users.Add(_user);
+        // }
 
         await context.SaveChangesAsync();
     }

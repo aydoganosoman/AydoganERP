@@ -1,6 +1,8 @@
 ﻿using AydoganERP.Base.Application.Common.EMail;
 using AydoganERP.Base.Application.Common.Interfaces;
 using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
 using EmailMessage = AydoganERP.Base.Application.Common.EMail.EmailMessage;
 
 namespace AydoganERP.Base.Infrastructure.Email;
@@ -24,39 +26,46 @@ public class EmailSender : IEmailSender
         if (_emailSettings.Host == null)
             return;
 
-        // using (var client = new SmtpClient())
-        // {
-        //     try
-        //     {
-        //         client.Connect(_emailSettings.Host, _emailSettings.Port, SecureSocketOptions.StartTls);
-        //         //client.Authenticate("resend", _emailSettings.Password);
-        //         client.Authenticate(_emailSettings.From, _emailSettings.Password);
-        //         
-        //         string result = await client.SendAsync(mime_message);
-        //         client.Disconnect(true);
-        //
-        //         foreach (var notificationLog in _notificationLogs)
-        //         {
-        //             notificationLog.UpdateResult(result, NotificationStatusEnum.Sent);
-        //
-        //             if (dbContext == null)
-        //                 await _dbContext.NotificationLogs.AddAsync(notificationLog);
-        //             else
-        //                 await dbContext.NotificationLogs.AddAsync(notificationLog);
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         foreach (var notificationLog in _notificationLogs)
-        //         {
-        //             notificationLog.UpdateResult(ex.Message, NotificationStatusEnum.Failed);
-        //
-        //             if (dbContext == null)
-        //                 await _dbContext.NotificationLogs.AddAsync(notificationLog);
-        //             else
-        //                 await dbContext.NotificationLogs.AddAsync(notificationLog);
-        //         }
-        //     }
-        // }
+        MailMessage _message = new MailMessage();
+        _message.From = new MailAddress(_emailSettings.From);
+
+        foreach (string se in message.To)
+        {
+            _message.To.Add(new MailAddress(se));
+        }
+
+        _message.Subject = message.Title;
+        _message.Body = message.Content;
+
+        if (message.FilePath != null)
+            foreach (string se in message.FilePath)
+            {
+                if (!string.IsNullOrEmpty(se))
+                    _message.Attachments.Add(new Attachment(se));
+            }
+
+        using (var client = new SmtpClient())
+        {
+            try
+            {
+                client.Host = _emailSettings.Host;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.EnableSsl = _emailSettings.EnableSsl;
+                
+                if (_emailSettings.Port != 0)
+                    client.Port = Convert.ToInt32(_emailSettings.Port);
+
+                if (!string.IsNullOrEmpty(_emailSettings.SMTPUser))
+                {
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = new NetworkCredential(_emailSettings.SMTPUser, _emailSettings.Password);
+                }
+
+                await client.SendMailAsync(_message);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
     }
 }

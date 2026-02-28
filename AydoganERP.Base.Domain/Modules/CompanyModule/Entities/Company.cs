@@ -1,5 +1,6 @@
 using AydoganERP.Base.Domain.Common;
 using AydoganERP.Base.Domain.Modules.CompanyModule.Enums;
+using AydoganERP.Base.Domain.Modules.CompanyModule.Events;
 using AydoganERP.Base.Domain.Modules.IdentityModule.Entities;
 
 namespace AydoganERP.Base.Domain.Modules.CompanyModule.Entities;
@@ -20,12 +21,23 @@ public class Company : Entity
         if (id == Guid.Empty) throw new ArgumentException("Id cannot be empty.");
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is required.");
 
-        return new Company
+        var company = new Company
         {
             Id = id,
             Name = name.Trim(),
             Status = CompanyStatusEnum.Active,
         };
+
+        company.PublishEvent(new CompanyCreatedEvent(company.Id, company.Name));
+
+        return company;
+    }
+
+    public void Rename(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is required.");
+
+        Name = name.Trim();
     }
 
     public void Suspend() => Status = CompanyStatusEnum.Suspended;

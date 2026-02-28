@@ -1,0 +1,295 @@
+buttons:
+  pureAccountSettings: Hesap Ayarları
+  pureLoginOut: Çıkış Yap
+  pureLogin: Giriş Yap
+  pureOpenSystemSet: Sistem Ayarlarını Aç
+  pureReload: Yeniden Yükle
+  pureCloseCurrentTab: Mevcut Sekmeyi Kapat
+  pureCloseLeftTabs: Sol Sekmeleri Kapat
+  pureCloseRightTabs: Sağ Sekmeleri Kapat
+  pureCloseOtherTabs: Diğer Sekmeleri Kapat
+  pureCloseAllTabs: Tüm Sekmeleri Kapat
+  pureContentFullScreen: İçerik Tam Ekran
+  pureContentExitFullScreen: Tam Ekrandan Çık
+  pureClickCollapse: Daralt
+  pureClickExpand: Genişlet
+  pureConfirm: Onayla
+  pureCancel: İptal
+  pureSwitch: Değiştir
+  pureClose: Kapat
+  pureBackTop: Yukarı Dön
+  pureOpenText: Açık
+  pureCloseText: Kapalı
+  pureWatchMore: Daha Fazla Gör
+  pureMarkAsRead: Okundu Olarak İşaretle
+search:
+  pureTotal: Toplam
+  pureHistory: Arama Geçmişi
+  pureCollect: Favoriler
+  pureDragSort: (Sürükleyerek sıralayabilirsiniz)
+  pureEmpty: Sonuç bulunamadı
+  purePlaceholder: Menü ara (Türkçe arama destekli)
+panel:
+  pureSystemSet: Sistem Ayarları
+  pureCloseSystemSet: Ayarları Kapat
+  pureClearCacheAndToLogin: Önbelleği Temizle ve Çıkış Yap
+  pureClearCache: Önbelleği Temizle
+  pureThemeMode: Tema Modu
+  pureThemeModeLight: Açık
+  pureThemeModeLightTip: Gün ışığı, konforlu çalışma ortamı
+  pureThemeModeDark: Koyu
+  pureThemeModeDarkTip: Gece modu, göz yormayan tasarım
+  pureThemeModeSystem: Otomatik
+  pureThemeModeSystemTip: Sistem temasına göre otomatik değişir
+  pureThemeColor: Tema Rengi
+  pureMenuLayout: Menü Yerleşimi
+  pureVerticalTip: Sol menü, klasik düzen
+  pureHorizontalTip: Üst menü, sade görünüm
+  pureMixTip: Karma menü, esnek kullanım
+  pureStretch: Sayfa Genişliği
+  pureStretchFixed: Sabit
+  pureStretchFixedTip: Kompakt sayfa, kolay erişim
+  pureStretchCustom: Özel
+  pureStretchCustomTip: Minimum 1280, maksimum 1600
+  pureTagsStyle: Sekme Stili
+  pureTagsStyleSmart: Dinamik
+  pureTagsStyleSmartTip: Dinamik sekmeler, modern görünüm
+  pureTagsStyleCard: Kart
+  pureTagsStyleCardTip: Kart sekmeler, verimli gezinme
+  pureTagsStyleChrome: Chrome
+  pureTagsStyleChromeTip: Chrome stili, klasik tasarım
+  pureInterfaceDisplay: Arayüz Görünümü
+  pureGreyModel: Gri Mod
+  pureWeakModel: Renk Körlüğü Modu
+  pureHiddenTags: Sekmeleri Gizle
+  pureHiddenFooter: Alt Bilgiyi Gizle
+  pureMultiTagsCache: Sekme Kalıcılığı
+menus:
+  pureHome: Ana Sayfa
+  pureLogin: Giriş
+  pureEmpty: Boş Sayfa
+  pureTable: Tablolar
+  pureSysManagement: Sistem Yönetimi
+  pureUser: Kullanıcı Yönetimi
+  pureRole: Rol Yönetimi
+  pureSystemMenu: Menü Yönetimi
+  pureDept: Departman Yönetimi
+  pureSysMonitor: Sistem İzleme
+  pureOnlineUser: Çevrimiçi Kullanıcılar
+  pureLoginLog: Giriş Günlüğü
+  pureOperationLog: İşlem Günlüğü
+  pureSystemLog: Sistem Günlüğü
+  pureCodeMirror: Kod Editörü
+  pureMarkdown: Markdown
+  pureEditor: Editör
+  pureAbnormal: Hata Sayfaları
+  purePageNotFound: "404"
+  pureAccessDenied: "403"
+  pureServerError: "500"
+  pureComponents: Bileşenler
+  pureDialog: Fonksiyonel Dialog
+  pureDrawer: Fonksiyonel Drawer
+  pureMessage: Mesaj Bildirimi
+  pureVideo: Video
+  pureSegmented: Segment Kontrolü
+  pureWaterfall: Şelale Akışı
+  pureMap: Harita
+  pureDraggable: Sürükle Bırak
+  pureSplitPane: Bölünmüş Panel
+  pureText: Metin Kısaltma
+  pureSlider: Kaydırıcı
+  pureElButton: Butonlar
+  pureCheckButton: Seçilebilir Buton
+  pureButton: Buton Animasyonları
+  pureCropping: Resim Kırpma
+  pureAnimatecss: Animate.css Seçici
+  pureCountTo: Sayı Animasyonu
+  pureSelector: Aralık Seçici
+  pureFlowChart: Akış Şeması
+  pureSeamless: Sürekli Kaydırma
+  pureContextmenu: Sağ Tık Menüsü
+  pureTypeit: Daktilo Efekti
+  pureJsonEditor: JSON Editörü
+  pureColorPicker: Renk Seçici
+  pureColorPickerPanel: Renk Seçici Panel
+  pureDatePicker: Tarih Seçici
+  pureDateTimePicker: Tarih-Saat Seçici
+  pureTimePicker: Saat Seçici
+  pureTag: Etiketler
+  pureStatistic: İstatistik
+  pureCollapse: Daraltılabilir Panel
+  pureGanttastic: Gantt Şeması
+  pureProgress: İlerleme Çubuğu
+  pureUpload: Dosya Yükleme
+  pureCheckCard: Çoklu Seçim Kartı
+  pureMenus: Çok Seviyeli Menü
+  pureMenu1: Menü 1
+  pureMenu1-1: Menü 1-1
+  pureMenu1-2: Menü 1-2
+  pureMenu1-2-1: Menü 1-2-1
+  pureMenu1-2-2: Menü 1-2-2
+  pureMenu1-3: Menü 1-3
+  pureMenu2: Menü 2
+  purePermission: Yetki Yönetimi
+  purePermissionPage: Sayfa Yetkileri
+  purePermissionButton: Buton Yetkileri
+  purePermissionButtonRouter: Router Buton Yetkileri
+  purePermissionButtonLogin: Giriş Buton Yetkileri
+  pureTabs: Sekme İşlemleri
+  pureGuide: Rehber
+  pureAble: Özellikler
+  pureMenuTree: Menü Ağacı
+  pureVideoFrame: Video Kare Yakalama
+  pureWavesurfer: Ses Görselleştirme
+  pureRipple: Dalga Efekti
+  pureMqtt: MQTT İstemcisi
+  pureOptimize: Debounce, Throttle, Kopyalama
+  pureVerify: Görsel Doğrulama
+  pureWatermark: Filigran
+  purePrint: Yazdırma
+  pureDownload: İndirme
+  pureExternalPage: Harici Sayfalar
+  pureExternalDoc: Harici Doküman
+  pureEmbeddedDoc: Gömülü Doküman
+  pureExternalLink: vue-pure-admin
+  pureUtilsLink: pure-admin-utils
+  pureColorHuntDoc: Renk Paleti
+  pureUiGradients: Gradyan Renkler
+  pureEpDoc: element-plus
+  pureTailwindcssDoc: tailwindcss
+  pureVueDoc: vue3
+  pureViteDoc: vite
+  purePiniaDoc: pinia
+  pureRouterDoc: vue-router
+  pureAbout: Hakkında
+  pureResult: Sonuç Sayfaları
+  pureSuccess: Başarılı
+  pureFail: Başarısız
+  pureIconSelect: İkon Seçici
+  pureTimeline: Zaman Çizelgesi
+  pureLineTree: Ağaç Bağlantı Çizgisi
+  pureList: Liste Sayfası
+  pureCardList: Kart Listesi
+  pureDebounce: Debounce Throttle
+  pureFormDesign: Form Tasarımcısı
+  pureBarcode: Barkod
+  pureQrcode: QR Kod
+  pureCascader: Bölge Seçici
+  pureSwiper: Swiper Eklentisi
+  pureVirtualList: Sanal Liste
+  purePdf: PDF Önizleme
+  pureExcel: Excel Dışa Aktarma
+  pureInfiniteScroll: Sonsuz Kaydırma
+  pureSensitive: Hassas Kelime Filtreleme
+  purePinyin: Pinyin
+  pureDanmaku: Danmaku
+  pureSchemaForm: Formlar
+  pureTableBase: Temel Kullanım
+  pureTableHigh: Gelişmiş Kullanım
+  pureTableEdit: Düzenlenebilir Tablo
+  pureVxeTable: Sanal Kaydırma
+  pureBoard: Sanat Tahtası
+  pureMindMap: Zihin Haritası
+  pureMenuOverflow: Menü Taşması
+  pureChildMenuOverflow: Alt Menü Taşması
+status:
+  pureLoad: Yükleniyor...
+  pureMessage: Mesajlar
+  pureNotify: Bildirimler
+  pureTodo: Yapılacaklar
+  pureNoMessage: Mesaj yok
+  pureNoNotify: Bildirim yok
+  pureNoTodo: Yapılacak yok
+login:
+  pureUsername: Kullanıcı Adı
+  purePassword: Şifre
+  pureVerifyCode: Doğrulama Kodu
+  pureRemember: gün boyunca oturumu açık tut
+  pureRememberInfo: İşaretleyip giriş yaptığınızda, belirtilen gün sayısı boyunca otomatik giriş yapılır
+  pureSure: Şifre Onayı
+  pureForget: Şifremi Unuttum?
+  pureLogin: Giriş Yap
+  pureThirdLogin: Üçüncü Parti Giriş
+  purePhoneLogin: Telefon ile Giriş
+  pureQRCodeLogin: QR Kod ile Giriş
+  pureRegister: Kayıt Ol
+  pureWeChatLogin: WeChat ile Giriş
+  pureAlipayLogin: Alipay ile Giriş
+  pureQQLogin: QQ ile Giriş
+  pureWeiBoLogin: Weibo ile Giriş
+  purePhone: Telefon Numarası
+  pureSmsVerifyCode: SMS Doğrulama Kodu
+  pureBack: Geri
+  pureTest: Test Girişi
+  pureTip: QR kodu taradıktan sonra "Onayla"ya tıklayın
+  pureDefinite: Tamam
+  pureLoginSuccess: Giriş başarılı
+  pureLoginFail: Giriş başarısız
+  pureRegisterSuccess: Kayıt başarılı
+  pureTickPrivacy: Lütfen gizlilik politikasını onaylayın
+  pureReadAccept: Okudum ve kabul ediyorum
+  purePrivacyPolicy: "Gizlilik Politikası"
+  pureGetVerifyCode: Kod Al
+  pureInfo: saniye sonra tekrar dene
+  pureUsernameReg: Kullanıcı adını giriniz
+  purePassWordReg: Şifrenizi giriniz
+  pureVerifyCodeReg: Doğrulama kodunu giriniz
+  pureVerifyCodeCorrectReg: Geçerli bir doğrulama kodu giriniz
+  pureVerifyCodeSixReg: 6 haneli doğrulama kodunu giriniz
+  purePhoneReg: Telefon numaranızı giriniz
+  purePhoneCorrectReg: Geçerli bir telefon numarası giriniz
+  purePassWordRuleReg: Şifre 8-18 karakter, harf, rakam ve sembol kombinasyonu olmalıdır
+  purePassWordSureReg: Şifrenizi tekrar giriniz
+  purePassWordDifferentReg: Şifreler eşleşmiyor!
+  purePassWordUpdateReg: Şifre başarıyla değiştirildi
+  pureLoginExpired: Oturum süresi doldu, lütfen tekrar giriş yapın
+  pureCompanyName: Firma Adı
+  pureEmail: E-posta
+  pureCompanyNameReg: Firma adını giriniz
+  pureEmailReg: E-posta adresinizi giriniz
+  pureEmailFormatReg: Geçerli bir e-posta adresi giriniz
+  pureRegisterFail: Kayıt başarısız
+tableBar:
+  pureList: Liste
+  pureLarge: Geniş
+  pureDefault: Varsayılan
+  pureSmall: Kompakt
+  pureColumnSettings: Sütun Ayarları
+  pureCollapse: Daralt
+  pureExpand: Genişlet
+  pureRefresh: Yenile
+  pureDensity: Yoğunluk
+  pureColumnDisplay: Sütun Görünümü
+  pureReset: Sıfırla
+  pureExitFullScreen: Tam Ekrandan Çık
+  pureFullScreen: Tam Ekran
+# ERP Modülleri
+erp:
+  groups: Gruplar
+  categories: Kategoriler
+  tagGroups: Etiket Grupları
+  tags: Etiketler
+  folders: Klasörler
+  customers: Cariler
+  products: Ürünler
+  code: Kod
+  name: Ad
+  status: Durum
+  active: Aktif
+  passive: Pasif
+  actions: İşlemler
+  add: Ekle
+  edit: Düzenle
+  delete: Sil
+  save: Kaydet
+  cancel: İptal
+  search: Ara
+  reset: Sıfırla
+  usageArea: Kullanım Yeri
+  incomeCard: Gelir Kartı
+  expenseCard: Gider Kartı
+  customerCard: Cari Kartı
+  productCard: Stok Kartı
+  color: Renk
+  processTypes: Süreç Tipleri
+  documentTypes: Belge Tipleri

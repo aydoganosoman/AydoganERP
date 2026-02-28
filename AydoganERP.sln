@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -45,6 +45,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AydoganERP.Customer.Application", "AydoganERP.Customer.Application\AydoganERP.Customer.Application.csproj", "{4DD54B8B-63B0-44DB-8A38-CE7CB40BE266}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AydoganERP.Customer.Infrastructure", "AydoganERP.Customer.Infrastructure\AydoganERP.Customer.Infrastructure.csproj", "{B7500EAB-CD7D-4D78-90BC-405E4EA79609}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AydoganERP.Finance.Application", "AydoganERP.Finance.Application\AydoganERP.Finance.Application.csproj", "{B3AE142D-6F58-416C-A8F1-C619FEF6CF7E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FinanceModule", "FinanceModule", "{031F124A-1F98-478F-B159-9992D749DD4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,6 +120,10 @@ Global
 		{B7500EAB-CD7D-4D78-90BC-405E4EA79609}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7500EAB-CD7D-4D78-90BC-405E4EA79609}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7500EAB-CD7D-4D78-90BC-405E4EA79609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3AE142D-6F58-416C-A8F1-C619FEF6CF7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3AE142D-6F58-416C-A8F1-C619FEF6CF7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3AE142D-6F58-416C-A8F1-C619FEF6CF7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3AE142D-6F58-416C-A8F1-C619FEF6CF7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -140,6 +148,8 @@ Global
 		{0F777C7B-3093-4DC3-9DC5-188C07AB9C6E} = {F82DF02F-F298-45B6-989F-CB1C17342EAC}
 		{4DD54B8B-63B0-44DB-8A38-CE7CB40BE266} = {F82DF02F-F298-45B6-989F-CB1C17342EAC}
 		{B7500EAB-CD7D-4D78-90BC-405E4EA79609} = {F82DF02F-F298-45B6-989F-CB1C17342EAC}
+		{031F124A-1F98-478F-B159-9992D749DD4B} = {B8717EBA-F2EB-44FC-8C09-DE38A99D78A7}
+		{B3AE142D-6F58-416C-A8F1-C619FEF6CF7E} = {031F124A-1F98-478F-B159-9992D749DD4B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9208CFCE-156A-49CD-9E43-32CE67AAB957}

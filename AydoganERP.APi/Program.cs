@@ -7,8 +7,15 @@ using AydoganERP.Base.Application.Common.Interfaces;
 using AydoganERP.Base.Domain.Common;
 using AydoganERP.Base.Infrastructure;
 using AydoganERP.Base.Infrastructure.Persistence;
+using AydoganERP.Company.Application;
+using AydoganERP.Company.Infrastructure;
+using AydoganERP.Customer.Application;
+using AydoganERP.Customer.Infrastructure;
 using AydoganERP.Identity.Application;
 using AydoganERP.Identity.Infrastructure;
+using AydoganERP.Inventory.Application;
+using AydoganERP.Inventory.Infrastructure;
+using AydoganERP.Finance.Application;
 using AydoganERP.Identity.Infrastructure.Models;
 using AydoganERP.Identity.Infrastructure.Persistence;
 using Carter;
@@ -40,8 +47,19 @@ builder.Services.AddHttpClient();
 builder.Services.AddBaseApplication(builder.Configuration);
 builder.Services.AddBaseInfrastructure(builder.Configuration);
 
+builder.Services.AddCompanyApplication(builder.Configuration);
+builder.Services.AddCompanyInfrastructure(builder.Configuration);
+
+builder.Services.AddCustomerApplication(builder.Configuration);
+builder.Services.AddCustomerInfrastructure(builder.Configuration);
+
 builder.Services.AddIdentityApplication(builder.Configuration);
 builder.Services.AddIdentityInfrastructure(builder.Configuration);
+
+builder.Services.AddInventoryApplication(builder.Configuration);
+builder.Services.AddInventoryInfrastructure(builder.Configuration);
+
+builder.Services.AddFinanceApplication(builder.Configuration);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -76,6 +94,7 @@ builder.Services.AddHealthChecks()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o =>
 {
+    o.CustomSchemaIds(type => type.FullName); 
     o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         Name = "Authorization",
@@ -150,6 +169,7 @@ using (var scope = app.Services.CreateScope())
         context.Database.Migrate();
 
         #region Seed
+        await ApplicationDbContextSeed.SeedDefaultValuesAsync(context);
         await ApplicationDbContextUserSeed.SeedDefaultValuesAsync(md5Helper, _generatePasswordUtil, context);
         #endregion
     }

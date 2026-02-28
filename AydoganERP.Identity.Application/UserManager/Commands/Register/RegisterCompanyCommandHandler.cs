@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AydoganERP.Base.Application.Common.EMail;
 using AydoganERP.Base.Application.Common.Interfaces;
 using AydoganERP.Base.Domain.Common;
 using AydoganERP.Base.Domain.Modules.IdentityModule.Entities;
@@ -19,13 +20,14 @@ public class RegisterCompanyCommandHandler : IRequestHandler<RegisterCompanyComm
     private readonly IUserUniquenessChecker _userUniquenessChecker;
     private readonly IGeneratePasswordUtil _generatePasswordUtil;
     private readonly IMapper _mapper;
-
+    private readonly IEmailSender _emailSender;
     public RegisterCompanyCommandHandler(IBaseDbContext baseDbContext,
         IDomainEventUnitOfWork domainEventUnitOfWork,
         IMD5Helper md5Helper,
         IUserUniquenessChecker userUniquenessChecker,
         IGeneratePasswordUtil generatePasswordUtil,
-        IMapper mapper)
+        IMapper mapper,
+        IEmailSender emailSender)
     {
         _baseDbContext = baseDbContext;
         _domainEventUnitOfWork = domainEventUnitOfWork;
@@ -33,6 +35,7 @@ public class RegisterCompanyCommandHandler : IRequestHandler<RegisterCompanyComm
         _userUniquenessChecker = userUniquenessChecker;
         _generatePasswordUtil = generatePasswordUtil;
         _mapper = mapper;
+        _emailSender = emailSender;
     }
 
     public async Task<UserDto> Handle(RegisterCompanyCommand request, CancellationToken cancellationToken)
@@ -57,6 +60,19 @@ public class RegisterCompanyCommandHandler : IRequestHandler<RegisterCompanyComm
 
         await _domainEventUnitOfWork.CommitAsync(null, cancellationToken);
 
+        await _emailSender.SendEmailAsync(new EmailMessage(new String[] { newUser.Email },
+            null,
+            null,
+            "Welcome to ERP",
+            $"Dear {newUser.Name},\n\n" +
+            $"Your account has been created successfully.\n\n" +
+            $"Here are your login details:\n" +
+            $"Email: {newUser.Email}\n" +
+            $"Password: {generatedPassword}\n\n" +
+            $"Please change your password after your first login.\n\n" +
+            $"Best regards,\n" +
+            $"License Manager Team"), null, _baseDbContext);
+        
         return _mapper.Map<UserDto>(newUser);
     }
 }

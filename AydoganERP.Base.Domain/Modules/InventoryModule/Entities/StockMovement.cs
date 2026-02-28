@@ -1,5 +1,6 @@
 using AydoganERP.Base.Domain.Common;
 using AydoganERP.Base.Domain.Modules.InventoryModule.Enums;
+using AydoganERP.Base.Domain.Modules.InventoryModule.Events;
 
 namespace AydoganERP.Base.Domain.Modules.InventoryModule.Entities;
 
@@ -10,7 +11,7 @@ public class StockMovement : Entity
     
     public Guid Id { get; private set; }
     public Guid ProductId { get; private set; }
-    public Product Product { get; set; }
+    public Product Product { get; private set; }
 
     public DateOnly Date { get; private set; }
     public int Type { get; private set; }
@@ -54,7 +55,7 @@ public class StockMovement : Entity
             throw new InvalidOperationException("Opening balance cannot be negative.");
 
         // Adjustment hem + hem - olabilir (sayım farkı)
-        return new StockMovement
+        var movement = new StockMovement
         {
             Id = id,
             ProductId = productId,
@@ -66,5 +67,15 @@ public class StockMovement : Entity
             ReferenceId = referenceId,
             ReferenceNo = referenceNo?.Trim(),
         };
+
+        movement.PublishEvent(new StockMovementCreatedEvent(
+            movement.Id,
+            movement.ProductId,
+            movement.Type,
+            movement.QuantityDelta,
+            movement.ReferenceType,
+            movement.ReferenceId));
+
+        return movement;
     }
 }

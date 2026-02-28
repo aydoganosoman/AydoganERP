@@ -5,6 +5,7 @@ using AydoganERP.Base.Domain.Modules.CustomerModule.Entities;
 using AydoganERP.Base.Domain.Modules.IdentityModule.Entities;
 using AydoganERP.Base.Domain.Modules.SharedModule.Entities;
 using AydoganERP.Base.Domain.Modules.InventoryModule.Entities;
+using AydoganERP.Base.Domain.Modules.FinanceModule.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Text.Json;
@@ -111,8 +112,7 @@ public class ApplicationDbContext : DbContext, IBaseDbContext
 
         return result;
     }
-
-
+    
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
@@ -146,10 +146,32 @@ public class ApplicationDbContext : DbContext, IBaseDbContext
     public DbSet<City> Cities { get; set; }
     public DbSet<District> Districts { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Currency> Currencies { get; set; }
+    public DbSet<ProductUnit> ProductUnits { get; set; }
     public DbSet<Company> Companies { get; set; }
-    // public DbSet<Customer> Customers { get; set; }
-    // public DbSet<Product> Products { get; set; }
-    // public DbSet<StockMovement> StockMovements { get; set; }
+    public DbSet<Customer> Customers { get; set; }
+    public DbSet<CustomerBankAccount> CustomerBankAccounts { get; set; }
+    public DbSet<CustomerBranch> CustomerBranches { get; set; }
+    public DbSet<CustomerContact> CustomerContacts { get; set; }
+    public DbSet<CustomerNote> CustomerNotes { get; set; }
+    public DbSet<CustomerNumber> CustomerNumbers { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<ProductBarcode> ProductBarcodes { get; set; }
+    public DbSet<ProductSupplier> ProductSuppliers { get; set; }
+    public DbSet<StockMovement> StockMovements { get; set; }
+    public DbSet<StockBatch> StockBatches { get; set; }
+    public DbSet<ProductSerialNumber> ProductSerialNumbers { get; set; }
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<TagGroup> TagGroups { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<Folder> Folders { get; set; }
     public DbSet<UserActionLog> UserActionLogs { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    
+    // Finance Module
+    public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<InvoiceLine> InvoiceLines { get; set; }
+    public DbSet<InvoicePayment> InvoicePayments { get; set; }
+    public DbSet<EInvoiceLog> EInvoiceLogs { get; set; }
 }

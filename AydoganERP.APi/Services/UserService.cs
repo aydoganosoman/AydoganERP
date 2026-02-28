@@ -55,12 +55,10 @@ public class UserService : IUserService
     public async Task<UserAuthModel> VerifyToken(TokenModel token)
     {
         var isValidUser = await _mediator.Send(new VerifyTokenQuery(token.RefreshToken));
-        isValidUser.Token = token;
-
-        if (isValidUser != null)
-        {
-            _tokenService.GetPrincipalFromExpiredToken(token.Token);
-        }
+        
+        // Yeni token oluştur
+        var newToken = Authenticate(isValidUser);
+        isValidUser.Token = newToken;
 
         return isValidUser;
     }

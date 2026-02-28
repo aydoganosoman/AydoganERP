@@ -6,4 +6,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AydoganERP.Base.Application\AydoganERP.Base.Application.csproj" />
+      <ProjectReference Include="..\AydoganERP.Base.Domain\AydoganERP.Base.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="CustomerManager\Commands\" />
+    </ItemGroup>
+
 </Project>

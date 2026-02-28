@@ -1,518 +1,228 @@
+import "@/utils/sso";
+import Cookies from "js-cookie";
+import { getConfig } from "@/config";
+import NProgress from "@/utils/progress";
+import { transformI18n } from "@/plugins/i18n";
+import { buildHierarchyTree } from "@/utils/tree";
+import remainingRouter from "./modules/remaining";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { usePermissionStoreHook } from "@/store/modules/permission";
 import {
-  createRouter,
-  createWebHistory,
+  isUrl,
+  openLink,
+  cloneDeep,
+  isAllEmpty,
+  storageLocal
+} from "@pureadmin/utils";
+import {
+  ascending,
+  getTopMenu,
+  initRouter,
+  isOneOfArray,
+  getHistoryMode,
+  findRouteByPath,
+  handleAliveRoute,
+  formatTwoStageRoutes,
+  formatFlatteningRoutes
+} from "./utils";
+import {
+  type Router,
   type RouteRecordRaw,
+  type RouteComponent,
+  createRouter
 } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
-import { useConfigStore } from "@/stores/config";
+import {
+  type DataInfo,
+  userKey,
+  removeToken,
+  multipleTabsKey
+} from "@/utils/auth";
 
-const routes: Array<RouteRecordRaw> = [
+/** 自动导入全部静态路由，无需再手动引入！匹配 src/router/modules 目录（任何嵌套级别）中具有 .ts 扩展名的所有文件，除了 remaining.ts 文件
+ * 如何匹配所有文件请看：https://github.com/mrmlnc/fast-glob#basic-syntax
+ * 如何排除文件请看：https://cn.vitejs.dev/guide/features.html#negative-patterns
+ */
+const modules: Record<string, any> = import.meta.glob(
+  ["./modules/**/*.ts", "!./modules/**/remaining.ts"],
   {
-    path: "/",
-    redirect: "/dashboard",
-    component: () => import("@/layouts/default-layout/DefaultLayout.vue"),
-    meta: {
-      middleware: "auth",
-    },
-    children: [
-      {
-        path: "/dashboard",
-        name: "dashboard",
-        component: () => import("@/views/Dashboard.vue"),
-        meta: {
-          pageTitle: "Dashboard",
-          breadcrumbs: ["Dashboards"],
-        },
-      },
-      {
-        path: "/builder",
-        name: "builder",
-        component: () => import("@/views/LayoutBuilder.vue"),
-        meta: {
-          pageTitle: "Layout Builder",
-          breadcrumbs: ["Layout"],
-        },
-      },
-      {
-        path: "/crafted/pages/profile",
-        name: "profile",
-        component: () => import("@/components/page-layouts/Profile.vue"),
-        meta: {
-          breadcrumbs: ["Pages", "Profile"],
-        },
-        children: [
-          {
-            path: "overview",
-            name: "profile-overview",
-            component: () =>
-              import("@/views/crafted/pages/profile/Overview.vue"),
-            meta: {
-              pageTitle: "Overview",
-            },
-          },
-          {
-            path: "projects",
-            name: "profile-projects",
-            component: () =>
-              import("@/views/crafted/pages/profile/Projects.vue"),
-            meta: {
-              pageTitle: "Projects",
-            },
-          },
-          {
-            path: "campaigns",
-            name: "profile-campaigns",
-            component: () =>
-              import("@/views/crafted/pages/profile/Campaigns.vue"),
-            meta: {
-              pageTitle: "Campaigns",
-            },
-          },
-          {
-            path: "documents",
-            name: "profile-documents",
-            component: () =>
-              import("@/views/crafted/pages/profile/Documents.vue"),
-            meta: {
-              pageTitle: "Documents",
-            },
-          },
-          {
-            path: "connections",
-            name: "profile-connections",
-            component: () =>
-              import("@/views/crafted/pages/profile/Connections.vue"),
-            meta: {
-              pageTitle: "Connections",
-            },
-          },
-          {
-            path: "activity",
-            name: "profile-activity",
-            component: () =>
-              import("@/views/crafted/pages/profile/Activity.vue"),
-            meta: {
-              pageTitle: "Activity",
-            },
-          },
-        ],
-      },
-      {
-        path: "/crafted/pages/wizards/horizontal",
-        name: "horizontal-wizard",
-        component: () =>
-          import("@/views/crafted/pages/wizards/HorizontalWizardPage.vue"),
-        meta: {
-          pageTitle: "Horizontal",
-          breadcrumbs: ["Pages", "Wizard"],
-        },
-      },
-      {
-        path: "/crafted/pages/wizards/vertical",
-        name: "vertical-wizard",
-        component: () =>
-          import("@/views/crafted/pages/wizards/VerticalWizardPage.vue"),
-        meta: {
-          pageTitle: "Vertical",
-          breadcrumbs: ["Pages", "Wizard"],
-        },
-      },
-      {
-        path: "/crafted/account",
-        name: "account",
-        component: () => import("@/views/crafted/account/Account.vue"),
-        meta: {
-          breadcrumbs: ["Crafted", "Account"],
-        },
-        children: [
-          {
-            path: "overview",
-            name: "account-overview",
-            component: () => import("@/views/crafted/account/Overview.vue"),
-            meta: {
-              pageTitle: "Overview",
-            },
-          },
-          {
-            path: "settings",
-            name: "account-settings",
-            component: () => import("@/views/crafted/account/Settings.vue"),
-            meta: {
-              pageTitle: "Settings",
-            },
-          },
-        ],
-      },
-      {
-        path: "/apps/customers/getting-started",
-        name: "apps-customers-getting-started",
-        component: () => import("@/views/apps/customers/GettingStarted.vue"),
-        meta: {
-          pageTitle: "Getting Started",
-          breadcrumbs: ["Apps", "Customers"],
-        },
-      },
-      {
-        path: "/apps/customers/customers-listing",
-        name: "apps-customers-listing",
-        component: () => import("@/views/apps/customers/CustomersListing.vue"),
-        meta: {
-          pageTitle: "Customers Listing",
-          breadcrumbs: ["Apps", "Customers"],
-        },
-      },
-      {
-        path: "/apps/customers/customer-details",
-        name: "apps-customers-details",
-        component: () => import("@/views/apps/customers/CustomerDetails.vue"),
-        meta: {
-          pageTitle: "Customers Details",
-          breadcrumbs: ["Apps", "Customers"],
-        },
-      },
-      {
-        path: "/apps/subscriptions/getting-started",
-        name: "apps-subscriptions-getting-started",
-        component: () =>
-          import("@/views/apps/subscriptions/GettingStarted.vue"),
-        meta: {
-          pageTitle: "Getting Started",
-          breadcrumbs: ["Apps", "Subscriptions"],
-        },
-      },
-      {
-        path: "/apps/subscriptions/subscription-list",
-        name: "apps-subscriptions-subscription-list",
-        component: () =>
-          import("@/views/apps/subscriptions/SubscriptionList.vue"),
-        meta: {
-          pageTitle: "Getting Started",
-          breadcrumbs: ["Apps", "Subscriptions"],
-        },
-      },
-      {
-        path: "/apps/subscriptions/add-subscription",
-        name: "apps-subscriptions-add-subscription",
-        component: () =>
-          import("@/views/apps/subscriptions/AddSubscription.vue"),
-        meta: {
-          pageTitle: "Add Subscription",
-          breadcrumbs: ["Apps", "Subscriptions"],
-        },
-      },
-      {
-        path: "/apps/subscriptions/view-subscription",
-        name: "apps-subscriptions-view-subscription",
-        component: () =>
-          import("@/views/apps/subscriptions/ViewSubscription.vue"),
-        meta: {
-          pageTitle: "View Subscription",
-          breadcrumbs: ["Apps", "Subscriptions"],
-        },
-      },
-      {
-        path: "/apps/calendar",
-        name: "apps-calendar",
-        component: () => import("@/views/apps/Calendar.vue"),
-        meta: {
-          pageTitle: "Calendar",
-          breadcrumbs: ["Apps"],
-        },
-      },
-      {
-        path: "/apps/chat/private-chat",
-        name: "apps-private-chat",
-        component: () => import("@/views/apps/chat/Chat.vue"),
-        meta: {
-          pageTitle: "Private Chat",
-          breadcrumbs: ["Apps", "Chat"],
-        },
-      },
-      {
-        path: "/apps/chat/group-chat",
-        name: "apps-group-chat",
-        component: () => import("@/views/apps/chat/Chat.vue"),
-        meta: {
-          pageTitle: "Group Chat",
-          breadcrumbs: ["Apps", "Chat"],
-        },
-      },
-      {
-        path: "/apps/chat/drawer-chat",
-        name: "apps-drawer-chat",
-        component: () => import("@/views/apps/chat/DrawerChat.vue"),
-        meta: {
-          pageTitle: "Drawer Chat",
-          breadcrumbs: ["Apps", "Chat"],
-        },
-      },
-      {
-        path: "/crafted/modals/general/invite-friends",
-        name: "modals-general-invite-friends",
-        component: () =>
-          import("@/views/crafted/modals/general/InviteFriends.vue"),
-        meta: {
-          pageTitle: "Invite Friends",
-          breadcrumbs: ["Crafted", "Modals", "General"],
-        },
-      },
-      {
-        path: "/crafted/modals/general/view-user",
-        name: "modals-general-view-user",
-        component: () => import("@/views/crafted/modals/general/ViewUsers.vue"),
-        meta: {
-          pageTitle: "View User",
-          breadcrumbs: ["Crafted", "Modals", "General"],
-        },
-      },
-      {
-        path: "/crafted/modals/general/upgrade-plan",
-        name: "modals-general-upgrade-plan",
-        component: () =>
-          import("@/views/crafted/modals/general/UpgradePlan.vue"),
-        meta: {
-          pageTitle: "Upgrade Plan",
-          breadcrumbs: ["Crafted", "Modals", "General"],
-        },
-      },
-      {
-        path: "/crafted/modals/general/share-and-earn",
-        name: "modals-general-share-and-earn",
-        component: () =>
-          import("@/views/crafted/modals/general/ShareAndEarn.vue"),
-        meta: {
-          pageTitle: "Share And Earn",
-          breadcrumbs: ["Crafted", "Modals", "General"],
-        },
-      },
-      {
-        path: "/crafted/modals/forms/new-target",
-        name: "modals-forms-new-target",
-        component: () => import("@/views/crafted/modals/forms/NewTarget.vue"),
-        meta: {
-          pageTitle: "New Target",
-          breadcrumbs: ["Crafted", "Modals", "Forms"],
-        },
-      },
-      {
-        path: "/crafted/modals/forms/new-card",
-        name: "modals-forms-new-card",
-        component: () => import("@/views/crafted/modals/forms/NewCard.vue"),
-        meta: {
-          pageTitle: "New Card",
-          breadcrumbs: ["Crafted", "Modals", "Forms"],
-        },
-      },
-      {
-        path: "/crafted/modals/forms/new-address",
-        name: "modals-forms-new-address",
-        component: () => import("@/views/crafted/modals/forms/NewAddress.vue"),
-        meta: {
-          pageTitle: "New Address",
-          breadcrumbs: ["Crafted", "Modals", "Forms"],
-        },
-      },
-      {
-        path: "/crafted/modals/forms/create-api-key",
-        name: "modals-forms-create-api-key",
-        component: () =>
-          import("@/views/crafted/modals/forms/CreateApiKey.vue"),
-        meta: {
-          pageTitle: "Create Api Key",
-          breadcrumbs: ["Crafted", "Modals", "Forms"],
-        },
-      },
-      {
-        path: "/crafted/modals/wizards/two-factor-auth",
-        name: "modals-wizards-two-factor-auth",
-        component: () =>
-          import("@/views/crafted/modals/wizards/TwoFactorAuth.vue"),
-        meta: {
-          pageTitle: "Two Factory Auth",
-          breadcrumbs: ["Crafted", "Modals", "Wizards"],
-        },
-      },
-      {
-        path: "/crafted/modals/wizards/create-app",
-        name: "modals-wizards-create-app",
-        component: () => import("@/views/crafted/modals/wizards/CreateApp.vue"),
-        meta: {
-          pageTitle: "Create App",
-          breadcrumbs: ["Crafted", "Modals", "Wizards"],
-        },
-      },
-      {
-        path: "/crafted/modals/wizards/create-account",
-        name: "modals-wizards-create-account",
-        component: () =>
-          import("@/views/crafted/modals/wizards/CreateAccount.vue"),
-        meta: {
-          pageTitle: "Create Account",
-          breadcrumbs: ["Crafted", "Modals", "Wizards"],
-        },
-      },
-      {
-        path: "/crafted/widgets/lists",
-        name: "widgets-list",
-        component: () => import("@/views/crafted/widgets/Lists.vue"),
-        meta: {
-          pageTitle: "Lists",
-          breadcrumbs: ["Crafted", "Widgets"],
-        },
-      },
-      {
-        path: "/crafted/widgets/statistics",
-        name: "widgets-statistics",
-        component: () => import("@/views/crafted/widgets/Statistics.vue"),
-        meta: {
-          pageTitle: "Statistics",
-          breadcrumbs: ["Crafted", "Widgets"],
-        },
-      },
-      {
-        path: "/crafted/widgets/charts",
-        name: "widgets-charts",
-        component: () => import("@/views/crafted/widgets/Charts.vue"),
-        meta: {
-          pageTitle: "Charts",
-          breadcrumbs: ["Crafted", "Widgets"],
-        },
-      },
-      {
-        path: "/crafted/widgets/mixed",
-        name: "widgets-mixed",
-        component: () => import("@/views/crafted/widgets/Mixed.vue"),
-        meta: {
-          pageTitle: "Mixed",
-          breadcrumbs: ["Crafted", "Widgets"],
-        },
-      },
-      {
-        path: "/crafted/widgets/tables",
-        name: "widgets-tables",
-        component: () => import("@/views/crafted/widgets/Tables.vue"),
-        meta: {
-          pageTitle: "Tables",
-          breadcrumbs: ["Crafted", "Widgets"],
-        },
-      },
-      {
-        path: "/crafted/widgets/feeds",
-        name: "widgets-feeds",
-        component: () => import("@/views/crafted/widgets/Feeds.vue"),
-        meta: {
-          pageTitle: "Feeds",
-          breadcrumbs: ["Crafted", "Widgets"],
-        },
-      },
-    ],
-  },
-  {
-    path: "/",
-    component: () => import("@/layouts/AuthLayout.vue"),
-    children: [
-      {
-        path: "/sign-in",
-        name: "sign-in",
-        component: () =>
-          import("@/views/crafted/authentication/basic-flow/SignIn.vue"),
-        meta: {
-          pageTitle: "Sign In",
-        },
-      },
-      {
-        path: "/sign-up",
-        name: "sign-up",
-        component: () =>
-          import("@/views/crafted/authentication/basic-flow/SignUp.vue"),
-        meta: {
-          pageTitle: "Sign Up",
-        },
-      },
-      {
-        path: "/password-reset",
-        name: "password-reset",
-        component: () =>
-          import("@/views/crafted/authentication/basic-flow/PasswordReset.vue"),
-        meta: {
-          pageTitle: "Password reset",
-        },
-      },
-    ],
-  },
-  {
-    path: "/",
-    component: () => import("@/layouts/SystemLayout.vue"),
-    children: [
-      {
-        // the 404 route, when none of the above matches
-        path: "/404",
-        name: "404",
-        component: () => import("@/views/crafted/authentication/Error404.vue"),
-        meta: {
-          pageTitle: "Error 404",
-        },
-      },
-      {
-        path: "/500",
-        name: "500",
-        component: () => import("@/views/crafted/authentication/Error500.vue"),
-        meta: {
-          pageTitle: "Error 500",
-        },
-      },
-    ],
-  },
-  {
-    path: "/:pathMatch(.*)*",
-    redirect: "/404",
-  },
-];
+    eager: true
+  }
+);
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
-  scrollBehavior(to) {
-    // If the route has a hash, scroll to the section with the specified ID; otherwise, scroll toc the top of the page.
-    if (to.hash) {
-      return {
-        el: to.hash,
-        top: 80,
-        behavior: "smooth",
-      };
-    } else {
-      return {
-        top: 0,
-        left: 0,
-        behavior: "smooth",
-      };
-    }
-  },
+/** 原始静态路由（未做任何处理） */
+const routes = [];
+
+Object.keys(modules).forEach(key => {
+  routes.push(modules[key].default);
 });
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  const configStore = useConfigStore();
+/** 导出处理后的静态路由（三级及以上的路由全部拍成二级） */
+export const constantRoutes: Array<RouteRecordRaw> = formatTwoStageRoutes(
+  formatFlatteningRoutes(buildHierarchyTree(ascending(routes.flat(Infinity))))
+);
 
-  // current page view title
-  document.title = `${to.meta.pageTitle} - ${import.meta.env.VITE_APP_NAME}`;
+/** 初始的静态路由，用于退出登录时重置路由 */
+const initConstantRoutes: Array<RouteRecordRaw> = cloneDeep(constantRoutes);
 
-  // reset config to initial state
-  configStore.resetLayoutConfig();
+/** 用于渲染菜单，保持原始层级 */
+export const constantMenus: Array<RouteComponent> = ascending(
+  routes.flat(Infinity)
+).concat(...remainingRouter);
 
-  // verify auth token before each page change
-  authStore.verifyAuth();
+/** 不参与菜单的路由 */
+export const remainingPaths = Object.keys(remainingRouter).map(v => {
+  return remainingRouter[v].path;
+});
 
-  // before page access check if page requires authentication
-  if (to.meta.middleware == "auth") {
-    if (authStore.isAuthenticated) {
-      next();
+/** 创建路由实例 */
+export const router: Router = createRouter({
+  history: getHistoryMode(import.meta.env.VITE_ROUTER_HISTORY),
+  routes: constantRoutes.concat(...(remainingRouter as any)),
+  strict: true,
+  scrollBehavior(to, from, savedPosition) {
+    return new Promise(resolve => {
+      if (savedPosition) {
+        return savedPosition;
+      } else {
+        if (from.meta.saveSrollTop) {
+          const top: number =
+            document.documentElement.scrollTop || document.body.scrollTop;
+          resolve({ left: 0, top });
+        }
+      }
+    });
+  }
+});
+
+/** 记录已经加载的页面路径 */
+const loadedPaths = new Set<string>();
+
+/** 重置已加载页面记录 */
+export function resetLoadedPaths() {
+  loadedPaths.clear();
+}
+
+/** 重置路由 */
+export function resetRouter() {
+  router.clearRoutes();
+  for (const route of initConstantRoutes.concat(...(remainingRouter as any))) {
+    router.addRoute(route);
+  }
+  router.options.routes = formatTwoStageRoutes(
+    formatFlatteningRoutes(buildHierarchyTree(ascending(routes.flat(Infinity))))
+  );
+  usePermissionStoreHook().clearAllCachePage();
+  resetLoadedPaths();
+}
+
+/** 路由白名单 */
+const whiteList = ["/login"];
+
+const { VITE_HIDE_HOME } = import.meta.env;
+
+router.beforeEach((to: ToRouteType, _from, next) => {
+  to.meta.loaded = loadedPaths.has(to.path);
+
+  if (!to.meta.loaded) {
+    NProgress.start();
+  }
+
+  if (to.meta?.keepAlive) {
+    handleAliveRoute(to, "add");
+    // 页面整体刷新和点击标签页刷新
+    if (_from.name === undefined || _from.name === "Redirect") {
+      handleAliveRoute(to);
+    }
+  }
+  const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
+  const externalLink = isUrl(to?.name as string);
+  if (!externalLink) {
+    to.matched.some(item => {
+      if (!item.meta.title) return "";
+      const Title = getConfig().Title;
+      if (Title)
+        document.title = `${transformI18n(item.meta.title)} | ${Title}`;
+      else document.title = transformI18n(item.meta.title);
+    });
+  }
+  /** 如果已经登录并存在登录信息后不能跳转到路由白名单，而是继续保持在当前页面 */
+  function toCorrectRoute() {
+    whiteList.includes(to.fullPath) ? next(_from.fullPath) : next();
+  }
+  if (Cookies.get(multipleTabsKey) && userInfo) {
+    // 无权限跳转403页面
+    if (to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
+      next({ path: "/error/403" });
+    }
+    // 开启隐藏首页后在浏览器地址栏手动输入首页welcome路由则跳转到404页面
+    if (VITE_HIDE_HOME === "true" && to.fullPath === "/welcome") {
+      next({ path: "/error/404" });
+    }
+    if (_from?.name) {
+      // name为超链接
+      if (externalLink) {
+        openLink(to?.name as string);
+        NProgress.done();
+      } else {
+        toCorrectRoute();
+      }
     } else {
-      next({ name: "sign-in" });
+      // 刷新
+      if (
+        usePermissionStoreHook().wholeMenus.length === 0 &&
+        to.path !== "/login"
+      ) {
+        initRouter().then((router: Router) => {
+          if (!useMultiTagsStoreHook().getMultiTagsCache) {
+            const { path } = to;
+            const route = findRouteByPath(
+              path,
+              router.options.routes[0].children
+            );
+            getTopMenu(true);
+            // query、params模式路由传参数的标签页不在此处处理
+            if (route && route.meta?.title) {
+              if (isAllEmpty(route.parentId) && route.meta?.backstage) {
+                // 此处为动态顶级路由（目录）
+                const { path, name, meta } = route.children[0];
+                useMultiTagsStoreHook().handleTags("push", {
+                  path,
+                  name,
+                  meta
+                });
+              } else {
+                const { path, name, meta } = route;
+                useMultiTagsStoreHook().handleTags("push", {
+                  path,
+                  name,
+                  meta
+                });
+              }
+            }
+          }
+          // 确保动态路由完全加入路由列表并且不影响静态路由（注意：动态路由刷新时router.beforeEach可能会触发两次，第一次触发动态路由还未完全添加，第二次动态路由才完全添加到路由列表，如果需要在router.beforeEach做一些判断可以在to.name存在的条件下去判断，这样就只会触发一次）
+          if (isAllEmpty(to.name)) router.push(to.fullPath);
+        });
+      }
+      toCorrectRoute();
     }
   } else {
-    next();
+    if (to.path !== "/login") {
+      if (whiteList.indexOf(to.path) !== -1) {
+        next();
+      } else {
+        removeToken();
+        next({ path: "/login" });
+      }
+    } else {
+      next();
+    }
   }
+});
+
+router.afterEach(to => {
+  loadedPaths.add(to.path);
+  NProgress.done();
 });
 
 export default router;

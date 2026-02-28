@@ -1,20 +1,20 @@
-﻿using AydoganERP.Base.Domain.Modules.IdentityModule.Rules;
-using AydoganERP.Identity.Application.Repositories;
+﻿using AydoganERP.Base.Application.Common.Interfaces;
+using AydoganERP.Base.Domain.Modules.IdentityModule.Rules;
 
 namespace AydoganERP.Identity.Application.DomainServices;
 
 public class UserUniquenessChecker : IUserUniquenessChecker
 {
-    private readonly IUserRepository _userRepository;
-    public UserUniquenessChecker(IUserRepository userRepository)
+    private readonly IBaseDbContext _baseDbContext;
+    public UserUniquenessChecker(IBaseDbContext baseDbContext)
     {
-        _userRepository = userRepository;
+        _baseDbContext = baseDbContext;
     }
 
     public bool IsUnique(string userEmail)
     {
-        return !_userRepository
-            .GetDbContext()
-            .Set<Base.Domain.Modules.IdentityModule.Entities.User>().Any(x => x.Email == userEmail);
+        return !_baseDbContext
+            .Users
+            .Any(x => x.Email == userEmail);
     }
 }

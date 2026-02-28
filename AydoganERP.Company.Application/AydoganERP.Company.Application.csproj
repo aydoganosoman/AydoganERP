@@ -13,7 +13,6 @@
 
     <ItemGroup>
       <Folder Include="CompanyManager\Commands\" />
-      <Folder Include="CompanyManager\Queries\" />
     </ItemGroup>
 
 </Project>

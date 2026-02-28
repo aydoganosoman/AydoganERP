@@ -1,8 +1,8 @@
 ﻿using AydoganERP.Base.Application.Common.Exceptions;
 using AydoganERP.Base.Application.Common.Interfaces;
 using AydoganERP.Base.Domain.Modules.IdentityModule.Entities;
-using AydoganERP.Identity.Application.Repositories;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace AydoganERP.Identity.Application.UserManager.Commands.UpdateRefreshToken;
 
@@ -10,18 +10,20 @@ public record UpdateRefreshTokenCommand(string ApiKey, string RefreshToken) : IR
 
 public class UpdateRefreshTokenCommandHandler : IRequestHandler<UpdateRefreshTokenCommand>
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IBaseDbContext _baseDbContext;
     private readonly IDomainEventUnitOfWork _domainEventUnitOfWork;
-    public UpdateRefreshTokenCommandHandler(IUserRepository userRepository,
+    public UpdateRefreshTokenCommandHandler(IBaseDbContext baseDbContext,
         IDomainEventUnitOfWork domainEventUnitOfWork)
     {
-        _userRepository = userRepository;
+        _baseDbContext = baseDbContext;
         _domainEventUnitOfWork = domainEventUnitOfWork;
     }
 
     public async Task Handle(UpdateRefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _userRepository.GetAsync(x => x.ApiKey == request.ApiKey);
+        var entity = await _baseDbContext
+            .Users
+            .FirstOrDefaultAsync(x => x.ApiKey == request.ApiKey);
 
         if (entity == null)
         {
@@ -29,8 +31,6 @@ public class UpdateRefreshTokenCommandHandler : IRequestHandler<UpdateRefreshTok
         }
 
         entity.UpdateRefreshToken(request.RefreshToken);
-
-        await _userRepository.UpdateAsync(entity, cancellationToken);
 
         await _domainEventUnitOfWork.CommitAsync(null, cancellationToken);
 

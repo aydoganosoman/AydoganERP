@@ -6,4 +6,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AydoganERP.Base.Infrastructure\AydoganERP.Base.Infrastructure.csproj" />
+      <ProjectReference Include="..\AydoganERP.Customer.Application\AydoganERP.Customer.Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Persistence\" />
+    </ItemGroup>
+
 </Project>

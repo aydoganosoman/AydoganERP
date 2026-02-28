@@ -28,9 +28,9 @@ public class AuthModule : ICarterModule
             .MapPost("/VerifyToken", HandleVerifyToken)
             .Produces<UserAuthModel>(200)
             .ProducesProblem(400)
-            .ProducesProblem(400)
+            .ProducesProblem(401)
             .ProducesProblem(500)
-            .RequireAuthorization();
+            .AllowAnonymous();
 
         authGroup
             .MapPost("/RegisterCompany", HandleRegisterCompany)

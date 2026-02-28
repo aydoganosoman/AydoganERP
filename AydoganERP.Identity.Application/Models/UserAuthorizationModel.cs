@@ -3,6 +3,7 @@
 public record UserAuthModel(
     Guid Id,
     int Role,
+    Guid? CompanyId,
     string Name,
     string Title,
     string Email,

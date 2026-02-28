@@ -10,7 +10,6 @@ public static class ServiceModule
     public static IServiceCollection LoadServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IUserService, UserService>();
 
         return services;
     }

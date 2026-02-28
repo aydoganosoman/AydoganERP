@@ -1,3 +1,6 @@
 ﻿namespace AydoganERP.Identity.Infrastructure.Models;
 
-public record JwtSettings(string SecurityKey);
+public class JwtSettings()
+{
+    public string SecurityKey { get; set; }
+}

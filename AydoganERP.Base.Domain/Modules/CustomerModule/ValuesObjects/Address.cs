@@ -4,4 +4,7 @@ public sealed record Address(
     int? Country,
     int? City,
     int? District,
-    string? Line);
+    string? Line)
+{
+    public static Address Empty => new(null, null, null, null);
+}

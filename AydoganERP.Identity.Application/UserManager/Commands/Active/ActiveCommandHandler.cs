@@ -1,5 +1,5 @@
-﻿using AydoganERP.Base.Domain.Modules.IdentityModule.Entities;
-using AydoganERP.Identity.Application.Repositories;
+﻿using AydoganERP.Base.Application.Common.Interfaces;
+using AydoganERP.Base.Domain.Modules.IdentityModule.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,18 +9,20 @@ public record ActiveCommand(Guid Id) : IRequest;
 
 public class ActiveCommandHandler : IRequestHandler<ActiveCommand>
 {
-    private readonly IUserRepository _userRepository;
-    public ActiveCommandHandler(IUserRepository userRepository)
+    private readonly IBaseDbContext _baseDbContext;
+    private readonly IDomainEventUnitOfWork _domainEventUnitOfWork;
+
+    public ActiveCommandHandler(IBaseDbContext baseDbContext,
+        IDomainEventUnitOfWork domainEventUnitOfWork)
     {
-        _userRepository = userRepository;
+        _baseDbContext = baseDbContext;
+        _domainEventUnitOfWork = domainEventUnitOfWork;
     }
 
     public async Task Handle(ActiveCommand request, CancellationToken cancellationToken)
     {
-        var dbContext = _userRepository.GetDbContext();
-        
-        User currentUser = await dbContext
-            .Set<User>()
+        User currentUser = await _baseDbContext
+            .Users
             .FirstOrDefaultAsync(x => x.Id == request.Id);
 
         if (currentUser == null)
@@ -28,6 +30,6 @@ public class ActiveCommandHandler : IRequestHandler<ActiveCommand>
 
         currentUser.Activate();
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await _domainEventUnitOfWork.CommitAsync(null, cancellationToken);
     }
 }
