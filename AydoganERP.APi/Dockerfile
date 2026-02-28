@@ -26,12 +26,11 @@ COPY ["AydoganERP.Finance.Application/AydoganERP.Finance.Application.csproj", "A
 RUN dotnet restore "./AydoganERP.APi/AydoganERP.APi.csproj"
 COPY . .
 WORKDIR "/src/AydoganERP.APi"
-RUN dotnet build "./AydoganERP.APi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 RUN sh -c "dotnet dev-certs https --clean"
 RUN sh -c "dotnet dev-certs https"
 RUN sh -c "dotnet dev-certs https --trust"
-RUN dotnet build "./AydoganERP.APi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./AydoganERP.APi.csproj" -c $BUILD_CONFIGURATION -o /app/build /p:UseAppHost=false
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Development
