@@ -53,7 +53,7 @@ public class RegisterCompanyCommandHandler : IRequestHandler<RegisterCompanyComm
             UserRoleEnum.CompanyAdmin,
             request.Name,
             request.Email,
-            generatedPasswordSalted,
+            generatedPassword,
             generatedPasswordHashed);
 
         await _baseDbContext.Users.AddAsync(newUser, cancellationToken: cancellationToken);
