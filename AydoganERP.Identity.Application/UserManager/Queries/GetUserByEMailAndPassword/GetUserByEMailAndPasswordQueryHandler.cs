@@ -32,7 +32,7 @@ public class GetUserByEMailAndPasswordQueryHandler : IRequestHandler<GetUserByEM
             .Users
             .Include(x => x.Company)
             .FirstOrDefaultAsync(x =>
-                x.Email == request.Email && x.Password == generatedPasswordSalted &&
+                x.Email == request.Email && x.Password == request.Password &&
                 x.HashPassword == generatedPasswordHashed && x.Status == UserStatusEnum.Active);
 
         UserAuthModel user = null;
