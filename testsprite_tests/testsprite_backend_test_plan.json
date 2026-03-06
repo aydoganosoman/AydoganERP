@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "get_product_list_pagination_and_filtering",
+    "description": "Verify that the GET /api/Products endpoint returns a paginated list of products filtered by companyId, categoryId, searchText, and isActive parameters correctly."
+  },
+  {
+    "id": "TC002",
+    "title": "get_product_by_id_valid_and_invalid",
+    "description": "Verify that the GET /api/Products/{id} endpoint returns product details for a valid product ID and returns appropriate error for invalid or non-existent product ID."
+  },
+  {
+    "id": "TC003",
+    "title": "get_product_by_barcode_search",
+    "description": "Verify that the GET /api/Products/by-barcode endpoint returns the correct product when searched by barcode and companyId, and handles cases where barcode does not exist."
+  },
+  {
+    "id": "TC004",
+    "title": "check_product_code_existence",
+    "description": "Verify that the GET /api/Products/check-code endpoint correctly checks if a product code exists for a given companyId and code, excluding a specific product ID if provided."
+  },
+  {
+    "id": "TC005",
+    "title": "get_next_product_code_generation",
+    "description": "Verify that the GET /api/Products/next-code endpoint generates the next available product code for a given companyId."
+  },
+  {
+    "id": "TC006",
+    "title": "generate_unique_barcode",
+    "description": "Verify that the GET /api/Products/generate-barcode endpoint generates a unique barcode based on the barcodeType and prefix parameters."
+  },
+  {
+    "id": "TC007",
+    "title": "create_new_product",
+    "description": "Verify that the POST /api/Products endpoint creates a new product with valid data and returns the created product details."
+  },
+  {
+    "id": "TC008",
+    "title": "update_existing_product",
+    "description": "Verify that the PUT /api/Products/{id} endpoint updates an existing product with valid data and returns the updated product details."
+  },
+  {
+    "id": "TC009",
+    "title": "get_product_stock_level",
+    "description": "Verify that the GET /api/Products/{id}/stock-level endpoint returns the current stock level for the specified product ID."
+  },
+  {
+    "id": "TC010",
+    "title": "get_product_stock_movements",
+    "description": "Verify that the GET /api/Products/{id}/movements endpoint returns the stock movements for the specified product ID."
+  }
+]

@@ -7,10 +7,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AydoganERP.Inventory.Application.ProductManager.Commands.Create;
 
-public record CreateProductBarcodeItem(
-    string Barcode,
-    decimal Quantity = 1,
-    string Unit = "Adet");
+public record CreateProductUnitPriceItem(
+    Guid UnitId,
+    decimal ConversionRate = 1,
+    string? Barcode = null,
+    decimal SaleUnitPrice = 0,
+    int SaleUnitPriceCurrency = 0,
+    bool SaleUnitPriceVatInclude = false,
+    float SaleVatRate = 0,
+    bool IsBaseUnit = false);
 
 public record CreateProductSupplierItem(
     Guid CustomerId,
@@ -21,19 +26,15 @@ public record CreateProductCommand(
     Guid CompanyId,
     string Code,
     string Name,
-    Guid UnitId,
+    Guid? UnitId = null, // Opsiyonel - boşsa varsayılan birim kullanılır
     Guid? CategoryId = null,
     decimal PurchaseUnitPrice = 0,
     int PurchaseUnitPriceCurrency = 0,
-    bool PurchaseUnitPriceVatInculde = false,
-    decimal SaleUnitPrice = 0,
-    int SaleUnitPriceCurrency = 0,
-    bool SaleUnitPriceVatInculde = false,
+    bool PurchaseUnitPriceVatInclude = false,
     float PurchaseVatRate = 0,
-    float SaleVatRate = 0,
     bool IsLotTracked = false,
     bool IsSerialTracked = false,
-    List<CreateProductBarcodeItem>? Barcodes = null,
+    List<CreateProductUnitPriceItem>? UnitPrices = null,
     List<CreateProductSupplierItem>? Suppliers = null) : IRequest<ProductDto>;
 
 public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductDto>
@@ -63,39 +64,60 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
             throw new InvalidOperationException($"'{request.Code}' kodu zaten kullanılıyor. Lütfen farklı bir kod giriniz.");
         }
 
+        // UnitId boşsa varsayılan birimi (ADET) al
+        var unitId = request.UnitId;
+        if (!unitId.HasValue || unitId == Guid.Empty)
+        {
+            var defaultUnit = await _baseDbContext.ProductUnits
+                .FirstOrDefaultAsync(u => u.Code == "ADET" || u.Name == "Adet", cancellationToken);
+            
+            if (defaultUnit == null)
+            {
+                defaultUnit = await _baseDbContext.ProductUnits.FirstOrDefaultAsync(cancellationToken);
+            }
+            
+            if (defaultUnit == null)
+            {
+                throw new InvalidOperationException("Sistemde tanımlı birim bulunamadı. Lütfen önce birim tanımlayın.");
+            }
+            
+            unitId = defaultUnit.Id;
+        }
+
         var product = Product.Create(
             Guid.NewGuid(),
             request.CompanyId,
             request.Code,
             request.Name,
-            request.UnitId,
+            unitId.Value,
             request.CategoryId,
             request.PurchaseUnitPrice,
             request.PurchaseUnitPriceCurrency,
-            request.PurchaseUnitPriceVatInculde,
-            request.SaleUnitPrice,
-            request.SaleUnitPriceCurrency,
-            request.SaleUnitPriceVatInculde,
+            request.PurchaseUnitPriceVatInclude,
             request.PurchaseVatRate,
-            request.SaleVatRate,
             request.IsLotTracked,
             request.IsSerialTracked);
 
         await _baseDbContext.Products.AddAsync(product, cancellationToken);
 
-        // Barkodları ekle
-        if (request.Barcodes != null && request.Barcodes.Count > 0)
+        // Birim fiyatları ekle
+        if (request.UnitPrices != null && request.UnitPrices.Count > 0)
         {
-            foreach (var barcodeItem in request.Barcodes)
+            foreach (var unitPriceItem in request.UnitPrices)
             {
-                var barcode = ProductBarcode.Create(
+                var unitPrice = ProductUnitPrice.Create(
                     Guid.NewGuid(),
                     product.Id,
-                    barcodeItem.Barcode,
-                    barcodeItem.Quantity,
-                    barcodeItem.Unit);
+                    unitPriceItem.UnitId,
+                    unitPriceItem.ConversionRate,
+                    unitPriceItem.Barcode,
+                    unitPriceItem.SaleUnitPrice,
+                    unitPriceItem.SaleUnitPriceCurrency,
+                    unitPriceItem.SaleUnitPriceVatInclude,
+                    unitPriceItem.SaleVatRate,
+                    unitPriceItem.IsBaseUnit);
 
-                await _baseDbContext.ProductBarcodes.AddAsync(barcode, cancellationToken);
+                await _baseDbContext.ProductUnitPrices.AddAsync(unitPrice, cancellationToken);
             }
         }
 
@@ -119,7 +141,8 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
 
         // Ürünü ilişkileriyle birlikte çek
         var createdProduct = await _baseDbContext.Products
-            .Include(p => p.ProductBarcodes)
+            .Include(p => p.UnitPrices)
+                .ThenInclude(up => up.Unit)
             .Include(p => p.ProductSuppliers)
             .Include(p => p.Unit)
             .FirstOrDefaultAsync(p => p.Id == product.Id, cancellationToken);

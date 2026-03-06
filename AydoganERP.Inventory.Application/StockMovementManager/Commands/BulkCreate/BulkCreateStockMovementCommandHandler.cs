@@ -20,7 +20,9 @@ public record BulkCreateStockMovementResult(
     int FailedCount,
     List<string> Errors);
 
-public class BulkCreateStockMovementCommandHandler : IRequestHandler<BulkCreateStockMovementCommand, BulkCreateStockMovementResult>
+public class
+    BulkCreateStockMovementCommandHandler : IRequestHandler<BulkCreateStockMovementCommand,
+    BulkCreateStockMovementResult>
 {
     private readonly IBaseDbContext _baseDbContext;
     private readonly IDomainEventUnitOfWork _domainEventUnitOfWork;
@@ -33,7 +35,8 @@ public class BulkCreateStockMovementCommandHandler : IRequestHandler<BulkCreateS
         _domainEventUnitOfWork = domainEventUnitOfWork;
     }
 
-    public async Task<BulkCreateStockMovementResult> Handle(BulkCreateStockMovementCommand request, CancellationToken cancellationToken)
+    public async Task<BulkCreateStockMovementResult> Handle(BulkCreateStockMovementCommand request,
+        CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var successCount = 0;
@@ -41,7 +44,7 @@ public class BulkCreateStockMovementCommandHandler : IRequestHandler<BulkCreateS
         // Validate all product IDs exist
         var productIds = request.Items.Select(i => i.ProductId).Distinct().ToList();
         var existingProductIds = await _baseDbContext.Products
-            .Where(p => productIds.Contains(p.Id))
+            .Where(p => productIds.Any(a => a == p.Id))
             .Select(p => p.Id)
             .ToListAsync(cancellationToken);
 

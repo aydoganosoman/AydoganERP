@@ -4,11 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AydoganERP.Inventory.Application.ProductManager.Queries.GetByBarcode;
 
+/// <summary>
+/// Barkod ile bulunan ürün ve birim bilgisi
+/// </summary>
 public record ProductWithStockDto(
     Guid Id,
     string Code,
     string Name,
+    Guid UnitId,
     string? UnitName,
+    decimal ConversionRate,
+    decimal SaleUnitPrice,
+    int SaleUnitPriceCurrency,
+    float SaleVatRate,
     decimal CurrentStock);
 
 public record GetProductByBarcodeQuery(
@@ -31,34 +39,42 @@ public class GetProductByBarcodeQueryHandler : IRequestHandler<GetProductByBarco
 
         var barcodeLower = request.Barcode.Trim().ToLower();
 
-        // Barkod ile ürünü bul
-        var query = _baseDbContext.ProductBarcodes
+        // Barkod ile ürün birim fiyatını bul
+        var query = _baseDbContext.ProductUnitPrices
             .AsNoTracking()
-            .Include(pb => pb.Product)
-                .ThenInclude(p => p.Unit)
-            .Where(pb => pb.Barcode.ToLower() == barcodeLower);
+            .Include(up => up.Product)
+            .Include(up => up.Unit)
+            .Where(up => up.Barcode != null && up.Barcode.ToLower() == barcodeLower);
 
         if (request.CompanyId.HasValue)
-            query = query.Where(pb => pb.Product.CompanyId == request.CompanyId.Value);
+            query = query.Where(up => up.Product.CompanyId == request.CompanyId.Value);
 
-        var productBarcode = await query.FirstOrDefaultAsync(cancellationToken);
+        var unitPrice = await query.FirstOrDefaultAsync(cancellationToken);
 
-        if (productBarcode == null)
+        if (unitPrice == null)
             return null;
 
-        var product = productBarcode.Product;
+        var product = unitPrice.Product;
 
-        // Stok seviyesini hesapla
+        // Stok seviyesini hesapla (ana birimde)
         var currentStock = await _baseDbContext.StockMovements
             .AsNoTracking()
             .Where(sm => sm.ProductId == product.Id)
             .SumAsync(sm => sm.QuantityDelta, cancellationToken);
 
+        // Seçilen birime dönüştür
+        var stockInUnit = currentStock / unitPrice.ConversionRate;
+
         return new ProductWithStockDto(
             product.Id,
             product.Code,
             product.Name,
-            product.Unit?.Name,
-            currentStock);
+            unitPrice.UnitId,
+            unitPrice.Unit?.Name,
+            unitPrice.ConversionRate,
+            unitPrice.SaleUnitPrice,
+            unitPrice.SaleUnitPriceCurrency,
+            unitPrice.SaleVatRate,
+            stockInUnit);
     }
 }

@@ -13,14 +13,12 @@ public class MappingProfile : Profile
         CreateMap<Product, ProductDto>()
             .ForMember(dest => dest.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : null))
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-            .ForMember(dest => dest.Barcodes, opt => opt.MapFrom(src => src.ProductBarcodes))
+            .ForMember(dest => dest.UnitPrices, opt => opt.MapFrom(src => src.UnitPrices))
             .ForMember(dest => dest.Suppliers, opt => opt.MapFrom(src => src.ProductSuppliers))
-            .ForMember(dest => dest.SerialNumbers, opt => opt.MapFrom(src => src.SerialNumbers))
-            // Entity'deki yazım hatası (VatInculde) için explicit mapping
-            .ForMember(dest => dest.PurchaseUnitPriceVatInclude, opt => opt.MapFrom(src => src.PurchaseUnitPriceVatInculde))
-            .ForMember(dest => dest.SaleUnitPriceVatInclude, opt => opt.MapFrom(src => src.SaleUnitPriceVatInculde));
+            .ForMember(dest => dest.SerialNumbers, opt => opt.MapFrom(src => src.SerialNumbers));
 
-        CreateMap<ProductBarcode, ProductBarcodeDto>();
+        CreateMap<ProductUnitPrice, ProductUnitPriceDto>()
+            .ForMember(dest => dest.UnitName, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Name : null));
 
         CreateMap<ProductSupplier, ProductSupplierDto>()
             .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.CustomerName : null));

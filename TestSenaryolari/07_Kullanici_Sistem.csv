@@ -1,0 +1,27 @@
+Senaryo No;Modül;Test Adı;Ön Koşul;Test Adımları;Beklenen Sonuç;Gerçekleşen Sonuç;Durum;Notlar
+KS-001;Kullanıcı;Kullanıcı girişi;Geçerli kullanıcı hesabı mevcut;"1. Giriş sayfasına git
+2. E-posta ve şifre gir
+3. 'Giriş Yap' butonuna tıkla";Başarılı giriş, ana sayfaya yönlendirme;;;
+KS-002;Kullanıcı;Hatalı giriş;-;"1. Giriş sayfasında yanlış şifre gir
+2. Giriş yap";Hata mesajı gösterilmeli;;;
+KS-003;Kullanıcı;Çıkış yapma;Kullanıcı giriş yapmış;"1. Sağ üst menüden 'Çıkış' seç";Oturum sonlandırılmalı, giriş sayfasına yönlendirilmeli;;;
+KS-004;Kullanıcı;Şirket değiştirme;Kullanıcının birden fazla şirketi var;"1. Üst menüden şirket seçici aç
+2. Farklı şirket seç";Seçilen şirketin verileri yüklenmeli;;;
+KS-005;Sistem;Sayfalama;Listede 100+ kayıt mevcut;"1. Liste ekranında sayfalamayı kontrol et
+2. 2. sayfaya geç";Sayfalama çalışmalı, doğru kayıtlar gösterilmeli;;;
+KS-006;Sistem;Sayfa boyutu değiştirme;Liste ekranı açık;"1. Sayfa boyutu dropdown'dan 50 seç";Sayfada 50 kayıt gösterilmeli;;;
+KS-007;Sistem;Responsive tasarım;Mobil cihaz veya dar ekran;"1. Tarayıcı penceresini daralt
+2. Menüleri kontrol et";Menüler hamburger menüye dönmeli, içerik responsive olmalı;;;
+KS-008;Sistem;Dil desteği (Türkçe);-;"1. Tüm ekranlardaki metinleri kontrol et";Tüm metinler Türkçe olmalı;;;
+KS-009;Sistem;Form doğrulama - zorunlu alan;Form ekranı açık;"1. Zorunlu alanları boş bırak
+2. Kaydet";'Bu alan zorunludur' hataları gösterilmeli;;;
+KS-010;Sistem;Form doğrulama - format;Form ekranı açık;"1. E-posta alanına geçersiz format gir (örn: 'test')
+2. Alandan çık";'Geçerli e-posta giriniz' hatası gösterilmeli;;;
+KS-011;Sistem;Başarı mesajı;-;"1. Herhangi bir kayıt işlemi yap (örn: ürün oluştur)";Yeşil başarı bildirimi gösterilmeli;;;
+KS-012;Sistem;Hata mesajı;-;"1. Hatalı bir işlem yap (örn: mevcut kodu tekrar kullan)";Kırmızı hata bildirimi gösterilmeli;;;
+KS-013;Sistem;Loading göstergesi;-;"1. Veri yükleyen bir işlem başlat (liste yükle)";Yükleme sırasında spinner/loading gösterilmeli;;;
+KS-014;Sistem;Boş liste;Hiç kayıt olmayan bir modül;"1. İlgili listeyi aç";'Kayıt bulunamadı' veya boş durum görseli gösterilmeli;;;
+KS-015;Sistem;Tarih formatı;Tarih içeren ekranlar;"1. Tarih alanlarını kontrol et";Tarihler 'gg.aa.yyyy' formatında gösterilmeli;;;
+KS-016;Sistem;Para formatı;Para içeren ekranlar;"1. Para alanlarını kontrol et";Tutarlar Türk lirası formatında gösterilmeli (1.234,56 ₺);;;
+KS-017;Sistem;Oturum zaman aşımı;Uzun süre işlem yapılmamış;"1. Sistemi uzun süre beklet
+2. İşlem yapmayı dene";Oturum süresi dolduysa giriş sayfasına yönlendirilmeli;;;

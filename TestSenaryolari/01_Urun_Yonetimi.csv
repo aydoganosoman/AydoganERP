@@ -1,0 +1,31 @@
+Senaryo No;Modül;Test Adı;Ön Koşul;Test Adımları;Beklenen Sonuç;Gerçekleşen Sonuç;Durum;Notlar
+UR-001;Ürün;Yeni ürün oluşturma;Kullanıcı giriş yapmış, şirket seçili;"1. Stok > Ürünler menüsüne git
+2. 'Yeni Ürün' butonuna tıkla
+3. Kod alanına 'TEST001' yaz
+4. Ürün Adı alanına 'Test Ürünü' yaz
+5. Birim seçimi yap (Adet)
+6. Kaydet";Ürün başarıyla oluşturulmalı ve listede görünmeli;;;
+UR-002;Ürün;Otomatik kod üretimi;Kullanıcı giriş yapmış;"1. Yeni ürün formunu aç
+2. Kod alanının yanındaki 'Oto' butonuna tıkla";Sistem otomatik benzersiz kod üretmeli (örn: PRD00001);;;
+UR-003;Ürün;Kod benzersizlik kontrolü;Sistemde 'TEST001' kodlu ürün mevcut;"1. Yeni ürün formunu aç
+2. Kod alanına 'TEST001' yaz
+3. Alandan çık (blur)";'Bu kod zaten kullanılıyor' uyarısı gösterilmeli;;;
+UR-004;Ürün;Ürün düzenleme;Sistemde ürün mevcut;"1. Ürün listesinden bir ürün seç
+2. 'Düzenle' butonuna tıkla
+3. Ürün adını değiştir
+4. Kaydet";Ürün adı güncellenmiş olmalı;;;
+UR-005;Ürün;Ürün arama;Sistemde birden fazla ürün mevcut;"1. Ürün listesi ekranında arama kutusuna ürün kodu veya adı yaz
+2. 'Ara' butonuna tıkla";Arama kriterine uyan ürünler listelenmeli;;;
+UR-006;Ürün;Kategori filtresi;Sistemde kategorili ürünler mevcut;"1. Ürün listesinde kategori filtresinden bir kategori seç
+2. 'Ara' butonuna tıkla";Sadece seçilen kategorideki ürünler listelenmeli;;;
+UR-007;Ürün;Durum filtresi (Aktif/Pasif);Sistemde aktif ve pasif ürünler mevcut;"1. Durum filtresinden 'Pasif' seç
+2. 'Ara' butonuna tıkla";Sadece pasif ürünler listelenmeli;;;
+UR-008;Ürün;Ürün pasife alma;Sistemde aktif ürün mevcut;"1. Ürünü düzenleme modunda aç
+2. 'Aktif' anahtarını kapat
+3. Kaydet";Ürün pasif duruma geçmeli, listede 'Pasif' etiketi görünmeli;;;
+UR-009;Ürün;Lot takipli ürün;-;"1. Yeni ürün oluştur
+2. 'Lot Takibi' anahtarını aç
+3. Kaydet";Ürün lot takipli olarak işaretlenmeli;;;
+UR-010;Ürün;Seri numaralı ürün;-;"1. Yeni ürün oluştur
+2. 'Seri No Takibi' anahtarını aç
+3. Kaydet";Ürün seri numaralı olarak işaretlenmeli, düzenlemede 'Seri Numaraları' sekmesi görünmeli;;;

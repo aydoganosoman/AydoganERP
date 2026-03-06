@@ -1,6 +1,7 @@
 using AydoganERP.Company.Application.CompanyManager.Commands.Activate;
 using AydoganERP.Company.Application.CompanyManager.Commands.Create;
 using AydoganERP.Company.Application.CompanyManager.Commands.Suspend;
+using AydoganERP.Company.Application.CompanyManager.Commands.UpdateDetails;
 using AydoganERP.Company.Application.CompanyManager.Commands.UpdateName;
 using AydoganERP.Company.Application.CompanyManager.Queries.GetById;
 using AydoganERP.Company.Application.CompanyManager.Queries.GetList;
@@ -38,6 +39,13 @@ public class CompanyModule : ICarterModule
 
         companyGroup
             .MapPut("/{id:guid}/Name", HandleUpdateName)
+            .Produces<CompanyDto>(200)
+            .ProducesProblem(400)
+            .ProducesProblem(404)
+            .ProducesProblem(500);
+
+        companyGroup
+            .MapPut("/{id:guid}/Details", HandleUpdateDetails)
             .Produces<CompanyDto>(200)
             .ProducesProblem(400)
             .ProducesProblem(404)
@@ -96,6 +104,43 @@ public class CompanyModule : ICarterModule
         return Results.Ok(result);
     }
 
+    private static async Task<IResult> HandleUpdateDetails(
+        [FromServices] ISender sender,
+        [FromRoute] Guid id,
+        [FromBody] UpdateCompanyDetailsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateCompanyDetailsCommand(
+            id,
+            request.Name,
+            request.CompanyType,
+            request.ShortName,
+            request.TradeRegisterNo,
+            request.TradeRegisterTitle,
+            request.MersisNo,
+            request.TapdkNo,
+            request.HeadquartersAddress,
+            request.Currency,
+            request.Capital,
+            request.EstablishmentDate,
+            // TaxInfo
+            request.TaxNumber,
+            request.TaxOffice,
+            // ContactInfo
+            request.Phone,
+            request.Fax,
+            request.Email,
+            request.Website,
+            // Address
+            request.CountryId,
+            request.CityId,
+            request.DistrictId,
+            request.AddressLine);
+
+        var result = await sender.Send(command, cancellationToken);
+        return Results.Ok(result);
+    }
+
     private static async Task<IResult> HandleActivate(
         [FromServices] ISender sender,
         [FromRoute] Guid id,
@@ -117,4 +162,27 @@ public class CompanyModule : ICarterModule
     }
 
     public record UpdateCompanyNameRequest(string Name);
+
+    public record UpdateCompanyDetailsRequest(
+        string Name,
+        int CompanyType,
+        string? ShortName,
+        string? TaxNumber,
+        string? TaxOffice,
+        string? TradeRegisterNo,
+        string? TradeRegisterTitle,
+        string? MersisNo,
+        string? TapdkNo,
+        string? HeadquartersAddress,
+        int Currency,
+        decimal Capital,
+        DateTime? EstablishmentDate,
+        string? Phone,
+        string? Fax,
+        string? Email,
+        string? Website,
+        int? CountryId,
+        int? CityId,
+        int? DistrictId,
+        string? AddressLine);
 }

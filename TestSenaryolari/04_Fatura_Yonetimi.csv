@@ -1,0 +1,50 @@
+Senaryo No;Modül;Test Adı;Ön Koşul;Test Adımları;Beklenen Sonuç;Gerçekleşen Sonuç;Durum;Notlar
+FA-001;Fatura;Satış faturası oluşturma;Müşteri ve ürün mevcut;"1. Finans > Faturalar > Yeni Fatura
+2. Fatura Tipi: Satış Faturası
+3. Cari seç
+4. 'Satır Ekle' ile ürün ekle
+5. Miktar ve fiyat gir
+6. Kaydet";Fatura taslak olarak kaydedilmeli;;;
+FA-002;Fatura;Alış faturası oluşturma;Tedarikçi ve ürün mevcut;"1. Yeni Fatura > Tip: Alış Faturası
+2. Tedarikçi seç
+3. Ürün ekle
+4. Kaydet";Alış faturası kaydedilmeli;;;
+FA-003;Fatura;Satış iade faturası;Müşteri mevcut;"1. Yeni Fatura > Tip: Satış İade
+2. Müşteri seç
+3. İade ürünleri ekle
+4. Kaydet";Satış iade faturası kaydedilmeli;;;
+FA-004;Fatura;Alış iade faturası;Tedarikçi mevcut;"1. Yeni Fatura > Tip: Alış İade
+2. Tedarikçi seç
+3. İade ürünleri ekle
+4. Kaydet";Alış iade faturası kaydedilmeli;;;
+FA-005;Fatura;Fatura satırı ekleme (Manuel);Fatura formu açık;"1. 'Satır Ekle' butonuna tıkla
+2. Ürün dropdown'dan ürün seç
+3. Miktar: 5
+4. Birim Fiyat: 100";Satır eklenmeli, KDV ve toplam hesaplanmalı;;;
+FA-006;Fatura;Barkod ile satır ekleme;Barkodlu ürün mevcut, fatura formu açık;"1. Barkod alanına barkod yaz
+2. Enter'a bas";Ürün otomatik eklenmeli, birim fiyatı ve KDV doldurulmalı;;;
+FA-007;Fatura;Satır iskonto uygulama;Fatura satırı mevcut;"1. Satırda iskonto alanına %10 yaz";Satır toplamı iskonto düşülerek hesaplanmalı;;;
+FA-008;Fatura;KDV hesaplama;Fatura satırları ekli;"1. KDV'li ürünler ekle
+2. Toplamları kontrol et";Ara Toplam, KDV Toplam, Genel Toplam doğru hesaplanmalı;;;
+FA-009;Fatura;Fatura onaylama;Taslak fatura mevcut;"1. Fatura detay ekranında 'Onayla' butonuna tıkla";Fatura durumu 'Onaylandı' olmalı, stok hareketleri oluşmalı;;;
+FA-010;Fatura;Onaylı fatura düzenleme engeli;Onaylanmış fatura mevcut;"1. Onaylı faturayı düzenlemeye çalış";Düzenleme engellenmeli veya sadece belirli alanlar düzenlenebilmeli;;;
+FA-011;Fatura;Fatura arama;Birden fazla fatura mevcut;"1. Fatura listesinde arama yap (fatura no, cari adı)
+2. Filtrele";Arama kriterine uyan faturalar listelenmeli;;;
+FA-012;Fatura;Tarih aralığı filtresi;Farklı tarihlerde faturalar mevcut;"1. Başlangıç ve bitiş tarihi seç
+2. Filtrele";Tarih aralığındaki faturalar listelenmeli;;;
+FA-013;Fatura;Fatura tipi filtresi;Farklı tiplerde faturalar mevcut;"1. Fatura tipi filtresinden 'Satış Faturası' seç
+2. Filtrele";Sadece satış faturaları listelenmeli;;;
+FA-014;Fatura;Durum filtresi;Taslak ve onaylı faturalar mevcut;"1. Durum filtresinden 'Taslak' seç
+2. Filtrele";Sadece taslak faturalar listelenmeli;;;
+FA-015;Fatura;Dövizli fatura;Müşteri ve ürün mevcut;"1. Yeni satış faturası
+2. Para Birimi: USD
+3. Kur: 32.50
+4. Ürün ekle (USD fiyatlı)
+5. Kaydet";Fatura USD cinsinden kaydedilmeli;;;
+FA-016;Fatura;E-Fatura işaretleme;Fatura formu açık;"1. 'E-Fatura' checkbox'ını işaretle
+2. Kaydet";Fatura e-fatura olarak işaretlenmeli;;;
+FA-017;Fatura;Vade tarihi hesaplama;Fatura formu açık;"1. Fatura tarihi: 01.03.2026
+2. Vade gün sayısı: 30";Vade tarihi otomatik 31.03.2026 olmalı;;;
+FA-018;Fatura;Dashboard - Günlük satış;Bugüne ait satış faturaları mevcut;"1. Dashboard'a git
+2. 'Günlük Satış' kartını kontrol et";Bugünkü satış toplamı doğru gösterilmeli;;;
+FA-019;Fatura;Dashboard - Aylık satış grafiği;Aylık satış verileri mevcut;"1. Dashboard'daki satış grafiğini kontrol et";Son 12 ayın satış verileri grafik olarak gösterilmeli;;;

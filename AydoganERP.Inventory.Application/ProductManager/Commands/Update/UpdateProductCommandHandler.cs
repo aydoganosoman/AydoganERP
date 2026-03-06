@@ -8,11 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AydoganERP.Inventory.Application.ProductManager.Commands.Update;
 
-public record UpdateProductBarcodeItem(
+public record UpdateProductUnitPriceItem(
     Guid? Id,
-    string Barcode,
-    decimal Quantity = 1,
-    string Unit = "Adet");
+    Guid UnitId,
+    decimal ConversionRate = 1,
+    string? Barcode = null,
+    decimal SaleUnitPrice = 0,
+    int SaleUnitPriceCurrency = 0,
+    bool SaleUnitPriceVatInclude = false,
+    float SaleVatRate = 0,
+    bool IsBaseUnit = false);
 
 public record UpdateProductSupplierItem(
     Guid? Id,
@@ -31,12 +36,8 @@ public record UpdateProductCommand(
     int PurchaseUnitPriceCurrency = 0,
     bool PurchaseUnitPriceVatInclude = false,
     float PurchaseVatRate = 0,
-    decimal SaleUnitPrice = 0,
-    int SaleUnitPriceCurrency = 0,
-    bool SaleUnitPriceVatInclude = false,
-    float SaleVatRate = 0,
     Guid? CategoryId = null,
-    List<UpdateProductBarcodeItem>? Barcodes = null,
+    List<UpdateProductUnitPriceItem>? UnitPrices = null,
     List<UpdateProductSupplierItem>? Suppliers = null) : IRequest<ProductDto>;
 
 public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
@@ -58,7 +59,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
     public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         var product = await _baseDbContext.Products
-            .Include(p => p.ProductBarcodes)
+            .Include(p => p.UnitPrices)
             .Include(p => p.ProductSuppliers)
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
@@ -76,23 +77,19 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
             request.PurchaseUnitPriceCurrency,
             request.PurchaseUnitPriceVatInclude,
             request.PurchaseVatRate);
-        product.SetSalePricing(
-            request.SaleUnitPrice,
-            request.SaleUnitPriceCurrency,
-            request.SaleUnitPriceVatInclude,
-            request.SaleVatRate);
 
-        // Barkodları güncelle
-        await UpdateBarcodesAsync(product, request.Barcodes, cancellationToken);
+        // Birim fiyatları güncelle
+        await UpdateUnitPricesAsync(product, request.UnitPrices, cancellationToken);
 
-        // Tedarikçileri güncelle
+        // Tedarişçileri güncelle
         await UpdateSuppliersAsync(product, request.Suppliers, cancellationToken);
 
         await _domainEventUnitOfWork.CommitAsync(null, cancellationToken);
 
         // Ürünü ilişkileriyle birlikte çek
         var updatedProduct = await _baseDbContext.Products
-            .Include(p => p.ProductBarcodes)
+            .Include(p => p.UnitPrices)
+                .ThenInclude(up => up.Unit)
             .Include(p => p.ProductSuppliers)
             .Include(p => p.Unit)
             .FirstOrDefaultAsync(p => p.Id == product.Id, cancellationToken);
@@ -100,39 +97,61 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         return _mapper.Map<ProductDto>(updatedProduct);
     }
 
-    private async Task UpdateBarcodesAsync(
+    private async Task UpdateUnitPricesAsync(
         Product product,
-        List<UpdateProductBarcodeItem>? requestBarcodes,
+        List<UpdateProductUnitPriceItem>? requestUnitPrices,
         CancellationToken cancellationToken)
     {
-        if (requestBarcodes == null)
+        if (requestUnitPrices == null)
             return;
 
-        var existingBarcodes = product.ProductBarcodes.ToList();
-        var requestBarcodeIds = requestBarcodes
-            .Where(b => b.Id.HasValue && b.Id != Guid.Empty)
-            .Select(b => b.Id!.Value)
+        var existingUnitPrices = product.UnitPrices.ToList();
+        var requestUnitPriceIds = requestUnitPrices
+            .Where(u => u.Id.HasValue && u.Id != Guid.Empty)
+            .Select(u => u.Id!.Value)
             .ToHashSet();
 
         // Silinecekleri bul ve sil
-        var toDelete = existingBarcodes.Where(e => !requestBarcodeIds.Contains(e.Id)).ToList();
-        foreach (var barcode in toDelete)
+        var toDelete = existingUnitPrices.Where(e => !requestUnitPriceIds.Contains(e.Id)).ToList();
+        foreach (var unitPrice in toDelete)
         {
-            _baseDbContext.ProductBarcodes.Remove(barcode);
+            _baseDbContext.ProductUnitPrices.Remove(unitPrice);
+        }
+
+        // Mevcut olanları güncelle
+        foreach (var item in requestUnitPrices.Where(u => u.Id.HasValue && u.Id != Guid.Empty))
+        {
+            var existing = existingUnitPrices.FirstOrDefault(e => e.Id == item.Id!.Value);
+            if (existing != null)
+            {
+                existing.Update(
+                    item.ConversionRate,
+                    item.Barcode,
+                    item.SaleUnitPrice,
+                    item.SaleUnitPriceCurrency,
+                    item.SaleUnitPriceVatInclude,
+                    item.SaleVatRate,
+                    item.IsBaseUnit);
+            }
         }
 
         // Yeni eklenecekleri ekle
-        var newBarcodes = requestBarcodes.Where(b => !b.Id.HasValue || b.Id == Guid.Empty).ToList();
-        foreach (var item in newBarcodes)
+        var newUnitPrices = requestUnitPrices.Where(u => !u.Id.HasValue || u.Id == Guid.Empty).ToList();
+        foreach (var item in newUnitPrices)
         {
-            var barcode = ProductBarcode.Create(
+            var unitPrice = ProductUnitPrice.Create(
                 Guid.NewGuid(),
                 product.Id,
+                item.UnitId,
+                item.ConversionRate,
                 item.Barcode,
-                item.Quantity,
-                item.Unit);
+                item.SaleUnitPrice,
+                item.SaleUnitPriceCurrency,
+                item.SaleUnitPriceVatInclude,
+                item.SaleVatRate,
+                item.IsBaseUnit);
 
-            await _baseDbContext.ProductBarcodes.AddAsync(barcode, cancellationToken);
+            await _baseDbContext.ProductUnitPrices.AddAsync(unitPrice, cancellationToken);
         }
     }
 

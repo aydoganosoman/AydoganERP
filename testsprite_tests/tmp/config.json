@@ -1,0 +1,26 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5010",
+  "backendAuthType": "jwt",
+  "backendAuth": {
+    "loginEndpoint": "/api/Auth/Login",
+    "email": "stronger_osman@hotmail.com",
+    "password": "ezEaE_76",
+    "tokenHeader": "Authorization",
+    "tokenPrefix": "Bearer"
+  },
+  "executionArgs": {
+    "projectName": "AydoganERP",
+    "projectPath": "/Users/osmanaydogan/Documents/Github/Repos/AydoganERP",
+    "testIds": [],
+    "additionalInstruction": "Authentication: POST /api/Auth/Login with {\"email\":\"stronger_osman@hotmail.com\",\"password\":\"ezEaE_76\"}. Response has token.token for JWT Bearer auth. Use companyId: 839bf8d5-d8a0-4bc6-a949-71b2fb582aef. UnitId is now optional for product creation. barcodeType accepts both int (0,1,2,3,4) and string (EAN13,EAN8,Code128,Code39,Internal).",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-ROHQ_N4-ZdlEGr6oozYuSw2-tLTHqm9BcuJ8dFRS2n5H2v1fToYhiDrQum-iAykJ_PF4oBnw-BfbhLNBa1PJocpPhYeneNvOnUId1DyoTQpyF6IldubzlKJaPb_TAykkl1M"
+    }
+  },
+  "serverPort": 52993,
+  "proxy": "http://94f47a5a-b11d-4205-a677-9b127d8d6885:vUIz38u8s1sscroBVLt9TW9rfvmlJuEH@tun.testsprite.com:8080"
+}

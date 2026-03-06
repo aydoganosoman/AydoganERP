@@ -31,6 +31,42 @@ public class SharedModule : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
+        #region Counties
+        var counties = app.MapGroup("/api/Counties").WithTags("Counties");
+
+        counties.MapGet("/", async (ISender sender) =>
+        {
+            var result = await sender.Send(new AydoganERP.Base.Application.SharedManager.CountryManager.Queries.GetAll.GetAllQuery());
+            return Results.Ok(result);
+        });
+        #endregion
+        
+        #region Districts
+        var districts = app.MapGroup("/api/Districts").WithTags("Districts");
+
+        districts.MapGet("/", async ([FromQuery] int cityId, ISender sender) =>
+        {
+            var result = await sender.Send(new AydoganERP.Base.Application.SharedManager.DistrictManager.Queries.GetAll.GetAllQuery()
+            {
+                CityId = cityId
+            });
+            return Results.Ok(result);
+        });
+        #endregion
+        
+        #region Cities
+        var cities = app.MapGroup("/api/Cities").WithTags("Cities");
+
+        cities.MapGet("/", async ([FromQuery] int countryId, ISender sender) =>
+        {
+            var result = await sender.Send(new AydoganERP.Base.Application.SharedManager.CityManager.Queries.GetAll.GetAllQuery()
+            {
+                CountryId = countryId
+            });
+            return Results.Ok(result);
+        });
+        #endregion
+        
         #region Groups
         var groups = app.MapGroup("/api/Groups").WithTags("Groups");
 

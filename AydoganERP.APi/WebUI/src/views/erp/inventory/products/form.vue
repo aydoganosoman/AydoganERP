@@ -6,11 +6,12 @@ import type {
   ProductUnitDto,
   CategoryDto,
   CustomerDto,
-  ProductBarcodeItem,
+  ProductUnitPriceItem,
   ProductSupplierItem,
   ProductSerialNumberDto
 } from "@/api/erp/types";
-import { checkProductCode, getNextProductCode } from "@/api/erp/inventory";
+import { BarcodeType } from "@/api/erp/types";
+import { checkProductCode, getNextProductCode, generateBarcode } from "@/api/erp/inventory";
 
 export interface ProductFormData {
   code: string;
@@ -22,15 +23,10 @@ export interface ProductFormData {
   purchaseUnitPriceCurrency: number;
   purchaseUnitPriceVatInclude: boolean;
   purchaseVatRate: number;
-  // Satış Fiyat Bilgileri
-  saleUnitPrice: number;
-  saleUnitPriceCurrency: number;
-  saleUnitPriceVatInclude: boolean;
-  saleVatRate: number;
   isLotTracked: boolean;
   isSerialTracked: boolean;
   isActive: boolean;
-  barcodes: ProductBarcodeItem[];
+  unitPrices: ProductUnitPriceItem[];
   suppliers: ProductSupplierItem[];
   serialNumbers: ProductSerialNumberDto[];
 }
@@ -87,6 +83,16 @@ const currencyOptions = [
   { label: "£ GBP", value: 3 }
 ];
 
+const barcodeTypeOptions = [
+  { label: "EAN-13 (13 rakam)", value: BarcodeType.EAN13 },
+  { label: "EAN-8 (8 rakam)", value: BarcodeType.EAN8 },
+  { label: "Code 128 (Alfanümerik)", value: BarcodeType.Code128 },
+  { label: "Code 39 (Depo/Kargo)", value: BarcodeType.Code39 },
+  { label: "Dahili (Sıralı)", value: BarcodeType.Internal }
+];
+
+const generatingBarcodeIndex = ref<number | null>(null);
+
 // Tedarikçi türündeki müşteriler (type: 1 = Supplier, type: 2 = Both)
 const supplierCustomers = computed(() =>
   props.customers.filter(c => c.type === 1 || c.type === 2)
@@ -137,21 +143,43 @@ async function generateCode() {
   }
 }
 
-// Barkod işlemleri
-function addBarcode() {
-  const newBarcodes = [...props.modelValue.barcodes, { barcode: "", quantity: 1, unit: "Adet" }];
-  updateField("barcodes", newBarcodes);
+// Birim Fiyat işlemleri
+function addUnitPrice() {
+  const newUnitPrices = [...props.modelValue.unitPrices, {
+    unitId: "",
+    conversionRate: 1,
+    barcode: "",
+    saleUnitPrice: 0,
+    saleUnitPriceCurrency: 0,
+    saleUnitPriceVatInclude: false,
+    saleVatRate: 0,
+    isBaseUnit: false
+  }];
+  updateField("unitPrices", newUnitPrices);
 }
 
-function removeBarcode(index: number) {
-  const newBarcodes = props.modelValue.barcodes.filter((_, i) => i !== index);
-  updateField("barcodes", newBarcodes);
+function removeUnitPrice(index: number) {
+  const newUnitPrices = props.modelValue.unitPrices.filter((_, i) => i !== index);
+  updateField("unitPrices", newUnitPrices);
 }
 
-function updateBarcode(index: number, field: keyof ProductBarcodeItem, value: any) {
-  const newBarcodes = [...props.modelValue.barcodes];
-  newBarcodes[index] = { ...newBarcodes[index], [field]: value };
-  updateField("barcodes", newBarcodes);
+function updateUnitPrice(index: number, field: keyof ProductUnitPriceItem, value: any) {
+  const newUnitPrices = [...props.modelValue.unitPrices];
+  newUnitPrices[index] = { ...newUnitPrices[index], [field]: value };
+  updateField("unitPrices", newUnitPrices);
+}
+
+// Otomatik barkod üretimi
+async function generateBarcodeForRow(index: number, barcodeType: BarcodeType) {
+  generatingBarcodeIndex.value = index;
+  try {
+    const barcode = await generateBarcode(barcodeType);
+    updateUnitPrice(index, "barcode", barcode);
+  } catch {
+    ElMessage.error("Barkod üretilemedi");
+  } finally {
+    generatingBarcodeIndex.value = null;
+  }
 }
 
 // Tedarikçi işlemleri
@@ -326,12 +354,9 @@ defineExpose({ validate });
       </el-form>
     </el-tab-pane>
 
-    <!-- Fiyat Bilgileri -->
-    <el-tab-pane label="Fiyat Bilgileri" name="pricing">
+    <!-- Alış Fiyat Bilgileri -->
+    <el-tab-pane label="Alış Fiyatı" name="pricing">
       <el-form label-width="140px">
-        <!-- Alış Fiyatı -->
-        <el-divider content-position="left">Alış Fiyat Bilgileri</el-divider>
-        
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="Birim Fiyat">
@@ -389,116 +414,160 @@ defineExpose({ validate });
             </el-form-item>
           </el-col>
         </el-row>
-
-        <!-- Satış Fiyatı -->
-        <el-divider content-position="left">Satış Fiyat Bilgileri</el-divider>
-        
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="Birim Fiyat">
-              <el-input-number
-                :model-value="modelValue.saleUnitPrice"
-                @update:model-value="v => updateField('saleUnitPrice', v ?? 0)"
-                :precision="2"
-                :min="0"
-                class="w-full"
-                controls-position="right"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="Para Birimi">
-              <el-select
-                :model-value="modelValue.saleUnitPriceCurrency"
-                @update:model-value="v => updateField('saleUnitPriceCurrency', v)"
-                class="w-full"
-              >
-                <el-option
-                  v-for="curr in currencyOptions"
-                  :key="curr.value"
-                  :label="curr.label"
-                  :value="curr.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="KDV Oranı">
-              <el-select
-                :model-value="modelValue.saleVatRate"
-                @update:model-value="v => updateField('saleVatRate', v)"
-                class="w-full"
-              >
-                <el-option
-                  v-for="rate in vatRates"
-                  :key="rate.value"
-                  :label="rate.label"
-                  :value="rate.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="KDV Dahil">
-              <el-switch
-                :model-value="modelValue.saleUnitPriceVatInclude"
-                @update:model-value="(v: boolean) => updateField('saleUnitPriceVatInclude', v)"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
       </el-form>
     </el-tab-pane>
 
-    <!-- Barkodlar -->
-    <el-tab-pane label="Barkodlar" name="barcodes">
+    <!-- Birim Fiyatları (Satış) -->
+    <el-tab-pane label="Satış Fiyatları" name="unitPrices">
+      <el-alert
+        type="info"
+        :closable="false"
+        show-icon
+        class="mb-4"
+      >
+        Her birim için ayrı satış fiyatı ve barkod tanımlayın. Dönüşüm oranı, ana birime göre belirler (Orn: 1 Koli = 12 Adet için oran=12).
+      </el-alert>
+      
       <div class="mb-4">
-        <el-button type="primary" size="small" @click="addBarcode">
+        <el-button type="primary" size="small" @click="addUnitPrice">
           <el-icon class="mr-1"><Plus /></el-icon>
-          Barkod Ekle
+          Birim Fiyat Ekle
         </el-button>
       </div>
       
-      <el-table :data="modelValue.barcodes" border>
-        <el-table-column label="Barkod" min-width="200">
+      <el-table :data="modelValue.unitPrices" border>
+        <el-table-column label="Birim" width="140">
           <template #default="{ row, $index }">
-            <el-input
-              :model-value="row.barcode"
-              @update:model-value="v => updateBarcode($index, 'barcode', v)"
-              placeholder="Barkod numarası"
-            />
+            <el-select
+              :model-value="row.unitId"
+              @update:model-value="v => updateUnitPrice($index, 'unitId', v)"
+              placeholder="Birim"
+              size="small"
+              class="w-full"
+            >
+              <el-option
+                v-for="unit in units"
+                :key="unit.id"
+                :label="unit.name"
+                :value="unit.id"
+              />
+            </el-select>
           </template>
         </el-table-column>
-        <el-table-column label="Miktar" width="120">
+        <el-table-column label="Dönüşüm Oranı" width="110">
           <template #default="{ row, $index }">
             <el-input-number
-              :model-value="row.quantity || 1"
-              @update:model-value="v => updateBarcode($index, 'quantity', v)"
-              :min="0.01"
+              :model-value="row.conversionRate || 1"
+              @update:model-value="v => updateUnitPrice($index, 'conversionRate', v)"
+              :min="0.001"
+              :precision="3"
+              size="small"
+              class="w-full"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="Barkod" min-width="220">
+          <template #default="{ row, $index }">
+            <div class="flex gap-1">
+              <el-input
+                :model-value="row.barcode"
+                @update:model-value="v => updateUnitPrice($index, 'barcode', v)"
+                placeholder="Barkod"
+                size="small"
+                class="flex-1"
+              />
+              <el-dropdown trigger="click" @command="(cmd: BarcodeType) => generateBarcodeForRow($index, cmd)">
+                <el-button
+                  type="primary"
+                  size="small"
+                  :loading="generatingBarcodeIndex === $index"
+                >
+                  Oto
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item
+                      v-for="opt in barcodeTypeOptions"
+                      :key="opt.value"
+                      :command="opt.value"
+                    >
+                      {{ opt.label }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Satış Fiyatı" width="120">
+          <template #default="{ row, $index }">
+            <el-input-number
+              :model-value="row.saleUnitPrice || 0"
+              @update:model-value="v => updateUnitPrice($index, 'saleUnitPrice', v)"
+              :min="0"
               :precision="2"
               size="small"
+              class="w-full"
             />
           </template>
         </el-table-column>
-        <el-table-column label="Birim" width="120">
+        <el-table-column label="Para Birimi" width="100">
           <template #default="{ row, $index }">
-            <el-input
-              :model-value="row.unit || 'Adet'"
-              @update:model-value="v => updateBarcode($index, 'unit', v)"
-              placeholder="Birim"
+            <el-select
+              :model-value="row.saleUnitPriceCurrency || 0"
+              @update:model-value="v => updateUnitPrice($index, 'saleUnitPriceCurrency', v)"
+              size="small"
+              class="w-full"
+            >
+              <el-option
+                v-for="curr in currencyOptions"
+                :key="curr.value"
+                :label="curr.label"
+                :value="curr.value"
+              />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column label="KDV" width="80">
+          <template #default="{ row, $index }">
+            <el-select
+              :model-value="row.saleVatRate || 0"
+              @update:model-value="v => updateUnitPrice($index, 'saleVatRate', v)"
+              size="small"
+              class="w-full"
+            >
+              <el-option
+                v-for="rate in vatRates"
+                :key="rate.value"
+                :label="rate.label"
+                :value="rate.value"
+              />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column label="KDV D." width="70" align="center">
+          <template #default="{ row, $index }">
+            <el-checkbox
+              :model-value="row.saleUnitPriceVatInclude || false"
+              @update:model-value="v => updateUnitPrice($index, 'saleUnitPriceVatInclude', v)"
             />
           </template>
         </el-table-column>
-        <el-table-column label="İşlem" width="80" align="center">
+        <el-table-column label="Ana" width="60" align="center">
+          <template #default="{ row, $index }">
+            <el-checkbox
+              :model-value="row.isBaseUnit || false"
+              @update:model-value="v => updateUnitPrice($index, 'isBaseUnit', v)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="" width="60" align="center">
           <template #default="{ $index }">
             <el-button
               type="danger"
               size="small"
               link
-              @click="removeBarcode($index)"
+              @click="removeUnitPrice($index)"
             >
               <el-icon><Delete /></el-icon>
             </el-button>
@@ -506,7 +575,7 @@ defineExpose({ validate });
         </el-table-column>
       </el-table>
       
-      <el-empty v-if="!modelValue.barcodes.length" description="Henüz barkod eklenmedi" />
+      <el-empty v-if="!modelValue.unitPrices?.length" description="Henüz birim fiyat eklenmedi" />
     </el-tab-pane>
 
     <!-- Tedarikçiler -->

@@ -19,19 +19,20 @@ public class Product : Entity
     public ProductUnit Unit { get; private set; }
     public Guid? CategoryId { get; private set; }
     public Category? Category { get; private set; }
+    // Alış Fiyat Bilgileri (satış fiyatları ProductUnitPrice'da)
     public decimal PurchaseUnitPrice { get; private set; }
     public int PurchaseUnitPriceCurrency { get; private set; }
-    public bool PurchaseUnitPriceVatInculde { get; private set; }
-    public decimal SaleUnitPrice { get; private set; }
-    public int SaleUnitPriceCurrency { get; private set; }
-    public bool SaleUnitPriceVatInculde { get; private set; }
+    public bool PurchaseUnitPriceVatInclude { get; private set; }
     public float PurchaseVatRate { get; private set; } // 0, 1, 10, 20 vs
-    public float SaleVatRate { get; private set; }
+    
     public bool IsLotTracked { get; set; }
     public bool IsSerialTracked { get; private set; }
     public bool IsActive { get; private set; } = true;
 
-    public List<ProductBarcode> ProductBarcodes { get; private set; } = new();
+    /// <summary>
+    /// Birim fiyatları ve barkodlar - her birimin kendi fiyatı/barkodu olabilir
+    /// </summary>
+    public List<ProductUnitPrice> UnitPrices { get; private set; } = new();
     public List<ProductSupplier> ProductSuppliers { get; private set; } = new();
     public List<ProductSerialNumber> SerialNumbers { get; private set; } = new();
     public List<StockMovement> Movements { get; private set; } = new();
@@ -46,12 +47,8 @@ public class Product : Entity
         Guid? categoryId = null,
         decimal purchaseUnitPrice = 0,
         int purchaseUnitPriceCurrency = 0,
-        bool purchaseUnitPriceVatInculde = false,
-        decimal saleUnitPrice = 0,
-        int saleUnitPriceCurrency = 0,
-        bool saleUnitPriceVatInculde = false,
+        bool purchaseUnitPriceVatInclude = false,
         float purchaseVatRate = 0,
-        float saleVatRate = 0,
         bool isLotTracked = false,
         bool isSerialTracked = false)
     {
@@ -60,7 +57,6 @@ public class Product : Entity
         if (string.IsNullOrWhiteSpace(code)) throw new ArgumentException("Code is required.");
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is required.");
         if (purchaseVatRate < 0 || purchaseVatRate > 100) throw new ArgumentException("PurchaseVatRate must be 0..100");
-        if (saleVatRate < 0 || saleVatRate > 100) throw new ArgumentException("SaleVatRate must be 0..100");
 
         var product = new Product
         {
@@ -72,12 +68,8 @@ public class Product : Entity
             CategoryId = categoryId,
             PurchaseUnitPrice = purchaseUnitPrice,
             PurchaseUnitPriceCurrency = purchaseUnitPriceCurrency,
-            PurchaseUnitPriceVatInculde = purchaseUnitPriceVatInculde,
-            SaleUnitPrice = saleUnitPrice,
-            SaleUnitPriceCurrency = saleUnitPriceCurrency,
-            SaleUnitPriceVatInculde = saleUnitPriceVatInculde,
+            PurchaseUnitPriceVatInclude = purchaseUnitPriceVatInclude,
             PurchaseVatRate = purchaseVatRate,
-            SaleVatRate = saleVatRate,
             IsLotTracked = isLotTracked,
             IsSerialTracked = isSerialTracked,
             IsActive = true
@@ -109,16 +101,35 @@ public class Product : Entity
         if (vatRate < 0 || vatRate > 100) throw new ArgumentException("PurchaseVatRate must be 0..100");
         PurchaseUnitPrice = unitPrice;
         PurchaseUnitPriceCurrency = currency;
-        PurchaseUnitPriceVatInculde = vatInclude;
+        PurchaseUnitPriceVatInclude = vatInclude;
         PurchaseVatRate = vatRate;
     }
 
-    public void SetSalePricing(decimal unitPrice, int currency, bool vatInclude, float vatRate)
+    public void AddUnitPrice(ProductUnitPrice unitPrice)
     {
-        if (vatRate < 0 || vatRate > 100) throw new ArgumentException("SaleVatRate must be 0..100");
-        SaleUnitPrice = unitPrice;
-        SaleUnitPriceCurrency = currency;
-        SaleUnitPriceVatInculde = vatInclude;
-        SaleVatRate = vatRate;
+        // Eğer ana birim olarak ekleniyor ve zaten ana birim varsa, eskisini kaldır
+        if (unitPrice.IsBaseUnit)
+        {
+            foreach (var up in UnitPrices.Where(x => x.IsBaseUnit))
+            {
+                up.Update(up.ConversionRate, up.Barcode, up.SaleUnitPrice, up.SaleUnitPriceCurrency, 
+                    up.SaleUnitPriceVatInclude, up.SaleVatRate, false);
+            }
+        }
+        UnitPrices.Add(unitPrice);
+    }
+
+    public void RemoveUnitPrice(Guid unitPriceId)
+    {
+        var unitPrice = UnitPrices.FirstOrDefault(x => x.Id == unitPriceId);
+        if (unitPrice != null)
+        {
+            UnitPrices.Remove(unitPrice);
+        }
+    }
+
+    public void ClearUnitPrices()
+    {
+        UnitPrices.Clear();
     }
 }

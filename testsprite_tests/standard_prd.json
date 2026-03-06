@@ -1,0 +1,267 @@
+{
+  "projectName": "AydoganERP",
+  "description": "Modular ERP system built with .NET 8 following Clean Architecture, DDD, and CQRS patterns",
+  "baseUrl": "http://localhost:5010",
+  "modules": [
+    {
+      "name": "Products",
+      "basePath": "/api/Products",
+      "endpoints": [
+        {
+          "name": "Get Product List",
+          "method": "GET",
+          "path": "",
+          "description": "Get paginated list of products",
+          "queryParams": ["companyId", "categoryId", "searchText", "isActive", "pageNumber", "pageSize"]
+        },
+        {
+          "name": "Get Product by ID",
+          "method": "GET",
+          "path": "/{id}",
+          "description": "Get product details by ID"
+        },
+        {
+          "name": "Get Product by Barcode",
+          "method": "GET",
+          "path": "/by-barcode",
+          "description": "Search product by barcode",
+          "queryParams": ["barcode", "companyId"]
+        },
+        {
+          "name": "Check Product Code",
+          "method": "GET",
+          "path": "/check-code",
+          "description": "Check if product code exists",
+          "queryParams": ["companyId", "code", "excludeId"]
+        },
+        {
+          "name": "Get Next Product Code",
+          "method": "GET",
+          "path": "/next-code",
+          "description": "Generate next available product code",
+          "queryParams": ["companyId"]
+        },
+        {
+          "name": "Generate Barcode",
+          "method": "GET",
+          "path": "/generate-barcode",
+          "description": "Generate unique barcode",
+          "queryParams": ["barcodeType", "prefix"]
+        },
+        {
+          "name": "Create Product",
+          "method": "POST",
+          "path": "",
+          "description": "Create a new product"
+        },
+        {
+          "name": "Update Product",
+          "method": "PUT",
+          "path": "/{id}",
+          "description": "Update existing product"
+        },
+        {
+          "name": "Get Stock Level",
+          "method": "GET",
+          "path": "/{id}/stock-level",
+          "description": "Get current stock level for a product"
+        },
+        {
+          "name": "Get Product Movements",
+          "method": "GET",
+          "path": "/{id}/movements",
+          "description": "Get stock movements for a product"
+        }
+      ]
+    },
+    {
+      "name": "Stock Movements",
+      "basePath": "/api/StockMovements",
+      "endpoints": [
+        {
+          "name": "Get Stock Movement List",
+          "method": "GET",
+          "path": "",
+          "description": "Get paginated list of stock movements",
+          "queryParams": ["companyId", "productId", "type", "dateFrom", "dateTo", "searchText", "pageNumber", "pageSize"]
+        },
+        {
+          "name": "Create Stock Movement",
+          "method": "POST",
+          "path": "",
+          "description": "Create a new stock movement"
+        },
+        {
+          "name": "Bulk Create Stock Movements",
+          "method": "POST",
+          "path": "/bulk",
+          "description": "Create multiple stock movements at once"
+        }
+      ]
+    },
+    {
+      "name": "Serial Numbers",
+      "basePath": "/api/SerialNumbers",
+      "endpoints": [
+        {
+          "name": "Get Serial Number by Code",
+          "method": "GET",
+          "path": "/by-code",
+          "description": "Search serial number by code",
+          "queryParams": ["serialNumber", "companyId"]
+        },
+        {
+          "name": "Update Serial Number Status",
+          "method": "PUT",
+          "path": "/{id}/status",
+          "description": "Update serial number status"
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "basePath": "/api/Customers",
+      "endpoints": [
+        {
+          "name": "Get Customer List",
+          "method": "GET",
+          "path": "",
+          "description": "Get all customers",
+          "queryParams": ["companyId"]
+        },
+        {
+          "name": "Get Customers Paged",
+          "method": "GET",
+          "path": "/paged",
+          "description": "Get paginated list of customers",
+          "queryParams": ["currentPage", "pageSize", "companyId"]
+        },
+        {
+          "name": "Get Customer by ID",
+          "method": "GET",
+          "path": "/{id}",
+          "description": "Get customer details by ID"
+        },
+        {
+          "name": "Create Customer",
+          "method": "POST",
+          "path": "",
+          "description": "Create a new customer"
+        },
+        {
+          "name": "Update Customer",
+          "method": "PUT",
+          "path": "/{id}",
+          "description": "Update existing customer"
+        },
+        {
+          "name": "Change Customer Status",
+          "method": "PATCH",
+          "path": "/{id}/status",
+          "description": "Change customer status (active/inactive)"
+        },
+        {
+          "name": "Check Customer Code",
+          "method": "GET",
+          "path": "/check-code",
+          "description": "Check if customer code exists",
+          "queryParams": ["code", "companyId", "excludeCustomerId"]
+        },
+        {
+          "name": "Get Next Customer Code",
+          "method": "GET",
+          "path": "/next-code",
+          "description": "Generate next available customer code",
+          "queryParams": ["companyId", "prefix"]
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "basePath": "/api/Invoices",
+      "endpoints": [
+        {
+          "name": "Get Invoice List",
+          "method": "GET",
+          "path": "",
+          "description": "Get paginated list of invoices",
+          "queryParams": ["companyId", "invoiceType", "status", "customerId", "startDate", "endDate", "searchText", "isPaid", "pageNumber", "pageSize"]
+        },
+        {
+          "name": "Get Invoice by ID",
+          "method": "GET",
+          "path": "/{id}",
+          "description": "Get invoice details by ID"
+        },
+        {
+          "name": "Get Invoices by Customer",
+          "method": "GET",
+          "path": "/by-customer/{customerId}",
+          "description": "Get invoices for a specific customer",
+          "queryParams": ["invoiceType", "unpaidOnly"]
+        },
+        {
+          "name": "Create Invoice",
+          "method": "POST",
+          "path": "",
+          "description": "Create a new invoice"
+        },
+        {
+          "name": "Update Invoice",
+          "method": "PUT",
+          "path": "/{id}",
+          "description": "Update existing invoice"
+        },
+        {
+          "name": "Approve Invoice",
+          "method": "POST",
+          "path": "/{id}/approve",
+          "description": "Approve a draft invoice"
+        },
+        {
+          "name": "Cancel Invoice",
+          "method": "POST",
+          "path": "/{id}/cancel",
+          "description": "Cancel an invoice"
+        },
+        {
+          "name": "Add Invoice Line",
+          "method": "POST",
+          "path": "/{id}/lines",
+          "description": "Add a line item to invoice"
+        },
+        {
+          "name": "Remove Invoice Line",
+          "method": "DELETE",
+          "path": "/{id}/lines/{lineId}",
+          "description": "Remove a line item from invoice"
+        },
+        {
+          "name": "Record Payment",
+          "method": "POST",
+          "path": "/{id}/payments",
+          "description": "Record a payment for invoice"
+        },
+        {
+          "name": "Send E-Invoice",
+          "method": "POST",
+          "path": "/{id}/send-einvoice",
+          "description": "Send invoice as e-invoice"
+        },
+        {
+          "name": "Get Dashboard",
+          "method": "GET",
+          "path": "/dashboard",
+          "description": "Get financial dashboard summary",
+          "queryParams": ["companyId", "startDate", "endDate"]
+        }
+      ]
+    }
+  ],
+  "authentication": {
+    "type": "JWT",
+    "loginEndpoint": "/api/Auth/login",
+    "tokenHeader": "Authorization",
+    "tokenPrefix": "Bearer"
+  }
+}

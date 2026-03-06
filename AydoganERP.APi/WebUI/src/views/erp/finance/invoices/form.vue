@@ -190,8 +190,12 @@ function handleLineProductSelect(index: number, productId: string) {
       form.invoiceType === InvoiceTypeEnum.SalesInvoice ||
       form.invoiceType === InvoiceTypeEnum.SalesReturn
     ) {
-      line.unitPrice = product.saleUnitPrice;
-      line.vatRate = product.saleVatRate;
+      // Satış fiyatı unitPrices'tan al (önce isBaseUnit=true olanı, yoksa ilki)
+      const baseUnitPrice = product.unitPrices?.find(u => u.isBaseUnit);
+      const firstUnitPrice = product.unitPrices?.[0];
+      const unitPrice = baseUnitPrice || firstUnitPrice;
+      line.unitPrice = unitPrice?.saleUnitPrice ?? 0;
+      line.vatRate = unitPrice?.saleVatRate ?? 20;
     } else {
       line.unitPrice = product.purchaseUnitPrice;
       line.vatRate = product.purchaseVatRate;

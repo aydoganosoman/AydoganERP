@@ -150,7 +150,12 @@ export interface CustomerBranchDto {
   customerId: string;
   name: string;
   contact?: { email?: string; phone?: string };
-  address?: { countryId?: number; cityId?: number; districtId?: number; addressLine?: string };
+  address?: {
+    countryId?: number;
+    cityId?: number;
+    districtId?: number;
+    addressLine?: string;
+  };
 }
 
 export interface CustomerBranchItem {
@@ -223,7 +228,12 @@ export interface CustomerDto extends BaseEntity {
   status: number;
   taxInfo?: { taxNumber?: string; taxOffice?: string };
   contact?: { email?: string; phone?: string };
-  address?: { countryId?: number; cityId?: number; districtId?: number; addressLine?: string };
+  address?: {
+    countryId?: number;
+    cityId?: number;
+    districtId?: number;
+    addressLine?: string;
+  };
   bankAccounts?: CustomerBankAccountDto[];
   branches?: CustomerBranchDto[];
   contacts?: CustomerContactDto[];
@@ -286,20 +296,41 @@ export interface ProductUnitDto {
 
 // ============== Inventory Module ==============
 
-/** ProductBarcode - Ürün Barkodu */
-export interface ProductBarcodeDto {
-  id: string;
-  productId: string;
-  barcode: string;
-  quantity: number;
-  unit: string;
+/** Barkod Tipleri */
+export enum BarcodeType {
+  EAN13 = 0, // 13 rakam - Market, perakende
+  EAN8 = 1, // 8 rakam - Küçük ürünler
+  Code128 = 2, // Harf + rakam - Lojistik, endüstriyel
+  Code39 = 3, // Harf + rakam - Depo, kargo
+  Internal = 4 // Dahili barkod (prefix + sıra no)
 }
 
-export interface ProductBarcodeItem {
+/** ProductUnitPrice - Ürün Birim Fiyatı */
+export interface ProductUnitPriceDto {
+  id: string;
+  productId: string;
+  unitId: string;
+  unitName?: string;
+  conversionRate: number;
+  barcode?: string;
+  saleUnitPrice: number;
+  saleUnitPriceCurrency: number;
+  saleUnitPriceVatInclude: boolean;
+  saleVatRate: number;
+  isBaseUnit: boolean;
+  isActive: boolean;
+}
+
+export interface ProductUnitPriceItem {
   id?: string;
-  barcode: string;
-  quantity?: number;
-  unit?: string;
+  unitId: string;
+  conversionRate?: number;
+  barcode?: string;
+  saleUnitPrice?: number;
+  saleUnitPriceCurrency?: number;
+  saleUnitPriceVatInclude?: boolean;
+  saleVatRate?: number;
+  isBaseUnit?: boolean;
 }
 
 /** ProductSupplier - Ürün Tedarikçi */
@@ -360,7 +391,13 @@ export interface ProductWithStockDto {
   id: string;
   code: string;
   name: string;
+  unitId: string;
   unitName?: string;
+  conversionRate: number;
+  saleUnitPrice: number;
+  saleUnitPriceCurrency: number;
+  saleUnitPriceVatInclude: boolean;
+  saleVatRate: number;
   currentStock: number;
 }
 
@@ -377,14 +414,9 @@ export interface ProductDto extends BaseEntity {
   purchaseUnitPriceCurrency: number;
   purchaseUnitPriceVatInclude: boolean;
   purchaseVatRate: number;
-  // Satış Fiyat Bilgileri
-  saleUnitPrice: number;
-  saleUnitPriceCurrency: number;
-  saleUnitPriceVatInclude: boolean;
-  saleVatRate: number;
   isLotTracked: boolean;
   isSerialTracked: boolean;
-  barcodes: ProductBarcodeDto[];
+  unitPrices: ProductUnitPriceDto[];
   suppliers: ProductSupplierDto[];
   serialNumbers: ProductSerialNumberDto[];
 }
@@ -399,13 +431,9 @@ export interface CreateProductCommand {
   purchaseUnitPriceCurrency?: number;
   purchaseUnitPriceVatInclude?: boolean;
   purchaseVatRate?: number;
-  saleUnitPrice?: number;
-  saleUnitPriceCurrency?: number;
-  saleUnitPriceVatInclude?: boolean;
-  saleVatRate?: number;
   isLotTracked?: boolean;
   isSerialTracked?: boolean;
-  barcodes?: ProductBarcodeItem[];
+  unitPrices?: ProductUnitPriceItem[];
   suppliers?: ProductSupplierItem[];
 }
 
@@ -420,12 +448,8 @@ export interface UpdateProductCommand {
   purchaseUnitPriceCurrency?: number;
   purchaseUnitPriceVatInclude?: boolean;
   purchaseVatRate?: number;
-  saleUnitPrice?: number;
-  saleUnitPriceCurrency?: number;
-  saleUnitPriceVatInclude?: boolean;
-  saleVatRate?: number;
   categoryId?: string;
-  barcodes?: ProductBarcodeItem[];
+  unitPrices?: ProductUnitPriceItem[];
   suppliers?: ProductSupplierItem[];
 }
 
@@ -725,4 +749,160 @@ export interface RecordPaymentCommand {
   paymentMethod?: number;
   reference?: string;
   notes?: string;
+}
+
+// ============== Company Module ==============
+
+/** Company Type - Firma Tipi */
+export enum CompanyTypeEnum {
+  Corporate = 0, // Tüzel Kişi
+  Individual = 1 // Gerçek Kişi
+}
+
+/** Company - Firma */
+export interface CompanyDto {
+  id: string;
+  name: string;
+  status: number;
+  statusName: string;
+  companyType: number;
+  companyTypeName: string;
+  shortName?: string;
+  taxNumber?: string;
+  taxOffice?: string;
+  tradeRegisterNo?: string;
+  tradeRegisterTitle?: string;
+  mersisNo?: string;
+  tapdkNo?: string;
+  headquartersAddress?: string;
+  currency: number;
+  capital: number;
+  establishmentDate?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  website?: string;
+  countryId?: number;
+  cityId?: number;
+  districtId?: number;
+  addressLine?: string;
+  created: string;
+  createdBy?: string;
+  lastModified?: string;
+  lastModifiedBy?: string;
+}
+
+/** UpdateCompanyDetailsCommand - Firma Detayları Güncelleme */
+export interface UpdateCompanyDetailsCommand {
+  name: string;
+  companyType: number;
+  shortName?: string;
+  taxNumber?: string;
+  taxOffice?: string;
+  tradeRegisterNo?: string;
+  tradeRegisterTitle?: string;
+  mersisNo?: string;
+  tapdkNo?: string;
+  headquartersAddress?: string;
+  currency: number;
+  capital: number;
+  establishmentDate?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  website?: string;
+  countryId?: number;
+  cityId?: number;
+  districtId?: number;
+  addressLine?: string;
+}
+
+export interface DistrictDto {
+  id: number;
+  cityId?: number;
+  name: string;
+}
+
+export interface CityDto {
+  id: number;
+  countryId?: number;
+  name: string;
+}
+
+export interface CountyDto {
+  id: number;
+  name: string;
+}
+
+// ============== Document Settings ==============
+
+/** DocumentType - Belge Tipi */
+export enum DocumentTypeSettingsEnum {
+  EFatura = 0,
+  EArsiv = 1,
+  EIrsaliye = 2,
+  EMustahsil = 3,
+  ESerbest = 4
+}
+
+/** DocumentNumbering - Numaratör */
+export interface DocumentNumberingDto {
+  id: string;
+  companyId: string;
+  documentType: number;
+  documentTypeName: string;
+  prefix: string;
+  currentNumber: number;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
+export interface CreateDocumentNumberingCommand {
+  companyId: string;
+  documentType: number;
+  prefix: string;
+  isDefault: boolean;
+}
+
+export interface UpdateDocumentNumberingCommand {
+  prefix: string;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
+/** CompanyBankAccount - Firma Banka Hesabı */
+export interface CompanyBankAccountDto {
+  id: string;
+  companyId: string;
+  bankName: string;
+  branchName?: string;
+  accountNo?: string;
+  accountName?: string;
+  iban: string;
+  swiftCode?: string;
+  currency: number;
+  currencyName: string;
+  isActive: boolean;
+}
+
+export interface CreateCompanyBankAccountCommand {
+  companyId: string;
+  bankName: string;
+  iban: string;
+  currency: number;
+  branchName?: string;
+  accountNo?: string;
+  accountName?: string;
+  swiftCode?: string;
+}
+
+export interface UpdateCompanyBankAccountCommand {
+  bankName: string;
+  iban: string;
+  currency: number;
+  branchName?: string;
+  accountNo?: string;
+  accountName?: string;
+  swiftCode?: string;
+  isActive: boolean;
 }

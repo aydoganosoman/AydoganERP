@@ -8,7 +8,8 @@ import type {
   PagedResult,
   BulkCreateStockMovementCommand,
   BulkCreateStockMovementResult,
-  SerialNumberDetailDto
+  SerialNumberDetailDto,
+  BarcodeType
 } from "./types";
 
 // ============== Products ==============
@@ -66,6 +67,13 @@ export const checkProductCode = (companyId: string, code: string, excludeId?: st
 export const getNextProductCode = (companyId: string) => {
   return http.request<string>("get", "/Products/next-code", {
     params: { companyId }
+  });
+};
+
+/** Otomatik barkod üret */
+export const generateBarcode = (barcodeType: BarcodeType, prefix?: string) => {
+  return http.request<string>("get", "/Products/generate-barcode", {
+    params: { barcodeType, prefix }
   });
 };
 

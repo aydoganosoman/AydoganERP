@@ -32,7 +32,8 @@ public class GetProductListQueryHandler : IRequestHandler<GetProductListQuery, P
             .AsNoTracking()
             .Include(p => p.Unit)
             .Include(p => p.Category)
-            .Include(p => p.ProductBarcodes)
+            .Include(p => p.UnitPrices)
+                .ThenInclude(up => up.Unit)
             .Include(p => p.ProductSuppliers)
             .AsQueryable();
 

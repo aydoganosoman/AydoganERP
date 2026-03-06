@@ -20,16 +20,14 @@ public class ProductDto : IMapFrom<Product>
     public bool PurchaseUnitPriceVatInclude { get; set; }
     public float PurchaseVatRate { get; set; }
     
-    // Satış Fiyat Bilgileri
-    public decimal SaleUnitPrice { get; set; }
-    public int SaleUnitPriceCurrency { get; set; }
-    public bool SaleUnitPriceVatInclude { get; set; }
-    public float SaleVatRate { get; set; }
-    
     public bool IsLotTracked { get; set; }
     public bool IsSerialTracked { get; set; }
     public bool IsActive { get; set; }
-    public List<ProductBarcodeDto> Barcodes { get; set; } = new();
+    
+    /// <summary>
+    /// Birim fiyatları ve barkodlar - her birimin kendi fiyatı/barkodu
+    /// </summary>
+    public List<ProductUnitPriceDto> UnitPrices { get; set; } = new();
     public List<ProductSupplierDto> Suppliers { get; set; } = new();
     public List<ProductSerialNumberDto> SerialNumbers { get; set; } = new();
 }

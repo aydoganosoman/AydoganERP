@@ -60,14 +60,10 @@ const dialogFormData = ref<ProductFormData>({
   purchaseUnitPriceCurrency: 0,
   purchaseUnitPriceVatInclude: false,
   purchaseVatRate: 20,
-  saleUnitPrice: 0,
-  saleUnitPriceCurrency: 0,
-  saleUnitPriceVatInclude: false,
-  saleVatRate: 20,
   isLotTracked: false,
   isSerialTracked: false,
   isActive: true,
-  barcodes: [],
+  unitPrices: [],
   suppliers: [],
   serialNumbers: []
 });
@@ -85,12 +81,6 @@ const columns: TableColumnList = [
     formatter: (row: ProductDto) => `%${row.purchaseVatRate}`
   },
   {
-    label: "Satış KDV",
-    prop: "saleVatRate",
-    minWidth: 90,
-    formatter: (row: ProductDto) => `%${row.saleVatRate}`
-  },
-  {
     label: "Lot Takibi",
     prop: "isLotTracked",
     minWidth: 100,
@@ -101,11 +91,11 @@ const columns: TableColumnList = [
     )
   },
   {
-    label: "Barkod",
-    prop: "barcodes",
+    label: "Birim Fiyat",
+    prop: "unitPrices",
     minWidth: 120,
     formatter: (row: ProductDto) =>
-      row.barcodes?.length ? `${row.barcodes.length} adet` : "-"
+      row.unitPrices?.length ? `${row.unitPrices.length} adet` : "-"
   },
   {
     label: "Tedarikçi",
@@ -196,7 +186,6 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
   if (row) {
     try {
       const product = await getProductById(row.id);
-      //console.log("Product detail:", product);
       dialogFormData.value = {
         code: product.code,
         name: product.name,
@@ -206,19 +195,20 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
         purchaseUnitPriceCurrency: product.purchaseUnitPriceCurrency,
         purchaseUnitPriceVatInclude: product.purchaseUnitPriceVatInclude,
         purchaseVatRate: product.purchaseVatRate,
-        saleUnitPrice: product.saleUnitPrice,
-        saleUnitPriceCurrency: product.saleUnitPriceCurrency,
-        saleUnitPriceVatInclude: product.saleUnitPriceVatInclude,
-        saleVatRate: product.saleVatRate,
         isLotTracked: product.isLotTracked,
         isSerialTracked: product.isSerialTracked,
         isActive: product.isActive,
-        barcodes:
-          product.barcodes?.map(b => ({
-            id: b.id,
-            barcode: b.barcode,
-            quantity: b.quantity,
-            unit: b.unit
+        unitPrices:
+          product.unitPrices?.map(u => ({
+            id: u.id,
+            unitId: u.unitId,
+            conversionRate: u.conversionRate,
+            barcode: u.barcode,
+            saleUnitPrice: u.saleUnitPrice,
+            saleUnitPriceCurrency: u.saleUnitPriceCurrency,
+            saleUnitPriceVatInclude: u.saleUnitPriceVatInclude,
+            saleVatRate: u.saleVatRate,
+            isBaseUnit: u.isBaseUnit
           })) || [],
         suppliers:
           product.suppliers?.map(s => ({
@@ -243,14 +233,10 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
       purchaseUnitPriceCurrency: 0,
       purchaseUnitPriceVatInclude: false,
       purchaseVatRate: 20,
-      saleUnitPrice: 0,
-      saleUnitPriceCurrency: 0,
-      saleUnitPriceVatInclude: false,
-      saleVatRate: 20,
       isLotTracked: false,
       isSerialTracked: false,
       isActive: true,
-      barcodes: [],
+      unitPrices: [],
       suppliers: [],
       serialNumbers: []
     };
@@ -291,16 +277,17 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
             purchaseUnitPriceCurrency: dialogFormData.value.purchaseUnitPriceCurrency,
             purchaseUnitPriceVatInclude: dialogFormData.value.purchaseUnitPriceVatInclude,
             purchaseVatRate: dialogFormData.value.purchaseVatRate,
-            saleUnitPrice: dialogFormData.value.saleUnitPrice,
-            saleUnitPriceCurrency: dialogFormData.value.saleUnitPriceCurrency,
-            saleUnitPriceVatInclude: dialogFormData.value.saleUnitPriceVatInclude,
-            saleVatRate: dialogFormData.value.saleVatRate,
             categoryId: dialogFormData.value.categoryId || undefined,
-            barcodes: dialogFormData.value.barcodes.map(b => ({
-              id: b.id,
-              barcode: b.barcode,
-              quantity: b.quantity,
-              unit: b.unit
+            unitPrices: dialogFormData.value.unitPrices.map(u => ({
+              id: u.id,
+              unitId: u.unitId,
+              conversionRate: u.conversionRate,
+              barcode: u.barcode,
+              saleUnitPrice: u.saleUnitPrice,
+              saleUnitPriceCurrency: u.saleUnitPriceCurrency,
+              saleUnitPriceVatInclude: u.saleUnitPriceVatInclude,
+              saleVatRate: u.saleVatRate,
+              isBaseUnit: u.isBaseUnit
             })),
             suppliers: dialogFormData.value.suppliers.map(s => ({
               id: s.id,
@@ -326,16 +313,17 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
             purchaseUnitPriceCurrency: dialogFormData.value.purchaseUnitPriceCurrency,
             purchaseUnitPriceVatInclude: dialogFormData.value.purchaseUnitPriceVatInclude,
             purchaseVatRate: dialogFormData.value.purchaseVatRate,
-            saleUnitPrice: dialogFormData.value.saleUnitPrice,
-            saleUnitPriceCurrency: dialogFormData.value.saleUnitPriceCurrency,
-            saleUnitPriceVatInclude: dialogFormData.value.saleUnitPriceVatInclude,
-            saleVatRate: dialogFormData.value.saleVatRate,
             isLotTracked: dialogFormData.value.isLotTracked,
             isSerialTracked: dialogFormData.value.isSerialTracked,
-            barcodes: dialogFormData.value.barcodes.map(b => ({
-              barcode: b.barcode,
-              quantity: b.quantity,
-              unit: b.unit
+            unitPrices: dialogFormData.value.unitPrices.map(u => ({
+              unitId: u.unitId,
+              conversionRate: u.conversionRate,
+              barcode: u.barcode,
+              saleUnitPrice: u.saleUnitPrice,
+              saleUnitPriceCurrency: u.saleUnitPriceCurrency,
+              saleUnitPriceVatInclude: u.saleUnitPriceVatInclude,
+              saleVatRate: u.saleVatRate,
+              isBaseUnit: u.isBaseUnit
             })),
             suppliers: dialogFormData.value.suppliers.map(s => ({
               customerId: s.customerId,

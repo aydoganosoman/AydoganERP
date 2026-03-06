@@ -1,0 +1,15 @@
+CariKodu;CariAdi;Tip;CariTuru;VergiNo;VergiDairesi;Telefon;Eposta;Il;Ilce;Adres
+MUS001;ABC Teknoloji A.Ş.;Musteri;Tuzel;1234567890;Kadıköy;02165551234;info@abcteknoloji.com;İstanbul;Kadıköy;Caferağa Mah. Moda Cad. No:15
+MUS002;XYZ Bilişim Ltd.;Musteri;Tuzel;9876543210;Beşiktaş;02125559876;satis@xyzbilisim.com;İstanbul;Beşiktaş;Levent Mah. Nispetiye Cad. No:22
+MUS003;Mehmet Yılmaz;Musteri;Gercek;;;05321234567;mehmet.yilmaz@email.com;Ankara;Çankaya;Kızılay Mah. Atatürk Bulvarı No:100
+MUS004;Ayşe Demir;Musteri;Gercek;;;05329876543;ayse.demir@email.com;İzmir;Konak;Alsancak Mah. Kıbrıs Şehitleri Cad. No:50
+MUS005;Delta Elektronik;Musteri;Tuzel;5555555555;Şişli;02123335555;info@deltaelektronik.com;İstanbul;Şişli;Mecidiyeköy Mah. Büyükdere Cad. No:78
+MUS006;Gamma Yazılım;Musteri;Tuzel;6666666666;Ümraniye;02164446666;iletisim@gammayazilim.com;İstanbul;Ümraniye;Ümraniye Mah. Alemdağ Cad. No:45
+MUS007;Omega Sistemler;Musteri;Tuzel;7777777777;Bakırköy;02125557777;destek@omegasistemler.com;İstanbul;Bakırköy;Ataköy Mah. E-5 Yanyol No:12
+MUS008;Ali Kaya;Musteri;Gercek;;;05331112233;ali.kaya@email.com;Bursa;Nilüfer;Görükle Mah. Üniversite Cad. No:88
+TED001;HP Türkiye;Tedarikci;Tuzel;1111111111;Beykoz;02169991111;b2b@hp.com.tr;İstanbul;Beykoz;Kavacık Mah. Rüzgarlıbahçe Cad. No:1
+TED002;Logitech Distribütör;Tedarikci;Tuzel;2222222222;Kartal;02164442222;siparis@logitechtr.com;İstanbul;Kartal;Yakacık Mah. Sanayi Cad. No:55
+TED003;Dell Türkiye;Tedarikci;Tuzel;3333333333;Maltepe;02163333333;kurumsal@dell.com.tr;İstanbul;Maltepe;Cevizli Mah. Tugay Yolu Cad. No:20
+TED004;JBL Distribütör;Tedarikci;Tuzel;4444444444;Pendik;02164444444;toptan@jbltr.com;İstanbul;Pendik;Kurtköy Mah. Ankara Cad. No:150
+TED005;Samsung Türkiye;Tedarikci;Tuzel;8888888888;Ataşehir;02168888888;b2b@samsung.com.tr;İstanbul;Ataşehir;Ataşehir Bulvarı No:88
+HER001;Bilişim Merkezi;HerIkisi;Tuzel;9999999999;Fatih;02125559999;info@bilisimmerkezi.com;İstanbul;Fatih;Aksaray Mah. Vatan Cad. No:35

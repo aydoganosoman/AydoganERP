@@ -1,0 +1,37 @@
+Senaryo No;Modül;Test Adı;Ön Koşul;Test Adımları;Beklenen Sonuç;Gerçekleşen Sonuç;Durum;Notlar
+ST-001;Stok;Stok girişi (Manuel);Ürün mevcut, stok: 0;"1. Stok Hareketleri ekranına git
+2. 'Yeni Hareket' butonuna tıkla
+3. Ürün seç
+4. Tip: Giriş
+5. Miktar: 100
+6. Kaydet";Stok 100 adet olmalı;;;
+ST-002;Stok;Stok çıkışı (Manuel);Ürün mevcut, stok: 100;"1. Stok Hareketleri > Yeni Hareket
+2. Ürün seç
+3. Tip: Çıkış
+4. Miktar: 30
+5. Kaydet";Stok 70 adet olmalı;;;
+ST-003;Stok;Stok seviyesi görüntüleme;Ürün mevcut, stok hareketi yapılmış;"1. Ürün listesinden ürün seç
+2. 'Stok Seviyesi' butonuna tıkla";Güncel stok miktarı gösterilmeli;;;
+ST-004;Stok;Stok hareketleri listesi;Ürün için stok hareketleri mevcut;"1. Ürün detayından 'Hareketler' sekmesine git";Tüm stok hareketleri tarih sırasıyla listelenmeli;;;
+ST-005;Stok;Toplu stok girişi;Birden fazla ürün mevcut;"1. Stok Hareketleri > Toplu Giriş
+2. Excel'den veya manuel birden fazla ürün ekle
+3. Kaydet";Tüm ürünlerin stokları güncellenmeli;;;
+ST-006;Stok;Negatif stok kontrolü;Ürün stok: 10;"1. Stok çıkışı yap: 20 adet
+2. Kaydet";Sistem negatif stoğa izin vermemeli (veya uyarı göstermeli);;;
+ST-007;Stok;Stok hareketi filtreleme;Çeşitli stok hareketleri mevcut;"1. Stok Hareketleri listesinde filtrele:
+   - Tarih aralığı
+   - Hareket tipi
+   - Ürün";Filtreye uyan hareketler listelenmeli;;;
+ST-008;Stok;Fatura ile otomatik stok çıkışı;Ürün stok: 100;"1. Satış faturası oluştur
+2. Ürün ekle: 10 adet
+3. Faturayı onayla";Stok otomatik 90'a düşmeli;;;
+ST-009;Stok;Fatura ile otomatik stok girişi;Ürün stok: 50;"1. Alış faturası oluştur
+2. Ürün ekle: 30 adet
+3. Faturayı onayla";Stok otomatik 80'e çıkmalı;;;
+ST-010;Stok;Satış iade ile stok artışı;Ürün stok: 90;"1. Satış iade faturası oluştur
+2. Ürün ekle: 5 adet
+3. Faturayı onayla";Stok 95'e çıkmalı;;;
+ST-011;Stok;Barkodlu sayım;Barkodlu ürünler mevcut;"1. Barkodlu Sayım ekranına git
+2. Barkod okut
+3. Miktar gir
+4. Kaydet";Stok sayımı kaydedilmeli, fark raporlanmalı;;;

@@ -1,0 +1,61 @@
+Senaryo No;Modül;Test Adı;Ön Koşul;Test Adımları;Beklenen Sonuç;Gerçekleşen Sonuç;Durum;Notlar
+CA-001;Cari;Yeni müşteri oluşturma;Kullanıcı giriş yapmış;"1. Cariler > Yeni Cari
+2. Tip: Müşteri
+3. Cari Kodu: 'MUS001'
+4. Cari Adı: 'Test Müşteri A.Ş.'
+5. Kaydet";Müşteri kaydedilmeli;;;
+CA-002;Cari;Yeni tedarikçi oluşturma;-;"1. Yeni Cari > Tip: Tedarikçi
+2. Bilgileri doldur
+3. Kaydet";Tedarikçi kaydedilmeli;;;
+CA-003;Cari;Müşteri+Tedarikçi (Her ikisi);-;"1. Yeni Cari > Tip: Her İkisi
+2. Bilgileri doldur
+3. Kaydet";Hem müşteri hem tedarikçi olarak kullanılabilmeli;;;
+CA-004;Cari;Otomatik cari kodu;-;"1. Yeni cari formunda 'Oto' butonuna tıkla";Benzersiz cari kodu üretilmeli (CUS00001);;;
+CA-005;Cari;Kod benzersizlik kontrolü;'MUS001' kodlu cari mevcut;"1. Yeni cari formunda kod: 'MUS001' yaz
+2. Alandan çık";'Bu kod zaten kullanılıyor' uyarısı gösterilmeli;;;
+CA-006;Cari;Tüzel kişi bilgileri;-;"1. Cari Türü: Tüzel Kişi
+2. Vergi No: 1234567890
+3. Vergi Dairesi: Kadıköy
+4. Kaydet";Vergi bilgileri kaydedilmeli;;;
+CA-007;Cari;Gerçek kişi bilgileri;-;"1. Cari Türü: Gerçek Kişi
+2. Ad: 'Ali'
+3. Soyad: 'Yılmaz'
+4. TC No: 12345678901
+5. Kaydet";Kişi bilgileri kaydedilmeli;;;
+CA-008;Cari;İletişim bilgileri;Cari mevcut;"1. Cari düzenle
+2. E-posta: test@test.com
+3. Telefon: 05551234567
+4. Kaydet";İletişim bilgileri kaydedilmeli;;;
+CA-009;Cari;Adres bilgileri;Cari mevcut;"1. Cari düzenle
+2. Ülke, İl, İlçe seç
+3. Adres detayı yaz
+4. Kaydet";Adres bilgileri kaydedilmeli;;;
+CA-010;Cari;Banka hesabı ekleme;Cari mevcut;"1. Cari düzenle > Banka Hesapları sekmesi
+2. 'Hesap Ekle' butonuna tıkla
+3. Banka, Şube, IBAN bilgilerini gir
+4. Kaydet";Banka hesabı eklenmeli;;;
+CA-011;Cari;Birden fazla banka hesabı;Cari mevcut;"1. Cariye 2-3 farklı banka hesabı ekle
+2. Kaydet";Tüm hesaplar kaydedilmeli ve listelenebilmeli;;;
+CA-012;Cari;Şube ekleme;Cari mevcut;"1. Cari düzenle > Şubeler sekmesi
+2. 'Şube Ekle'
+3. Şube adı, adres, iletişim bilgileri gir
+4. Kaydet";Şube kaydedilmeli;;;
+CA-013;Cari;İletişim kişisi ekleme;Cari mevcut;"1. Cari düzenle > İletişim Kişileri sekmesi
+2. 'Kişi Ekle'
+3. Ad, pozisyon, telefon, e-posta gir
+4. Kaydet";İletişim kişisi kaydedilmeli;;;
+CA-014;Cari;Not ekleme;Cari mevcut;"1. Cari düzenle > Notlar sekmesi
+2. 'Not Ekle'
+3. Not içeriği yaz
+4. Kaydet";Not kaydedilmeli, tarih otomatik atanmalı;;;
+CA-015;Cari;Cari arama;Birden fazla cari mevcut;"1. Cari listesinde arama kutusuna cari adı veya kodu yaz
+2. Ara";Eşleşen cariler listelenmeli;;;
+CA-016;Cari;Tip filtresi (Müşteri);Müşteri ve tedarikçiler mevcut;"1. Tip filtresinden 'Müşteri' seç
+2. Filtrele";Sadece müşteriler listelenmeli;;;
+CA-017;Cari;Durum filtresi;Aktif ve pasif cariler mevcut;"1. Durum filtresinden 'Pasif' seç
+2. Filtrele";Sadece pasif cariler listelenmeli;;;
+CA-018;Cari;Cari pasife alma;Aktif cari mevcut;"1. Cariyi düzenle
+2. 'Aktif' anahtarını kapat
+3. Kaydet";Cari pasif duruma geçmeli;;;
+CA-019;Cari;Cari ekstre;Faturası olan cari mevcut;"1. Cari detayında 'Ekstre' sekmesine git";Carinin tüm işlemleri (faturalar, ödemeler) listelenmeli;;;
+CA-020;Cari;Cari bakiye;İşlemleri olan cari mevcut;"1. Cari listesinde bakiye kolonunu kontrol et";Güncel bakiye (borç/alacak) doğru gösterilmeli;;;

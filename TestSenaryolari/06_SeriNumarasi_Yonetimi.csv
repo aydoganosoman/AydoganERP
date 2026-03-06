@@ -1,0 +1,28 @@
+Senaryo No;Modül;Test Adı;Ön Koşul;Test Adımları;Beklenen Sonuç;Gerçekleşen Sonuç;Durum;Notlar
+SN-001;Seri No;Seri numaralı ürün girişi;Seri takipli ürün mevcut;"1. Stok girişi yap (toplu giriş)
+2. Ürün seç
+3. Seri numaralarını gir (her satırda bir seri no)
+4. Kaydet";Her seri numarası için ayrı kayıt oluşmalı, durum: 'Stokta';;;
+SN-002;Seri No;Seri numarası ile arama;Seri numaralı ürün stokta;"1. Seri Numarası Envanter ekranına git
+2. Arama kutusuna seri numarası yaz";Seri numarasına ait ürün bilgisi görüntülenmeli;;;
+SN-003;Seri No;Seri numarası detay görüntüleme;Seri numarası mevcut;"1. Seri numarasını ara
+2. Detayları görüntüle";Alış tarihi, fiyatı, tedarikçi bilgileri görünmeli;;;
+SN-004;Seri No;Seri numaralı ürün satışı;Seri takipli ürün stokta;"1. Satış faturası oluştur
+2. Seri takipli ürün ekle
+3. Satılacak seri numaralarını seç
+4. Faturayı onayla";Seçilen seri numaraları 'Satıldı' durumuna geçmeli;;;
+SN-005;Seri No;Seri numarası durum değişikliği;Seri numarası 'Stokta' durumunda;"1. Seri numarasını bul
+2. Durumu 'Serviste' olarak değiştir
+3. Not ekle";Durum güncellenmeli, not kaydedilmeli;;;
+SN-006;Seri No;Garanti takibi;Seri numarası mevcut;"1. Seri numarasını düzenle
+2. Garanti bitiş tarihi gir
+3. Kaydet";Garanti tarihi kaydedilmeli;;;
+SN-007;Seri No;Seri numarası geçmişi;Durum değişikliği yapılmış seri no;"1. Seri numarası detayına git
+2. Geçmiş/log sekmesini kontrol et";Tüm durum değişiklikleri tarih ve kullanıcı ile listelenebilmeli;;;
+SN-008;Seri No;Stokta olan seri numaraları;Çeşitli durumlarda seri no'lar mevcut;"1. Seri numarası listesinde durum filtresi: 'Stokta'
+2. Filtrele";Sadece stokta olan seri numaraları listelenmeli;;;
+SN-009;Seri No;Satılan seri numaraları;Satılmış seri no'lar mevcut;"1. Durum filtresi: 'Satıldı'
+2. Filtrele";Satılmış seri numaraları, müşteri bilgisiyle listelenmeli;;;
+SN-010;Seri No;Arızalı seri numaraları;-;"1. Seri numarasını 'Arızalı' durumuna getir
+2. Not ekle: Arıza açıklaması
+3. Kaydet";Durum ve not kaydedilmeli;;;

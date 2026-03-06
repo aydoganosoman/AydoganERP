@@ -14,7 +14,10 @@ import type {
   UpdateTagCommand,
   FolderDto,
   CreateFolderCommand,
-  UpdateFolderCommand
+  UpdateFolderCommand,
+  DistrictDto,
+  CityDto,
+  CountyDto
 } from "./types";
 
 // ============== Groups ==============
@@ -26,13 +29,16 @@ export const getGroups = (params?: {
   isActive?: boolean;
 }) => {
   console.log("getGroups API call starting...", params);
-  return http.request<GroupDto[]>("get", "/Groups", { params }).then(res => {
-    console.log("getGroups API response:", res);
-    return res;
-  }).catch(err => {
-    console.error("getGroups API error:", err);
-    throw err;
-  });
+  return http
+    .request<GroupDto[]>("get", "/Groups", { params })
+    .then(res => {
+      console.log("getGroups API response:", res);
+      return res;
+    })
+    .catch(err => {
+      console.error("getGroups API error:", err);
+      throw err;
+    });
 };
 
 /** Grup detayı getir */
@@ -161,4 +167,25 @@ import type { ProductUnitDto } from "./types";
 /** Birim listesi getir */
 export const getProductUnits = () => {
   return http.request<ProductUnitDto[]>("get", "/ProductUnits");
+};
+
+// ============== Districts ==============
+
+/** İlçe listesi getir */
+export const getDistricts = (cityId: number) => {
+  return http.request<DistrictDto[]>("get", `/Districts?cityId=${cityId}`);
+};
+
+// ============== Cities ==============
+
+/** İl listesi getir */
+export const getCities = (countryId: number) => {
+  return http.request<CityDto[]>("get", `/Cities?countryId=${countryId}`);
+};
+
+// ============== Counties ==============
+
+/** İlçe listesi getir */
+export const getCounties = () => {
+  return http.request<CountyDto[]>("get", "/Counties");
 };

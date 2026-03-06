@@ -28,11 +28,34 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("Capital")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<int>("CompanyType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<DateTime?>("Created")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
+
+                    b.Property<int>("Currency")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("EstablishmentDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("HeadquartersAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("timestamp without time zone");
@@ -40,16 +63,156 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("MersisNo")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ShortName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("TapdkNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TradeRegisterNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TradeRegisterTitle")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.CompanyBankAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AccountName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("AccountNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BranchName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Currency")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Iban")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("character varying(34)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SwiftCode")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "Iban")
+                        .IsUnique();
+
+                    b.ToTable("CompanyBankAccounts", (string)null);
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.DocumentNumbering", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("CurrentNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "DocumentType", "Prefix")
+                        .IsUnique();
+
+                    b.ToTable("DocumentNumberings", (string)null);
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CustomerModule.Entities.Customer", b =>
@@ -720,22 +883,10 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Property<int>("PurchaseUnitPriceCurrency")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("PurchaseUnitPriceVatInculde")
+                    b.Property<bool>("PurchaseUnitPriceVatInclude")
                         .HasColumnType("boolean");
 
                     b.Property<float>("PurchaseVatRate")
-                        .HasColumnType("real");
-
-                    b.Property<decimal>("SaleUnitPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("SaleUnitPriceCurrency")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("SaleUnitPriceVatInculde")
-                        .HasColumnType("boolean");
-
-                    b.Property<float>("SaleVatRate")
                         .HasColumnType("real");
 
                     b.Property<Guid>("UnitId")
@@ -750,45 +901,6 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.HasIndex("UnitId");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.ProductBarcode", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Barcode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductBarcodes");
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.ProductSerialNumber", b =>
@@ -902,6 +1014,79 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductSuppliers");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.ProductUnitPrice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<decimal>("ConversionRate")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)")
+                        .HasDefaultValue(1m);
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsBaseUnit")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("SaleUnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<int>("SaleUnitPriceCurrency")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("SaleUnitPriceVatInclude")
+                        .HasColumnType("boolean");
+
+                    b.Property<float>("SaleVatRate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("real")
+                        .HasDefaultValue(0f);
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Barcode")
+                        .IsUnique()
+                        .HasFilter("\"Barcode\" IS NOT NULL");
+
+                    b.HasIndex("UnitId");
+
+                    b.HasIndex("ProductId", "UnitId")
+                        .IsUnique();
+
+                    b.ToTable("ProductUnitPrices", (string)null);
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.StockBatch", b =>
@@ -1494,6 +1679,125 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.ToTable("UserActionLogs");
                 });
 
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.Company", b =>
+                {
+                    b.OwnsOne("AydoganERP.Base.Domain.Modules.CustomerModule.ValuesObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("CompanyId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int?>("City")
+                                .HasColumnType("integer")
+                                .HasColumnName("CityId");
+
+                            b1.Property<int?>("Country")
+                                .HasColumnType("integer")
+                                .HasColumnName("CountryId");
+
+                            b1.Property<int?>("District")
+                                .HasColumnType("integer")
+                                .HasColumnName("DistrictId");
+
+                            b1.Property<string>("Line")
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("AddressLine");
+
+                            b1.HasKey("CompanyId");
+
+                            b1.ToTable("Companies");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CompanyId");
+                        });
+
+                    b.OwnsOne("AydoganERP.Base.Domain.Modules.CustomerModule.ValuesObjects.ContactInfo", "Contact", b1 =>
+                        {
+                            b1.Property<Guid>("CompanyId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Email")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Email");
+
+                            b1.Property<string>("Fax")
+                                .HasMaxLength(30)
+                                .HasColumnType("character varying(30)")
+                                .HasColumnName("Fax");
+
+                            b1.Property<string>("Phone")
+                                .HasMaxLength(30)
+                                .HasColumnType("character varying(30)")
+                                .HasColumnName("Phone");
+
+                            b1.Property<string>("Website")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Website");
+
+                            b1.HasKey("CompanyId");
+
+                            b1.ToTable("Companies");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CompanyId");
+                        });
+
+                    b.OwnsOne("AydoganERP.Base.Domain.Modules.CustomerModule.ValuesObjects.TaxInfo", "TaxInfo", b1 =>
+                        {
+                            b1.Property<Guid>("CompanyId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("TaxNumber")
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("TaxNumber");
+
+                            b1.Property<string>("TaxOffice")
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("TaxOffice");
+
+                            b1.HasKey("CompanyId");
+
+                            b1.ToTable("Companies");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CompanyId");
+                        });
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Contact")
+                        .IsRequired();
+
+                    b.Navigation("TaxInfo")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.CompanyBankAccount", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.DocumentNumbering", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CustomerModule.Entities.Customer", b =>
                 {
                     b.HasOne("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.Company", "Company")
@@ -1542,10 +1846,16 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                                 .HasColumnType("character varying(200)")
                                 .HasColumnName("ContactEmail");
 
+                            b1.Property<string>("Fax")
+                                .HasColumnType("text");
+
                             b1.Property<string>("Phone")
                                 .HasMaxLength(30)
                                 .HasColumnType("character varying(30)")
                                 .HasColumnName("ContactPhone");
+
+                            b1.Property<string>("Website")
+                                .HasColumnType("text");
 
                             b1.HasKey("CustomerId");
 
@@ -1652,10 +1962,16 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                                 .HasColumnType("character varying(200)")
                                 .HasColumnName("ContactEmail");
 
+                            b1.Property<string>("Fax")
+                                .HasColumnType("text");
+
                             b1.Property<string>("Phone")
                                 .HasMaxLength(30)
                                 .HasColumnType("character varying(30)")
                                 .HasColumnName("ContactPhone");
+
+                            b1.Property<string>("Website")
+                                .HasColumnType("text");
 
                             b1.HasKey("CustomerBranchId");
 
@@ -1806,17 +2122,6 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Navigation("Unit");
                 });
 
-            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.ProductBarcode", b =>
-                {
-                    b.HasOne("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.Product", "Product")
-                        .WithMany("ProductBarcodes")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.ProductSerialNumber", b =>
                 {
                     b.HasOne("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.Product", "Product")
@@ -1859,6 +2164,25 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.ProductUnitPrice", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.Product", "Product")
+                        .WithMany("UnitPrices")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AydoganERP.Base.Domain.Modules.SharedModule.Entities.ProductUnit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.InventoryModule.Entities.StockBatch", b =>
@@ -2007,13 +2331,13 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("Movements");
 
-                    b.Navigation("ProductBarcodes");
-
                     b.Navigation("ProductSuppliers");
 
                     b.Navigation("SerialNumbers");
 
                     b.Navigation("StockBatches");
+
+                    b.Navigation("UnitPrices");
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.SharedModule.Entities.City", b =>

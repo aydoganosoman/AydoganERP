@@ -1,0 +1,34 @@
+Senaryo No;Modül;Test Adı;Ön Koşul;Test Adımları;Beklenen Sonuç;Gerçekleşen Sonuç;Durum;Notlar
+BF-001;Birim Fiyat;Birim fiyat ekleme;Ürün düzenleme ekranı açık;"1. 'Satış Fiyatları' sekmesine git
+2. 'Birim Fiyat Ekle' butonuna tıkla
+3. Birim seç (Adet)
+4. Dönüşüm Oranı: 1
+5. Satış Fiyatı: 100
+6. KDV: %20
+7. Kaydet";Birim fiyat kaydedilmeli ve tabloda görünmeli;;;
+BF-002;Birim Fiyat;Farklı birimler için fiyat;Ürün mevcut;"1. Ürüne birden fazla birim fiyat ekle:
+   - Adet: 100 TL (dönüşüm: 1)
+   - Koli: 1100 TL (dönüşüm: 12)
+   - Paket: 500 TL (dönüşüm: 6)
+2. Kaydet";Her birim için ayrı fiyat kaydedilmeli;;;
+BF-003;Birim Fiyat;Ana birim işaretleme;Ürüne birden fazla birim fiyat ekli;"1. Bir birim fiyatın 'Ana' checkbox'ını işaretle
+2. Kaydet";İşaretlenen birim ana birim olarak kaydedilmeli;;;
+BF-004;Birim Fiyat;Birim fiyat silme;Ürüne birim fiyat ekli;"1. Birim fiyat satırındaki sil butonuna tıkla
+2. Kaydet";Birim fiyat silinmeli;;;
+BF-005;Barkod;Manuel barkod girişi;Birim fiyat satırı mevcut;"1. Barkod alanına '8690000000001' yaz
+2. Kaydet";Barkod kaydedilmeli;;;
+BF-006;Barkod;Otomatik EAN-13 barkod;Birim fiyat satırı mevcut;"1. Barkod alanının yanındaki 'Oto' butonuna tıkla
+2. 'EAN-13 (13 rakam)' seç";13 haneli barkod üretilmeli (200 ile başlayan);;;
+BF-007;Barkod;Otomatik EAN-8 barkod;Birim fiyat satırı mevcut;"1. 'Oto' > 'EAN-8 (8 rakam)' seç";8 haneli barkod üretilmeli;;;
+BF-008;Barkod;Otomatik Code 128 barkod;Birim fiyat satırı mevcut;"1. 'Oto' > 'Code 128 (Alfanümerik)' seç";Alfanümerik barkod üretilmeli (P + tarih + random);;;
+BF-009;Barkod;Otomatik Code 39 barkod;Birim fiyat satırı mevcut;"1. 'Oto' > 'Code 39 (Depo/Kargo)' seç";PRD-XXXXXXXX formatında barkod üretilmeli;;;
+BF-010;Barkod;Otomatik Dahili barkod;Birim fiyat satırı mevcut;"1. 'Oto' > 'Dahili (Sıralı)' seç";INT0000000001 formatında sıralı barkod üretilmeli;;;
+BF-011;Barkod;Barkod benzersizlik;Sistemde '8690000000001' barkodu mevcut;"1. Başka bir ürüne aynı barkodu girmeyi dene
+2. Kaydet";Hata mesajı gösterilmeli (benzersiz kısıtlaması);;;
+BF-012;Barkod;Barkod ile ürün arama;Barkodlu ürün mevcut;"1. Fatura ekranında barkod alanına barkod yaz
+2. Enter'a bas";Ürün bilgileri otomatik doldurulmalı (birim fiyatı dahil);;;
+BF-013;Birim Fiyat;Farklı para birimleri;Birim fiyat satırı mevcut;"1. Para Birimi: USD seç
+2. Satış Fiyatı: 50
+3. Kaydet";USD cinsinden fiyat kaydedilmeli;;;
+BF-014;Birim Fiyat;KDV dahil fiyat;Birim fiyat satırı mevcut;"1. KDV Dahil checkbox'ını işaretle
+2. Kaydet";Fiyatın KDV dahil olduğu kaydedilmeli;;;

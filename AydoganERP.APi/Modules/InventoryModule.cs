@@ -6,6 +6,7 @@ using AydoganERP.Inventory.Application.ProductManager.Queries.CheckCodeExists;
 using AydoganERP.Inventory.Application.ProductManager.Queries.GetByBarcode;
 using AydoganERP.Inventory.Application.ProductManager.Queries.GetById;
 using AydoganERP.Inventory.Application.ProductManager.Queries.GetList;
+using AydoganERP.Inventory.Application.ProductManager.Queries.GenerateBarcode;
 using AydoganERP.Inventory.Application.ProductManager.Queries.GetNextCode;
 using AydoganERP.Inventory.Application.ProductSerialNumberManager.Commands.UpdateStatus;
 using AydoganERP.Inventory.Application.ProductSerialNumberManager.Queries.GetByCode;
@@ -53,6 +54,11 @@ public class InventoryModule : ICarterModule
 
         productGroup
             .MapGet("/next-code", HandleGetNextProductCode)
+            .Produces<string>(200)
+            .ProducesProblem(500);
+
+        productGroup
+            .MapGet("/generate-barcode", HandleGenerateBarcode)
             .Produces<string>(200)
             .ProducesProblem(500);
 
@@ -177,6 +183,35 @@ public class InventoryModule : ICarterModule
         return Results.Ok(result);
     }
 
+    private static async Task<IResult> HandleGenerateBarcode(
+        [FromServices] ISender sender,
+        [FromQuery] string? barcodeType = null,
+        [FromQuery] string? prefix = null,
+        CancellationToken cancellationToken = default)
+    {
+        // String veya int kabul et: "EAN13", "0", "ean13" hepsi geçerli
+        var parsedType = ParseBarcodeType(barcodeType);
+        var result = await sender.Send(
+            new GenerateBarcodeQuery(parsedType, prefix),
+            cancellationToken);
+        return Results.Ok(result);
+    }
+
+    private static BarcodeType ParseBarcodeType(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return BarcodeType.EAN13;
+        
+        // Sayı olarak dene
+        if (int.TryParse(value, out int intValue))
+            return (BarcodeType)intValue;
+        
+        // String enum olarak dene (case-insensitive)
+        if (Enum.TryParse<BarcodeType>(value, ignoreCase: true, out var enumValue))
+            return enumValue;
+        
+        return BarcodeType.EAN13; // Varsayılan
+    }
+
     private static async Task<IResult> HandleCreateProduct(
         [FromServices] ISender sender,
         [FromBody] CreateProductCommand command,
@@ -203,12 +238,17 @@ public class InventoryModule : ICarterModule
             request.PurchaseUnitPriceCurrency,
             request.PurchaseUnitPriceVatInclude,
             request.PurchaseVatRate,
-            request.SaleUnitPrice,
-            request.SaleUnitPriceCurrency,
-            request.SaleUnitPriceVatInclude,
-            request.SaleVatRate,
             request.CategoryId,
-            request.Barcodes?.Select(b => new UpdateProductBarcodeItem(b.Id, b.Barcode, b.Quantity ?? 1, b.Unit ?? "Adet")).ToList(),
+            request.UnitPrices?.Select(u => new UpdateProductUnitPriceItem(
+                u.Id,
+                u.UnitId,
+                u.ConversionRate,
+                u.Barcode,
+                u.SaleUnitPrice,
+                u.SaleUnitPriceCurrency,
+                u.SaleUnitPriceVatInclude,
+                u.SaleVatRate,
+                u.IsBaseUnit)).ToList(),
             request.Suppliers?.Select(s => new UpdateProductSupplierItem(s.Id, s.CustomerId, s.Code, s.Name)).ToList());
 
         var result = await sender.Send(command, cancellationToken);
@@ -313,19 +353,20 @@ public class InventoryModule : ICarterModule
         int PurchaseUnitPriceCurrency = 0,
         bool PurchaseUnitPriceVatInclude = false,
         float PurchaseVatRate = 0,
+        Guid? CategoryId = null,
+        List<UnitPriceRequest>? UnitPrices = null,
+        List<SupplierRequest>? Suppliers = null);
+
+    public record UnitPriceRequest(
+        Guid? Id,
+        Guid UnitId,
+        decimal ConversionRate = 1,
+        string? Barcode = null,
         decimal SaleUnitPrice = 0,
         int SaleUnitPriceCurrency = 0,
         bool SaleUnitPriceVatInclude = false,
         float SaleVatRate = 0,
-        Guid? CategoryId = null,
-        List<BarcodeRequest>? Barcodes = null,
-        List<SupplierRequest>? Suppliers = null);
-
-    public record BarcodeRequest(
-        Guid? Id,
-        string Barcode,
-        decimal? Quantity = 1,
-        string? Unit = "Adet");
+        bool IsBaseUnit = false);
 
     public record SupplierRequest(
         Guid? Id,

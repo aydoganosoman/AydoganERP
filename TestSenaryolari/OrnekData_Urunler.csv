@@ -1,0 +1,16 @@
+UrunKodu;UrunAdi;Birim;Kategori;AlisFiyati;AlisDoviz;AlisKDV;LotTakip;SeriTakip;Aktif
+PRD001;Laptop HP ProBook 450;Adet;Bilgisayar;15000;TRY;20;Hayir;Evet;Evet
+PRD002;Mouse Logitech M185;Adet;Aksesuar;120;TRY;20;Hayir;Hayir;Evet
+PRD003;Klavye Logitech K120;Adet;Aksesuar;180;TRY;20;Hayir;Hayir;Evet
+PRD004;Monitor Dell 24";Adet;Monitör;4500;TRY;20;Hayir;Evet;Evet
+PRD005;USB Kablo 1.5m;Adet;Kablo;25;TRY;20;Hayir;Hayir;Evet
+PRD006;HDMI Kablo 2m;Adet;Kablo;75;TRY;20;Hayir;Hayir;Evet
+PRD007;Webcam Logitech C920;Adet;Aksesuar;1200;TRY;20;Hayir;Evet;Evet
+PRD008;Kulaklık JBL Tune 500;Adet;Ses;800;TRY;20;Hayir;Evet;Evet
+PRD009;Powerbank 10000mAh;Adet;Aksesuar;350;TRY;20;Hayir;Hayir;Evet
+PRD010;Telefon Kılıfı iPhone 14;Adet;Aksesuar;150;TRY;20;Hayir;Hayir;Evet
+PRD011;SSD Samsung 500GB;Adet;Depolama;1800;TRY;20;Hayir;Evet;Evet
+PRD012;RAM 16GB DDR4;Adet;Bellek;1200;TRY;20;Hayir;Hayir;Evet
+PRD013;Yazıcı HP LaserJet;Adet;Yazıcı;5500;TRY;20;Hayir;Evet;Evet
+PRD014;Toner HP 85A;Adet;Sarf Malzeme;450;TRY;20;Evet;Hayir;Evet
+PRD015;A4 Kağıt 500'lü;Paket;Sarf Malzeme;120;TRY;20;Evet;Hayir;Evet

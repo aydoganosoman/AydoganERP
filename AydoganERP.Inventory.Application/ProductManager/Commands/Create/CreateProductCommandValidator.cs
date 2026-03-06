@@ -17,13 +17,9 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
             .NotEmpty().WithMessage("Name is required.")
             .MaximumLength(200).WithMessage("Name must not exceed 200 characters.");
 
-        RuleFor(v => v.UnitId)
-            .NotEmpty().WithMessage("UnitId is required.");
+        // UnitId opsiyonel - boşsa handler varsayılan birim atar
 
         RuleFor(v => v.PurchaseVatRate)
             .InclusiveBetween(0, 100).WithMessage("PurchaseVatRate must be between 0 and 100.");
-        
-        RuleFor(v => v.SaleVatRate)
-            .InclusiveBetween(0, 100).WithMessage("SaleVatRate must be between 0 and 100.");
     }
 }

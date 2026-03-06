@@ -27,7 +27,8 @@ public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, P
             .AsNoTracking()
             .Include(p => p.Unit)
             .Include(p => p.Category)
-            .Include(p => p.ProductBarcodes)
+            .Include(p => p.UnitPrices)
+                .ThenInclude(up => up.Unit)
             .Include(p => p.ProductSuppliers)
                 .ThenInclude(ps => ps.Customer)
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);

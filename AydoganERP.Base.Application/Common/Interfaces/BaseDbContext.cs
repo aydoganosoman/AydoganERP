@@ -18,6 +18,8 @@ public interface IBaseDbContext
     DbSet<Currency> Currencies { get; set; }
     DbSet<ProductUnit> ProductUnits { get; set; }
     DbSet<Company> Companies { get; set; }
+    DbSet<DocumentNumbering> DocumentNumberings { get; set; }
+    DbSet<CompanyBankAccount> CompanyBankAccounts { get; set; }
     DbSet<Customer> Customers { get; set; }
     DbSet<CustomerBankAccount> CustomerBankAccounts { get; set; }
     DbSet<CustomerBranch> CustomerBranches { get; set; }
@@ -25,7 +27,7 @@ public interface IBaseDbContext
     DbSet<CustomerNote> CustomerNotes { get; set; }
     DbSet<CustomerNumber> CustomerNumbers { get; set; }
     DbSet<Product> Products { get; set; }
-    DbSet<ProductBarcode> ProductBarcodes { get; set; }
+    DbSet<ProductUnitPrice> ProductUnitPrices { get; set; }
     DbSet<ProductSupplier> ProductSuppliers { get; set; }
     DbSet<StockMovement> StockMovements { get; set; }
     DbSet<StockBatch> StockBatches { get; set; }

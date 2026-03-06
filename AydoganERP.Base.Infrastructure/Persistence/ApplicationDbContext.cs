@@ -149,6 +149,8 @@ public class ApplicationDbContext : DbContext, IBaseDbContext
     public DbSet<Currency> Currencies { get; set; }
     public DbSet<ProductUnit> ProductUnits { get; set; }
     public DbSet<Company> Companies { get; set; }
+    public DbSet<DocumentNumbering> DocumentNumberings { get; set; }
+    public DbSet<CompanyBankAccount> CompanyBankAccounts { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<CustomerBankAccount> CustomerBankAccounts { get; set; }
     public DbSet<CustomerBranch> CustomerBranches { get; set; }
@@ -156,7 +158,7 @@ public class ApplicationDbContext : DbContext, IBaseDbContext
     public DbSet<CustomerNote> CustomerNotes { get; set; }
     public DbSet<CustomerNumber> CustomerNumbers { get; set; }
     public DbSet<Product> Products { get; set; }
-    public DbSet<ProductBarcode> ProductBarcodes { get; set; }
+    public DbSet<ProductUnitPrice> ProductUnitPrices { get; set; }
     public DbSet<ProductSupplier> ProductSuppliers { get; set; }
     public DbSet<StockMovement> StockMovements { get; set; }
     public DbSet<StockBatch> StockBatches { get; set; }
