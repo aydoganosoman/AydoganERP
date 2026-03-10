@@ -33,6 +33,11 @@ public class MappingProfile : Profile
         CreateMap<CompanyBankAccount, CompanyBankAccountDto>()
             .ForMember(dest => dest.CurrencyName, opt => opt.MapFrom(src => CurrencyEnum.GetName(src.Currency)));
 
+        CreateMap<ECommerceIntegration, ECommerceIntegrationDto>()
+            .ForMember(dest => dest.IntegrationTypeName, opt => opt.MapFrom(src => IntegrationTypeEnum.GetName(src.IntegrationType)));
+
+        CreateMap<IntegrationDefaults, IntegrationDefaultsDto>();
+
         CreateMap(typeof(PaginatedList<>), typeof(PaginatedList<>))
             .ConvertUsing(typeof(PaginatedListConverter<,>));
     }

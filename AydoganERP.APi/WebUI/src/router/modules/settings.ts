@@ -26,9 +26,18 @@ export default {
         {
           path: "/settings/document-settings",
           name: "DocumentSettings",
-          component: () => import("@/views/erp/settings/document-settings/index.vue"),
+          component: () =>
+            import("@/views/erp/settings/document-settings/index.vue"),
           meta: {
             title: "Belge Ayarları"
+          }
+        },
+        {
+          path: "/settings/integration",
+          name: "IntegrationSettings",
+          component: () => import("@/views/erp/settings/integration/index.vue"),
+          meta: {
+            title: "Entegrasyon"
           }
         }
       ]

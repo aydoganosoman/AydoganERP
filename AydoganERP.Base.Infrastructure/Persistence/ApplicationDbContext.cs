@@ -176,4 +176,9 @@ public class ApplicationDbContext : DbContext, IBaseDbContext
     public DbSet<InvoiceLine> InvoiceLines { get; set; }
     public DbSet<InvoicePayment> InvoicePayments { get; set; }
     public DbSet<EInvoiceLog> EInvoiceLogs { get; set; }
+
+    // Integration Module
+    public DbSet<ECommerceIntegration> ECommerceIntegrations { get; set; }
+    public DbSet<IntegrationDefaults> IntegrationDefaults { get; set; }
+    public DbSet<EInvoiceIntegration> EInvoiceIntegrations { get; set; }
 }

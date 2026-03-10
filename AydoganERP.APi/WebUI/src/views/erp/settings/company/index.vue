@@ -190,22 +190,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-loading="loading" class="company-settings">
-    <el-card shadow="never">
-      <template #header>
-        <div class="card-header">
-          <span class="title">Firma Tanımları</span>
-          <el-button
-            type="primary"
-            :loading="saving"
-            :icon="useRenderIcon(Check)"
-            @click="saveCompany"
-          >
-            Kaydet
-          </el-button>
-        </div>
-      </template>
+  <div class="main p-4">
+    <!-- Başlık -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <h2 class="text-lg font-semibold">Firma Tanımları</h2>
+      </div>
+      <div class="flex gap-2">
+        <el-button
+          type="primary"
+          :loading="saving"
+          :icon="useRenderIcon(Check)"
+          @click="saveCompany"
+        >
+          Kaydet
+        </el-button>
+      </div>
+    </div>
 
+    <div v-loading="loading">
       <el-tabs type="border-card">
         <el-tab-pane label="Genel Bilgiler">
           <el-form
@@ -440,7 +443,11 @@ onMounted(() => {
                   </el-col>
                   <el-col :span="8">
                     <el-form-item label="İlçe">
-                      <el-select v-model="formData.districtId" class="w-full" placeholder="İlçe Seçiniz">
+                      <el-select
+                        v-model="formData.districtId"
+                        class="w-full"
+                        placeholder="İlçe Seçiniz"
+                      >
                         <el-option
                           v-for="p in districtList"
                           :key="p.id"
@@ -472,26 +479,11 @@ onMounted(() => {
           </el-form>
         </el-tab-pane>
       </el-tabs>
-    </el-card>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.company-settings {
-  padding: 16px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .title {
-    font-size: 18px;
-    font-weight: 600;
-  }
-}
-
 .form-container {
   display: grid;
   grid-template-columns: 1fr 1fr;

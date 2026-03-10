@@ -46,6 +46,11 @@ public interface IBaseDbContext
     DbSet<InvoicePayment> InvoicePayments { get; set; }
     DbSet<EInvoiceLog> EInvoiceLogs { get; set; }
 
+    // Integration Module
+    DbSet<ECommerceIntegration> ECommerceIntegrations { get; set; }
+    DbSet<IntegrationDefaults> IntegrationDefaults { get; set; }
+    DbSet<EInvoiceIntegration> EInvoiceIntegrations { get; set; }
+
     ChangeTracker ChangeTracker
     {
         get;

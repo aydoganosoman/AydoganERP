@@ -906,3 +906,89 @@ export interface UpdateCompanyBankAccountCommand {
   swiftCode?: string;
   isActive: boolean;
 }
+
+// ============== E-Commerce Integration ==============
+
+/** IntegrationType - Entegrasyon Tipi */
+export enum IntegrationTypeEnum {
+  Trendyol = 0,
+  TrendyolYemek = 1,
+  N11 = 2,
+  Hepsiburada = 3,
+  Shopier = 4
+}
+
+/** ECommerceIntegration - E-Ticaret Entegrasyonu */
+export interface ECommerceIntegrationDto {
+  id: string;
+  companyId: string;
+  integrationType: number;
+  integrationTypeName: string;
+  storeName: string;
+  integrationUrl?: string;
+  username?: string;
+  credentials: string;
+  isActive: boolean;
+  defaults?: IntegrationDefaultsDto;
+}
+
+export interface CreateECommerceIntegrationCommand {
+  companyId: string;
+  integrationType: number;
+  storeName: string;
+  credentials: string;
+  integrationUrl?: string;
+  username?: string;
+}
+
+export interface UpdateECommerceIntegrationCommand {
+  storeName: string;
+  credentials: string;
+  integrationUrl?: string;
+  username?: string;
+  isActive: boolean;
+}
+
+/** IntegrationDefaults - Entegrasyon Varsayılanları */
+export interface IntegrationDefaultsDto {
+  id: string;
+  integrationId: string;
+  considerOrderStatuses: boolean;
+  orderStatuses?: string;
+  autoCreateBarcode: boolean;
+  invoiceDateType?: number;
+  defaultVatRate: number;
+  vatExemptionCode?: string;
+  exportVatExemptionCode?: string;
+  shippingFeeAccountId?: string;
+  installmentFeeAccountId?: string;
+  defaultCustomerId?: string;
+  paymentMethod?: number;
+  cargoCompanyId?: string;
+  defaultCategoryId?: string;
+  eInvoiceSeriesId?: string;
+  eArchiveSeriesId?: string;
+  orderFilterDaysBefore: number;
+  lastSyncTime?: string;
+  lastOrderFilterDate?: string;
+  lastSyncStatus?: string;
+}
+
+export interface UpdateIntegrationDefaultsCommand {
+  considerOrderStatuses: boolean;
+  orderStatuses?: string;
+  autoCreateBarcode: boolean;
+  invoiceDateType?: number;
+  defaultVatRate: number;
+  vatExemptionCode?: string;
+  exportVatExemptionCode?: string;
+  shippingFeeAccountId?: string;
+  installmentFeeAccountId?: string;
+  defaultCustomerId?: string;
+  paymentMethod?: number;
+  cargoCompanyId?: string;
+  defaultCategoryId?: string;
+  eInvoiceSeriesId?: string;
+  eArchiveSeriesId?: string;
+  orderFilterDaysBefore: number;
+}

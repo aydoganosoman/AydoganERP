@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { getInvoices, approveInvoice, cancelInvoice } from "@/api/erp/finance";
@@ -6,9 +6,11 @@ import type { InvoiceListDto, PagedResult } from "@/api/erp/types";
 import { InvoiceTypeEnum, InvoiceStatusEnum } from "@/api/erp/types";
 import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { PureTableBar } from "@/components/RePureTableBar";
 import { useUserStoreHook } from "@/store/modules/user";
 
-import Plus from "~icons/ep/plus";
+import AddFill from "~icons/ri/add-circle-line";
+import Refresh from "~icons/ep/refresh";
 import View from "~icons/ep/view";
 import Check from "~icons/ep/check";
 import Close from "~icons/ep/close";
@@ -48,6 +50,71 @@ const statusOptions = [
   { value: InvoiceStatusEnum.Draft, label: "Taslak" },
   { value: InvoiceStatusEnum.Approved, label: "Onaylandı" },
   { value: InvoiceStatusEnum.Cancelled, label: "İptal" }
+];
+
+const columns: TableColumnList = [
+  { label: "Fatura No", prop: "invoiceNumber", minWidth: 140 },
+  {
+    label: "Tarih",
+    prop: "invoiceDate",
+    minWidth: 110,
+    formatter: (row: InvoiceListDto) => formatDate(row.invoiceDate)
+  },
+  {
+    label: "Tip",
+    prop: "invoiceTypeName",
+    minWidth: 130,
+    cellRenderer: ({ row }) => (
+      <el-tag type={getInvoiceTypeType(row.invoiceType)} size="small">
+        {row.invoiceTypeName}
+      </el-tag>
+    )
+  },
+  {
+    label: "Cari",
+    minWidth: 200,
+    cellRenderer: ({ row }) => (
+      <div>
+        <div>{row.customerName}</div>
+        <div class="text-xs text-gray-500">{row.customerCode}</div>
+      </div>
+    )
+  },
+  {
+    label: "Tutar",
+    prop: "grandTotal",
+    minWidth: 140,
+    align: "right",
+    cellRenderer: ({ row }) => (
+      <span class="font-semibold">{formatCurrency(row.grandTotal, row.currency)}</span>
+    )
+  },
+  {
+    label: "Ödeme",
+    minWidth: 140,
+    align: "right",
+    cellRenderer: ({ row }) => (
+      row.isPaid
+        ? <div class="text-green-600">Ödendi</div>
+        : <div class="text-orange-600">Kalan: {formatCurrency(row.remainingAmount, row.currency)}</div>
+    )
+  },
+  {
+    label: "Durum",
+    prop: "statusName",
+    minWidth: 120,
+    cellRenderer: ({ row }) => (
+      <el-tag type={getStatusType(row.status)} size="small">
+        {row.statusName}
+      </el-tag>
+    )
+  },
+  {
+    label: "İşlem",
+    fixed: "right",
+    width: 150,
+    slot: "operation"
+  }
 ];
 
 async function loadInvoices() {
@@ -153,136 +220,145 @@ function formatCurrency(amount: number, currency: number): string {
   return `${symbols[currency] || "₺"} ${amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 })}`;
 }
 
+function resetFilters() {
+  filters.invoiceType = null;
+  filters.status = null;
+  filters.searchText = "";
+  filters.startDate = null;
+  filters.endDate = null;
+  handleSearch();
+}
+
 onMounted(() => {
   loadInvoices();
 });
 </script>
 
 <template>
-  <div class="main p-4">
-    <!-- Başlık ve Butonlar -->
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold">Faturalar</h2>
-      <el-button type="primary" :icon="useRenderIcon(Plus)" @click="goToCreate">
-        Yeni Fatura
-      </el-button>
-    </div>
-
-    <!-- Filtreler -->
-    <el-card class="mb-4">
-      <el-form :inline="true" :model="filters">
-        <el-form-item label="Fatura Tipi">
-          <el-select v-model="filters.invoiceType" placeholder="Tümü" clearable style="width: 150px">
-            <el-option
-              v-for="opt in invoiceTypeOptions"
-              :key="opt.value"
-              :label="opt.label"
-              :value="opt.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Durum">
-          <el-select v-model="filters.status" placeholder="Tümü" clearable style="width: 130px">
-            <el-option
-              v-for="opt in statusOptions"
-              :key="opt.value"
-              :label="opt.label"
-              :value="opt.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Ara">
-          <el-input
-            v-model="filters.searchText"
-            placeholder="Fatura No veya Cari"
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleSearch"
+  <div class="main">
+    <el-form
+      :inline="true"
+      :model="filters"
+      class="search-form bg-bg_color w-full pl-8 pt-[12px] overflow-auto"
+    >
+      <el-form-item label="Fatura Tipi:">
+        <el-select v-model="filters.invoiceType" placeholder="Tümü" clearable class="w-[150px]!">
+          <el-option
+            v-for="opt in invoiceTypeOptions"
+            :key="opt.value"
+            :label="opt.label"
+            :value="opt.value"
           />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">Ara</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-
-    <!-- Tablo -->
-    <el-card>
-      <el-table :data="invoices" v-loading="loading" stripe>
-        <el-table-column prop="invoiceNumber" label="Fatura No" width="140" />
-        <el-table-column prop="invoiceDate" label="Tarih" width="110">
-          <template #default="{ row }">
-            {{ formatDate(row.invoiceDate) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="invoiceTypeName" label="Tip" width="130">
-          <template #default="{ row }">
-            <el-tag :type="getInvoiceTypeType(row.invoiceType)" size="small">
-              {{ row.invoiceTypeName }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="Cari" min-width="200">
-          <template #default="{ row }">
-            <div>{{ row.customerName }}</div>
-            <div class="text-xs text-gray-500">{{ row.customerCode }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="grandTotal" label="Tutar" width="140" align="right">
-          <template #default="{ row }">
-            <span class="font-semibold">{{ formatCurrency(row.grandTotal, row.currency) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Ödeme" width="140" align="right">
-          <template #default="{ row }">
-            <div v-if="row.isPaid" class="text-green-600">Ödendi</div>
-            <div v-else class="text-orange-600">
-              Kalan: {{ formatCurrency(row.remainingAmount, row.currency) }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="statusName" label="Durum" width="120">
-          <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)" size="small">
-              {{ row.statusName }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="İşlem" width="150" fixed="right">
-          <template #default="{ row }">
-            <el-button-group>
-              <el-button size="small" :icon="useRenderIcon(View)" @click="goToDetail(row.id)" />
-              <el-button
-                v-if="row.status === InvoiceStatusEnum.Draft"
-                size="small"
-                type="success"
-                :icon="useRenderIcon(Check)"
-                @click="handleApprove(row)"
-              />
-              <el-button
-                v-if="row.status === InvoiceStatusEnum.Draft"
-                size="small"
-                type="danger"
-                :icon="useRenderIcon(Close)"
-                @click="handleCancel(row)"
-              />
-            </el-button-group>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <!-- Pagination -->
-      <div class="flex justify-end mt-4">
-        <el-pagination
-          v-model:current-page="pagination.currentPage"
-          v-model:page-size="pagination.pageSize"
-          :total="pagination.totalCount"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next"
-          @current-change="handlePageChange"
-          @size-change="handleSizeChange"
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Durum:">
+        <el-select v-model="filters.status" placeholder="Tümü" clearable class="w-[130px]!">
+          <el-option
+            v-for="opt in statusOptions"
+            :key="opt.value"
+            :label="opt.label"
+            :value="opt.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Arama:">
+        <el-input
+          v-model="filters.searchText"
+          placeholder="Fatura No veya Cari"
+          clearable
+          class="w-[200px]!"
+          @keyup.enter="handleSearch"
         />
-      </div>
-    </el-card>
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          type="primary"
+          :icon="useRenderIcon('ri/search-line')"
+          :loading="loading"
+          @click="handleSearch"
+        >
+          Ara
+        </el-button>
+        <el-button :icon="useRenderIcon(Refresh)" @click="resetFilters">
+          Sıfırla
+        </el-button>
+      </el-form-item>
+    </el-form>
+
+    <PureTableBar title="Faturalar" :columns="columns" @refresh="loadInvoices">
+      <template #buttons>
+        <el-button
+          type="primary"
+          :icon="useRenderIcon(AddFill)"
+          @click="goToCreate"
+        >
+          Yeni Fatura
+        </el-button>
+      </template>
+      <template v-slot="{ size, dynamicColumns }">
+        <pure-table
+          align-whole="center"
+          showOverflowTooltip
+          table-layout="auto"
+          :loading="loading"
+          :size="size"
+          adaptive
+          :adaptiveConfig="{ offsetBottom: 108 }"
+          :data="invoices"
+          :columns="dynamicColumns"
+          :pagination="pagination"
+          :paginationSmall="size === 'small'"
+          @page-current-change="handlePageChange"
+          @page-size-change="handleSizeChange"
+          :header-cell-style="{
+            background: 'var(--el-fill-color-light)',
+            color: 'var(--el-text-color-primary)'
+          }"
+        >
+          <template #operation="{ row }">
+            <el-button
+              class="reset-margin"
+              link
+              type="primary"
+              :size="size"
+              :icon="useRenderIcon(View)"
+              @click="goToDetail(row.id)"
+            >
+              Detay
+            </el-button>
+            <el-button
+              v-if="row.status === InvoiceStatusEnum.Draft"
+              class="reset-margin"
+              link
+              type="success"
+              :size="size"
+              :icon="useRenderIcon(Check)"
+              @click="handleApprove(row)"
+            >
+              Onayla
+            </el-button>
+            <el-button
+              v-if="row.status === InvoiceStatusEnum.Draft"
+              class="reset-margin"
+              link
+              type="danger"
+              :size="size"
+              :icon="useRenderIcon(Close)"
+              @click="handleCancel(row)"
+            >
+              İptal
+            </el-button>
+          </template>
+        </pure-table>
+      </template>
+    </PureTableBar>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.search-form {
+  :deep(.el-form-item) {
+    margin-bottom: 12px;
+  }
+}
+</style>

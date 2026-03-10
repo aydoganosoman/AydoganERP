@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 import { ref, onMounted, computed } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
@@ -22,9 +22,14 @@ import type {
   UpdateCompanyBankAccountCommand
 } from "@/api/erp/types";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import Plus from "~icons/ep/plus";
+import { PureTableBar } from "@/components/RePureTableBar";
+import AddFill from "~icons/ri/add-circle-line";
 import EditPen from "~icons/ep/edit-pen";
 import Delete from "~icons/ep/delete";
+
+defineOptions({
+  name: "DocumentSettings"
+});
 
 const userStore = useUserStoreHook();
 const companyId = computed(() => userStore.companyId);
@@ -43,6 +48,38 @@ const documentTypes = [
   { label: "E-İrsaliye", value: 2 },
   { label: "E-Müstahsil", value: 3 },
   { label: "E-Serbest Meslek", value: 4 }
+];
+
+const numberingColumns: TableColumnList = [
+  { label: "Belge Tipi", prop: "documentTypeName", minWidth: 150 },
+  { label: "Ön Ek", prop: "prefix", minWidth: 100 },
+  { label: "Mevcut Numara", prop: "currentNumber", minWidth: 120 },
+  {
+    label: "Varsayılan",
+    prop: "isDefault",
+    width: 100,
+    cellRenderer: ({ row }) => (
+      <el-tag type={row.isDefault ? "success" : "info"} size="small">
+        {row.isDefault ? "Evet" : "Hayır"}
+      </el-tag>
+    )
+  },
+  {
+    label: "Durum",
+    prop: "isActive",
+    width: 100,
+    cellRenderer: ({ row }) => (
+      <el-tag type={row.isActive ? "success" : "danger"} size="small">
+        {row.isActive ? "Aktif" : "Pasif"}
+      </el-tag>
+    )
+  },
+  {
+    label: "İşlemler",
+    fixed: "right",
+    width: 120,
+    slot: "operation"
+  }
 ];
 
 const numberingForm = ref<CreateDocumentNumberingCommand>({
@@ -151,6 +188,29 @@ const currencies = [
   { label: "USD - Amerikan Doları", value: 1 },
   { label: "EUR - Euro", value: 2 },
   { label: "GBP - İngiliz Sterlini", value: 3 }
+];
+
+const bankColumns: TableColumnList = [
+  { label: "Banka Adı", prop: "bankName", minWidth: 150 },
+  { label: "Şube", prop: "branchName", minWidth: 120 },
+  { label: "IBAN", prop: "iban", minWidth: 250 },
+  { label: "Para Birimi", prop: "currencyName", width: 120 },
+  {
+    label: "Durum",
+    prop: "isActive",
+    width: 100,
+    cellRenderer: ({ row }) => (
+      <el-tag type={row.isActive ? "success" : "danger"} size="small">
+        {row.isActive ? "Aktif" : "Pasif"}
+      </el-tag>
+    )
+  },
+  {
+    label: "İşlemler",
+    fixed: "right",
+    width: 120,
+    slot: "operation"
+  }
 ];
 
 const bankForm = ref<CreateCompanyBankAccountCommand>({
@@ -282,119 +342,122 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="document-settings">
-    <el-card shadow="never">
-      <template #header>
-        <span class="title">Belge Ayarları</span>
-      </template>
-
-      <el-tabs type="border-card">
-        <!-- Numaratörler Tab -->
-        <el-tab-pane label="Numaratörler">
-          <div class="tab-header">
+  <div class="main">
+    <el-tabs type="border-card">
+      <!-- Numaratörler Tab -->
+      <el-tab-pane label="Numaratörler">
+        <PureTableBar
+          title=""
+          :columns="numberingColumns"
+          @refresh="fetchNumberings"
+        >
+          <template #title>
             <el-button
               type="primary"
-              :icon="useRenderIcon(Plus)"
+              :icon="useRenderIcon(AddFill)"
               @click="openNumberingDialog()"
             >
               Yeni Numaratör
             </el-button>
-          </div>
-
-          <el-table
-            v-loading="numberingLoading"
-            :data="numberings"
-            stripe
-            class="mt-4"
-          >
-            <el-table-column prop="documentTypeName" label="Belge Tipi" />
-            <el-table-column prop="prefix" label="Ön Ek" />
-            <el-table-column prop="currentNumber" label="Mevcut Numara" />
-            <el-table-column label="Varsayılan" width="100" align="center">
-              <template #default="{ row }">
-                <el-tag v-if="row.isDefault" type="success" size="small">
-                  Evet
-                </el-tag>
-                <el-tag v-else type="info" size="small">Hayır</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="Durum" width="100" align="center">
-              <template #default="{ row }">
-                <el-tag v-if="row.isActive" type="success" size="small">
-                  Aktif
-                </el-tag>
-                <el-tag v-else type="danger" size="small">Pasif</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="İşlemler" width="120" align="center">
-              <template #default="{ row }">
+          </template>
+          <template v-slot="{ size, dynamicColumns }">
+            <pure-table
+              align-whole="center"
+              showOverflowTooltip
+              table-layout="auto"
+              :loading="numberingLoading"
+              :size="size"
+              :data="numberings"
+              :columns="dynamicColumns"
+              :header-cell-style="{
+                background: 'var(--el-fill-color-light)',
+                color: 'var(--el-text-color-primary)'
+              }"
+            >
+              <template #operation="{ row }">
                 <el-button
-                  type="primary"
+                  class="reset-margin"
                   link
+                  type="primary"
+                  :size="size"
                   :icon="useRenderIcon(EditPen)"
                   @click="openNumberingDialog(row)"
-                />
+                >
+                  Düzenle
+                </el-button>
                 <el-button
-                  type="danger"
+                  class="reset-margin"
                   link
+                  type="danger"
+                  :size="size"
                   :icon="useRenderIcon(Delete)"
                   @click="removeNumbering(row)"
-                />
+                >
+                  Sil
+                </el-button>
               </template>
-            </el-table-column>
-          </el-table>
-        </el-tab-pane>
+            </pure-table>
+          </template>
+        </PureTableBar>
+      </el-tab-pane>
 
-        <!-- Banka Bilgileri Tab -->
-        <el-tab-pane label="Banka Bilgileri">
-          <div class="tab-header">
+      <!-- Banka Bilgileri Tab -->
+      <el-tab-pane label="Banka Bilgileri">
+        <PureTableBar
+          title=""
+          :columns="bankColumns"
+          @refresh="fetchBankAccounts"
+        >
+          <template #title>
             <el-button
               type="primary"
-              :icon="useRenderIcon(Plus)"
+              :icon="useRenderIcon(AddFill)"
               @click="openBankDialog()"
             >
               Yeni Banka Hesabı
             </el-button>
-          </div>
-
-          <el-table
-            v-loading="bankLoading"
-            :data="bankAccounts"
-            stripe
-            class="mt-4"
-          >
-            <el-table-column prop="bankName" label="Banka Adı" />
-            <el-table-column prop="branchName" label="Şube" />
-            <el-table-column prop="iban" label="IBAN" />
-            <el-table-column prop="currencyName" label="Para Birimi" width="120" />
-            <el-table-column label="Durum" width="100" align="center">
-              <template #default="{ row }">
-                <el-tag v-if="row.isActive" type="success" size="small">
-                  Aktif
-                </el-tag>
-                <el-tag v-else type="danger" size="small">Pasif</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="İşlemler" width="120" align="center">
-              <template #default="{ row }">
+          </template>
+          <template v-slot="{ size, dynamicColumns }">
+            <pure-table
+              align-whole="center"
+              showOverflowTooltip
+              table-layout="auto"
+              :loading="bankLoading"
+              :size="size"
+              :data="bankAccounts"
+              :columns="dynamicColumns"
+              :header-cell-style="{
+                background: 'var(--el-fill-color-light)',
+                color: 'var(--el-text-color-primary)'
+              }"
+            >
+              <template #operation="{ row }">
                 <el-button
-                  type="primary"
+                  class="reset-margin"
                   link
+                  type="primary"
+                  :size="size"
                   :icon="useRenderIcon(EditPen)"
                   @click="openBankDialog(row)"
-                />
+                >
+                  Düzenle
+                </el-button>
                 <el-button
-                  type="danger"
+                  class="reset-margin"
                   link
+                  type="danger"
+                  :size="size"
                   :icon="useRenderIcon(Delete)"
                   @click="removeBankAccount(row)"
-                />
+                >
+                  Sil
+                </el-button>
               </template>
-            </el-table-column>
-          </el-table>
-        </el-tab-pane>
-      </el-tabs>
-    </el-card>
+            </pure-table>
+          </template>
+        </PureTableBar>
+      </el-tab-pane>
+    </el-tabs>
 
     <!-- Numaratör Dialog -->
     <el-dialog
@@ -437,7 +500,11 @@ onMounted(() => {
       </el-form>
       <template #footer>
         <el-button @click="numberingDialogVisible = false">İptal</el-button>
-        <el-button type="primary" :loading="numberingSaving" @click="saveNumbering">
+        <el-button
+          type="primary"
+          :loading="numberingSaving"
+          @click="saveNumbering"
+        >
           Kaydet
         </el-button>
       </template>
@@ -528,7 +595,11 @@ onMounted(() => {
       </el-form>
       <template #footer>
         <el-button @click="bankDialogVisible = false">İptal</el-button>
-        <el-button type="primary" :loading="bankSaving" @click="saveBankAccount">
+        <el-button
+          type="primary"
+          :loading="bankSaving"
+          @click="saveBankAccount"
+        >
           Kaydet
         </el-button>
       </template>
@@ -537,15 +608,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.document-settings {
-  padding: 16px;
-}
-
-.title {
-  font-size: 18px;
-  font-weight: 600;
-}
-
 .tab-header {
   display: flex;
   justify-content: flex-end;
