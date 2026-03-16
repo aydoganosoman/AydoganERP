@@ -77,7 +77,7 @@ const numberingColumns: TableColumnList = [
   {
     label: "İşlemler",
     fixed: "right",
-    width: 120,
+    width: 175,
     slot: "operation"
   }
 ];
@@ -208,7 +208,7 @@ const bankColumns: TableColumnList = [
   {
     label: "İşlemler",
     fixed: "right",
-    width: 120,
+    width: 175,
     slot: "operation"
   }
 ];

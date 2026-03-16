@@ -77,10 +77,56 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasForeignKey(x => x.InvoiceId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // New relationships
+        builder.HasMany(x => x.InvoiceNotes)
+            .WithOne(x => x.Invoice)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.PaymentTerms)
+            .WithOne(x => x.Invoice)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.OrderInfos)
+            .WithOne(x => x.Invoice)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.PartyNumbers)
+            .WithOne(x => x.Invoice)
+            .HasForeignKey(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.OkcInfo)
+            .WithOne(x => x.Invoice)
+            .HasForeignKey<InvoiceOkcInfo>(x => x.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // New properties
+        builder.Property(x => x.PostboxAlias)
+            .HasMaxLength(50);
+
+        builder.Property(x => x.SeriesPrefix)
+            .HasMaxLength(10);
+
+        builder.Property(x => x.RoundingAmount)
+            .HasPrecision(18, 4)
+            .HasDefaultValue(0m);
+
+        builder.Property(x => x.PayableAmount)
+            .HasPrecision(18, 4)
+            .HasDefaultValue(0m);
+
+        builder.Property(x => x.InvoiceSubDiscount)
+            .HasPrecision(18, 4)
+            .HasDefaultValue(0m);
+
         // Indexes
         builder.HasIndex(x => x.InvoiceDate);
         builder.HasIndex(x => x.CustomerId);
         builder.HasIndex(x => x.Status);
         builder.HasIndex(x => x.InvoiceType);
+        builder.HasIndex(x => x.EInvoiceUUID);
     }
 }

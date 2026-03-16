@@ -9,6 +9,10 @@
     <ItemGroup>
       <ProjectReference Include="..\AydoganERP.Base.Application\AydoganERP.Base.Application.csproj" />
       <ProjectReference Include="..\AydoganERP.Base.Domain\AydoganERP.Base.Domain.csproj" />
+      <ProjectReference Include="..\AydoganERP.Finance.Application\AydoganERP.Finance.Application.csproj" />
+      <ProjectReference Include="..\AydoganERP.EInvoice.Abstractions\AydoganERP.EInvoice.Abstractions.csproj" />
+      <ProjectReference Include="..\AydoganERP.EInvoice.MySoft\AydoganERP.EInvoice.MySoft.csproj" />
+      <ProjectReference Include="..\AydoganERP.EInvoice.Bien\AydoganERP.EInvoice.Bien.csproj" />
     </ItemGroup>
 
 </Project>

@@ -590,7 +590,48 @@ export enum InvoiceStatusEnum {
   Cancelled = 2,
   EInvoiceSent = 3,
   EInvoiceAccepted = 4,
-  EInvoiceRejected = 5
+  EInvoiceRejected = 5,
+  // Gelen Fatura Durumları
+  Received = 6,         // Gelen fatura alındı
+  PendingApproval = 7,  // Gelen ticari fatura - kabul bekleniyor
+  AcceptedByUs = 8,     // Bizim tarafımızdan kabul edildi
+  RejectedByUs = 9      // Bizim tarafımızdan reddedildi
+}
+
+/** E-Invoice Scenario - E-Fatura Senaryosu */
+export enum EInvoiceScenarioEnum {
+  Basic = 1,
+  Commercial = 2,
+  Export = 3,
+  Public = 4
+}
+
+/** Invoice Line Type - Fatura Satır Tipi */
+export enum InvoiceLineTypeEnum {
+  Product = 0,
+  Service = 1
+}
+
+/** VAT Status - KDV Durumu */
+export enum VatStatusEnum {
+  Excluded = 0,
+  Included = 1
+}
+
+/** Party Number Type - Alıcı/Satıcı Numara Tipi */
+export enum PartyNumberTypeEnum {
+  SubscriberNo = 1,
+  DealerNo = 2,
+  FarmerNo = 3,
+  TaxNo = 4,
+  IdNo = 5,
+  EpdkNo = 6
+}
+
+/** OKC Fis Type - ÖKC Fiş Tipi */
+export enum OkcFisTypeEnum {
+  Sales = 1,
+  Return = 2
 }
 
 /** Payment Method - Ödeme Yöntemi */
@@ -614,6 +655,9 @@ export interface InvoiceLineDto {
   unitPrice: number;
   vatRate: number;
   discountRate: number;
+  lineType: number;      // InvoiceLineTypeEnum
+  vatStatus: number;     // VatStatusEnum
+  gtipCode?: string;     // GTİP Kodu
   lineTotal: number;
   discountAmount: number;
   vatAmount: number;
@@ -621,6 +665,72 @@ export interface InvoiceLineDto {
   description?: string;
   serialNumberId?: string;
   serialNumber?: string;
+}
+
+/** InvoiceNote - Fatura Notu */
+export interface InvoiceNoteDto {
+  id: string;
+  noteText: string;
+  sortOrder: number;
+}
+
+/** InvoicePaymentTerm - Ödeme Koşulu */
+export interface InvoicePaymentTermDto {
+  id: string;
+  paymentMethod: number;
+  paymentMethodName: string;
+  dueDate?: string;
+  amount: number;
+  penaltyRate?: number;
+  penaltyAmount?: number;
+  description?: string;
+}
+
+/** InvoiceOrderInfo - Sipariş/İrsaliye Bilgisi */
+export interface InvoiceOrderInfoDto {
+  id: string;
+  orderNumber?: string;
+  orderDate?: string;
+  waybillNumber?: string;
+  waybillDate?: string;
+  documentPath?: string;
+  documentName?: string;
+}
+
+/** InvoicePartyNumber - Alıcı/Satıcı Numarası */
+export interface InvoicePartyNumberDto {
+  id: string;
+  isBuyer: boolean;
+  numberType: number;
+  numberTypeName: string;
+  value: string;
+  description?: string;
+}
+
+/** InvoiceOkcInfo - ÖKC Fiş Bilgisi */
+export interface InvoiceOkcInfoDto {
+  id: string;
+  fisNo?: string;
+  fisDate?: string;
+  fisTime?: string;
+  fisType?: number;
+  fisTypeName?: string;
+  zReportNo?: string;
+  okcSerialNo?: string;
+}
+
+/** Document - Doküman */
+export interface DocumentDto {
+  id: string;
+  attachmentType: number;
+  relatedEntityId: string;
+  fileName: string;
+  filePath: string;
+  contentType?: string;
+  fileSize: number;
+  description?: string;
+  created?: string;
+  createdBy?: string;
 }
 
 /** InvoicePayment - Fatura Ödemesi */
@@ -640,6 +750,7 @@ export interface InvoiceDto {
   companyId: string;
   invoiceNumber: string;
   invoiceDate: string;
+  invoiceTime?: string;
   invoiceType: number;
   invoiceTypeName: string;
   status: number;
@@ -657,13 +768,31 @@ export interface InvoiceDto {
   paymentTermDays: number;
   description?: string;
   notes?: string;
+  // E-Invoice
   isEInvoice: boolean;
   eInvoiceUUID?: string;
+  eInvoiceScenario: number;
+  postboxAlias?: string;
+  // Additional fields
+  seriesPrefix?: string;
+  invoiceSerial?: number;
+  replacesInvoiceRef: boolean;
+  // Financial adjustments
+  roundingAmount: number;
+  payableAmount: number;
+  invoiceSubDiscount: number;
+  // Totals
   paidAmount: number;
   remainingAmount: number;
   isPaid: boolean;
+  // Collections
   lines: InvoiceLineDto[];
   payments: InvoicePaymentDto[];
+  invoiceNotes: InvoiceNoteDto[];
+  paymentTerms: InvoicePaymentTermDto[];
+  orderInfos: InvoiceOrderInfoDto[];
+  partyNumbers: InvoicePartyNumberDto[];
+  okcInfo?: InvoiceOkcInfoDto;
   created?: string;
   createdBy?: string;
 }
@@ -686,6 +815,7 @@ export interface InvoiceListDto {
   remainingAmount: number;
   isPaid: boolean;
   isEInvoice: boolean;
+  eInvoiceScenario: number;
 }
 
 /** CreateInvoiceLineItem - Fatura Satırı Oluşturma */
@@ -700,6 +830,9 @@ export interface CreateInvoiceLineItem {
   discountRate?: number;
   description?: string;
   serialNumberId?: string;
+  lineType?: number;
+  vatStatus?: number;
+  gtipCode?: string;
 }
 
 /** CreateInvoiceCommand - Fatura Oluşturma */
@@ -713,8 +846,13 @@ export interface CreateInvoiceCommand {
   exchangeRate?: number;
   paymentTermDays?: number;
   description?: string;
-  notes?: string;
   isEInvoice?: boolean;
+  eInvoiceScenario?: number;
+  postboxAlias?: string;
+  invoiceTime?: string;
+  seriesPrefix?: string;
+  invoiceSerial?: number;
+  replacesInvoiceRef?: boolean;
   lines?: CreateInvoiceLineItem[];
 }
 
@@ -725,7 +863,60 @@ export interface UpdateInvoiceCommand {
   currency: number;
   exchangeRate: number;
   description?: string;
-  notes?: string;
+  eInvoiceScenario?: number;
+  postboxAlias?: string;
+  invoiceTime?: string;
+  seriesPrefix?: string;
+  invoiceSerial?: number;
+  replacesInvoiceRef?: boolean;
+  roundingAmount?: number;
+  invoiceSubDiscount?: number;
+}
+
+/** InvoiceNote Item - Fatura Notu Oluşturma */
+export interface InvoiceNoteItem {
+  id?: string;
+  noteText: string;
+  sortOrder?: number;
+}
+
+/** InvoicePaymentTerm Item - Ödeme Koşulu Oluşturma */
+export interface InvoicePaymentTermItem {
+  id?: string;
+  paymentMethod: number;
+  dueDate?: string;
+  amount: number;
+  penaltyRate?: number;
+  penaltyAmount?: number;
+  description?: string;
+}
+
+/** InvoiceOrderInfo Item - Sipariş/İrsaliye Bilgisi Oluşturma */
+export interface InvoiceOrderInfoItem {
+  id?: string;
+  orderNumber?: string;
+  orderDate?: string;
+  waybillNumber?: string;
+  waybillDate?: string;
+}
+
+/** InvoicePartyNumber Item - Alıcı/Satıcı Numarası Oluşturma */
+export interface InvoicePartyNumberItem {
+  id?: string;
+  isBuyer: boolean;
+  numberType: number;
+  value: string;
+  description?: string;
+}
+
+/** InvoiceOkcInfo Item - ÖKC Fiş Bilgisi Oluşturma */
+export interface InvoiceOkcInfoItem {
+  fisNo?: string;
+  fisDate?: string;
+  fisTime?: string;
+  fisType?: number;
+  zReportNo?: string;
+  okcSerialNo?: string;
 }
 
 /** AddInvoiceLineCommand - Fatura Satırı Ekleme */
@@ -991,4 +1182,50 @@ export interface UpdateIntegrationDefaultsCommand {
   eInvoiceSeriesId?: string;
   eArchiveSeriesId?: string;
   orderFilterDaysBefore: number;
+}
+
+// ============== E-Invoice Integration ==============
+
+/** E-Fatura Entegratör Tipi */
+export enum EInvoiceIntegratorTypeEnum {
+  MySoft = 1,
+  Bien = 2
+}
+
+/** E-Fatura Entegrasyonu */
+export interface EInvoiceIntegrationDto {
+  id: string;
+  companyId: string;
+  integrationType: number;
+  integrationTypeName?: string;
+  settings?: string;
+  isActive: boolean;
+}
+
+export interface CreateEInvoiceIntegrationCommand {
+  companyId: string;
+  integrationType: number;
+  settings: string;
+}
+
+export interface UpdateEInvoiceIntegrationCommand {
+  settings: string;
+  isActive: boolean;
+}
+
+/** MySoft Ayarları */
+export interface MySoftSettings {
+  url: string;
+  userName: string;
+  password: string;
+  connectorGuid?: string;
+  isTestMode: boolean;
+}
+
+/** Bien Ayarları */
+export interface BienSettings {
+  url: string;
+  userName: string;
+  password: string;
+  isTestMode: boolean;
 }

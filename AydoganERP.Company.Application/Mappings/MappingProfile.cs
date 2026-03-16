@@ -38,6 +38,9 @@ public class MappingProfile : Profile
 
         CreateMap<IntegrationDefaults, IntegrationDefaultsDto>();
 
+        CreateMap<EInvoiceIntegration, EInvoiceIntegrationDto>()
+            .ForMember(dest => dest.IntegrationTypeName, opt => opt.MapFrom(src => IntegratorCompanyTypeEnum.GetName(src.IntegrationType)));
+
         CreateMap(typeof(PaginatedList<>), typeof(PaginatedList<>))
             .ConvertUsing(typeof(PaginatedListConverter<,>));
     }

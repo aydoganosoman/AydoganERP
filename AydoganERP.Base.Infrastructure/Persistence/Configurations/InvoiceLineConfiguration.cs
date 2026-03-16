@@ -59,6 +59,16 @@ public class InvoiceLineConfiguration : IEntityTypeConfiguration<InvoiceLine>
             .HasForeignKey(x => x.SerialNumberId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        // New properties
+        builder.Property(x => x.LineType)
+            .HasDefaultValue(0); // Product
+
+        builder.Property(x => x.VatStatus)
+            .HasDefaultValue(0); // Excluded
+
+        builder.Property(x => x.GtipCode)
+            .HasMaxLength(20);
+
         // Index
         builder.HasIndex(x => new { x.InvoiceId, x.LineNumber });
     }

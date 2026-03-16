@@ -175,7 +175,15 @@ public class ApplicationDbContext : DbContext, IBaseDbContext
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<InvoiceLine> InvoiceLines { get; set; }
     public DbSet<InvoicePayment> InvoicePayments { get; set; }
+    public DbSet<InvoiceNote> InvoiceNotes { get; set; }
+    public DbSet<InvoicePaymentTerm> InvoicePaymentTerms { get; set; }
+    public DbSet<InvoiceOrderInfo> InvoiceOrderInfos { get; set; }
+    public DbSet<InvoicePartyNumber> InvoicePartyNumbers { get; set; }
+    public DbSet<InvoiceOkcInfo> InvoiceOkcInfos { get; set; }
     public DbSet<EInvoiceLog> EInvoiceLogs { get; set; }
+
+    // Shared Module
+    public DbSet<Document> Documents { get; set; }
 
     // Integration Module
     public DbSet<ECommerceIntegration> ECommerceIntegrations { get; set; }

@@ -1,4 +1,5 @@
 using AydoganERP.Base.Domain.Common;
+using AydoganERP.Base.Domain.Modules.FinanceModule.Enums;
 using AydoganERP.Base.Domain.Modules.InventoryModule.Entities;
 
 namespace AydoganERP.Base.Domain.Modules.FinanceModule.Entities;
@@ -19,6 +20,11 @@ public class InvoiceLine : Entity
     public string ProductCode { get; private set; } = default!;
     public string ProductName { get; private set; } = default!;
     public string? UnitName { get; private set; }
+
+    // Line type and VAT status
+    public int LineType { get; private set; } // InvoiceLineTypeEnum: Product (0) / Service (1)
+    public int VatStatus { get; private set; } // VatStatusEnum: Excluded (0) / Included (1)
+    public string? GtipCode { get; private set; } // GTİP Kodu (İhracat faturaları için)
 
     // Amounts
     public decimal Quantity { get; private set; }
@@ -51,7 +57,10 @@ public class InvoiceLine : Entity
         float vatRate,
         float discountRate = 0,
         string? description = null,
-        Guid? serialNumberId = null)
+        Guid? serialNumberId = null,
+        int lineType = InvoiceLineTypeEnum.Product,
+        int vatStatus = VatStatusEnum.Excluded,
+        string? gtipCode = null)
     {
         if (id == Guid.Empty) throw new ArgumentException("Id cannot be empty.");
         if (invoiceId == Guid.Empty) throw new ArgumentException("InvoiceId cannot be empty.");
@@ -75,7 +84,10 @@ public class InvoiceLine : Entity
             VatRate = vatRate,
             DiscountRate = discountRate,
             Description = description,
-            SerialNumberId = serialNumberId
+            SerialNumberId = serialNumberId,
+            LineType = lineType,
+            VatStatus = vatStatus,
+            GtipCode = gtipCode
         };
 
         line.Calculate();
@@ -83,7 +95,15 @@ public class InvoiceLine : Entity
         return line;
     }
 
-    public void Update(decimal quantity, decimal unitPrice, float vatRate, float discountRate, string? description)
+    public void Update(
+        decimal quantity,
+        decimal unitPrice,
+        float vatRate,
+        float discountRate,
+        string? description,
+        int lineType = InvoiceLineTypeEnum.Product,
+        int vatStatus = VatStatusEnum.Excluded,
+        string? gtipCode = null)
     {
         if (quantity <= 0) throw new ArgumentException("Quantity must be greater than 0.");
         if (vatRate < 0 || vatRate > 100) throw new ArgumentException("VatRate must be between 0 and 100.");
@@ -94,6 +114,9 @@ public class InvoiceLine : Entity
         VatRate = vatRate;
         DiscountRate = discountRate;
         Description = description;
+        LineType = lineType;
+        VatStatus = vatStatus;
+        GtipCode = gtipCode;
 
         Calculate();
     }
@@ -105,10 +128,24 @@ public class InvoiceLine : Entity
 
     private void Calculate()
     {
-        LineTotal = Quantity * UnitPrice;
-        DiscountAmount = LineTotal * (decimal)DiscountRate / 100m;
-        var afterDiscount = LineTotal - DiscountAmount;
-        VatAmount = afterDiscount * (decimal)VatRate / 100m;
-        LineTotalWithVat = afterDiscount + VatAmount;
+        if (VatStatus == VatStatusEnum.Included)
+        {
+            // KDV Dahil: Birim fiyat KDV dahildir, KDV'yi ters hesapla
+            var grossTotal = Quantity * UnitPrice;
+            DiscountAmount = grossTotal * (decimal)DiscountRate / 100m;
+            var afterDiscount = grossTotal - DiscountAmount;
+            VatAmount = afterDiscount - (afterDiscount / (1 + (decimal)VatRate / 100m));
+            LineTotal = afterDiscount - VatAmount;
+            LineTotalWithVat = afterDiscount;
+        }
+        else
+        {
+            // KDV Hariç: Normal hesaplama
+            LineTotal = Quantity * UnitPrice;
+            DiscountAmount = LineTotal * (decimal)DiscountRate / 100m;
+            var afterDiscount = LineTotal - DiscountAmount;
+            VatAmount = afterDiscount * (decimal)VatRate / 100m;
+            LineTotalWithVat = afterDiscount + VatAmount;
+        }
     }
 }

@@ -29,8 +29,13 @@ public record CreateInvoiceCommand(
     decimal ExchangeRate = 1,
     int PaymentTermDays = 0,
     string? Description = null,
-    string? Notes = null,
     bool IsEInvoice = false,
+    int EInvoiceScenario = 0,
+    string? PostboxAlias = null,
+    TimeSpan? InvoiceTime = null,
+    string? SeriesPrefix = null,
+    int? InvoiceSerial = null,
+    bool ReplacesInvoiceRef = false,
     List<CreateInvoiceLineItem>? Lines = null) : IRequest<InvoiceDto>;
 
 public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand, InvoiceDto>
@@ -62,8 +67,13 @@ public class CreateInvoiceCommandHandler : IRequestHandler<CreateInvoiceCommand,
             request.ExchangeRate,
             request.PaymentTermDays,
             request.Description,
-            request.Notes,
-            request.IsEInvoice);
+            request.IsEInvoice,
+            request.EInvoiceScenario,
+            request.PostboxAlias,
+            request.InvoiceTime,
+            request.SeriesPrefix,
+            request.InvoiceSerial,
+            request.ReplacesInvoiceRef);
 
         await _baseDbContext.Invoices.AddAsync(invoice, cancellationToken);
 

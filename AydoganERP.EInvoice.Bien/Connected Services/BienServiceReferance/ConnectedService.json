@@ -1,0 +1,26 @@
+{
+  "providerId": "Microsoft.Tools.ServiceModel.Svcutil",
+  "version": "2.1.0",
+  "ExtendedData": {
+    "inputs": [
+      "https://connect.bienteknoloji.com.tr/Services/Integration"
+    ],
+    "namespaceMappings": [
+      "*, AydoganERP.EInvoice.Bien.Integration"
+    ],
+    "outputFile": "BienServiceReferance.cs",
+    "references": [
+      "/Users/osmanaydogan/Documents/Github/Repos/AydoganERP/AydoganERP.EInvoice.Bien/bin/Debug/net8.0/AydoganERP.EInvoice.Abstractions.dll",
+      "Microsoft.Extensions.DependencyInjection.Abstractions, {Microsoft.Extensions.DependencyInjection.Abstractions, 8.0.0}",
+      "Microsoft.Extensions.Logging.Abstractions, {Microsoft.Extensions.Logging.Abstractions, 8.0.0}",
+      "Microsoft.Extensions.ObjectPool, {Microsoft.Extensions.ObjectPool, 6.0.16}",
+      "Newtonsoft.Json, {Newtonsoft.Json, 13.0.3}",
+      "System.Formats.Asn1, {System.Formats.Asn1, 6.0.0}",
+      "System.Security.AccessControl, {System.Security.AccessControl, 6.0.0}",
+      "System.Security.Cryptography.Pkcs, {System.Security.Cryptography.Pkcs, 6.0.1}",
+      "System.Security.Cryptography.Xml, {System.Security.Cryptography.Xml, 6.0.1}"
+    ],
+    "targetFramework": "net8.0",
+    "typeReuseMode": "All"
+  }
+}

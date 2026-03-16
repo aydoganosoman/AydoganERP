@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, markRaw, type Component } from "vue";
 import ECommerceIntegration from "./e-commerce-index.vue";
+import EInvoiceIntegration from "./e-invoice-index.vue";
 
 // Navigasyon menüsü
 const integrationMenus = [
@@ -10,15 +11,14 @@ const integrationMenus = [
     icon: "ri-shopping-cart-line",
     component: markRaw(ECommerceIntegration),
     description: "Trendyol, N11, Hepsiburada vb."
+  },
+  {
+    key: "e-invoice",
+    label: "E-Fatura",
+    icon: "ri-file-text-line",
+    component: markRaw(EInvoiceIntegration),
+    description: "MySoft, Bien vb."
   }
-  // Sonradan eklenecek entegrasyonlar buraya
-  // {
-  //   key: "accounting",
-  //   label: "Muhasebe",
-  //   icon: "ri-calculator-line",
-  //   component: markRaw(AccountingIntegration),
-  //   description: "Paraşüt, Logo vb."
-  // }
 ];
 
 const activeKey = ref("e-commerce");

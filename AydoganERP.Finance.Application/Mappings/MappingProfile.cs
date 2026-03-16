@@ -1,6 +1,7 @@
 using AutoMapper;
 using AydoganERP.Base.Domain.Modules.FinanceModule.Entities;
 using AydoganERP.Base.Domain.Modules.FinanceModule.Enums;
+using AydoganERP.Base.Domain.Modules.SharedModule.Entities;
 using AydoganERP.Finance.Application.Models;
 
 namespace AydoganERP.Finance.Application.Mappings;
@@ -32,6 +33,22 @@ public class MappingProfile : Profile
 
         CreateMap<InvoicePayment, InvoicePaymentDto>()
             .ForMember(d => d.PaymentMethodName, opt => opt.MapFrom(s => GetPaymentMethodName(s.PaymentMethod)));
+
+        // Yeni entity mapping'leri
+        CreateMap<InvoiceNote, InvoiceNoteDto>();
+
+        CreateMap<InvoicePaymentTerm, InvoicePaymentTermDto>()
+            .ForMember(d => d.PaymentMethodName, opt => opt.MapFrom(s => GetPaymentMethodName(s.PaymentMethod)));
+
+        CreateMap<InvoiceOrderInfo, InvoiceOrderInfoDto>();
+
+        CreateMap<InvoicePartyNumber, InvoicePartyNumberDto>()
+            .ForMember(d => d.NumberTypeName, opt => opt.MapFrom(s => GetPartyNumberTypeName(s.NumberType)));
+
+        CreateMap<InvoiceOkcInfo, InvoiceOkcInfoDto>()
+            .ForMember(d => d.FisTypeName, opt => opt.MapFrom(s => GetOkcFisTypeName(s.FisType)));
+
+        CreateMap<Document, DocumentDto>();
     }
 
     private static string GetInvoiceTypeName(int type) => type switch
@@ -62,5 +79,32 @@ public class MappingProfile : Profile
         PaymentMethodEnum.Check => "Çek",
         PaymentMethodEnum.Other => "Diğer",
         _ => "Bilinmiyor"
+    };
+
+    private static string GetPartyNumberTypeName(int type) => type switch
+    {
+        PartyNumberTypeEnum.SubscriberNo => "Abone No",
+        PartyNumberTypeEnum.DealerNo => "Bayi No",
+        PartyNumberTypeEnum.FarmerNo => "Çiftçi No",
+        PartyNumberTypeEnum.TaxNo => "VKN",
+        PartyNumberTypeEnum.IdNo => "TCKN",
+        PartyNumberTypeEnum.EpdkNo => "EPDK No",
+        _ => "Bilinmiyor"
+    };
+
+    private static string GetOkcFisTypeName(int? type) => type switch
+    {
+        OkcFisTypeEnum.Sales => "Satış Fişi",
+        OkcFisTypeEnum.Return => "İade Fişi",
+        _ => ""
+    };
+
+    public static string GetEInvoiceScenarioName(int scenario) => scenario switch
+    {
+        EInvoiceScenarioEnum.Basic => "Temel Fatura",
+        EInvoiceScenarioEnum.Commercial => "Ticari Fatura",
+        EInvoiceScenarioEnum.Export => "İhracat Faturası",
+        EInvoiceScenarioEnum.Public => "Kamu Faturası",
+        _ => "Belirsiz"
     };
 }

@@ -12,9 +12,11 @@ using AydoganERP.Finance.Application.InvoiceManager.Queries.GetById;
 using AydoganERP.Finance.Application.InvoiceManager.Queries.GetList;
 using AydoganERP.Finance.Application.InvoiceManager.Queries.GetByCustomer;
 using AydoganERP.Finance.Application.InvoiceManager.Queries.GetDashboardSummary;
+using AydoganERP.Finance.Application.EInvoice;
 using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using EInvoiceModels = AydoganERP.EInvoice.Abstractions.Models;
 
 namespace AydoganERP.Api.Modules;
 
@@ -99,13 +101,79 @@ public class FinanceModule : ICarterModule
             .ProducesProblem(404)
             .ProducesProblem(500);
 
-        // Send E-Invoice
+        // Send E-Invoice (Legacy - MediatR Command)
         invoiceGroup
             .MapPost("/{id:guid}/send-einvoice", HandleSendEInvoice)
             .Produces<SendEInvoiceResult>(200)
             .ProducesProblem(400)
             .ProducesProblem(404)
             .ProducesProblem(500);
+
+        // E-Fatura - Yeni Entegratör Servisi
+        invoiceGroup
+            .MapPost("/{id:guid}/einvoice/send", HandleEInvoiceSend)
+            .Produces<EInvoiceModels.EInvoiceResponse>(200)
+            .ProducesProblem(400)
+            .ProducesProblem(404)
+            .ProducesProblem(500)
+            .WithDescription("E-Fatura/E-Arşiv gönderimi (yeni entegratör servisi)");
+
+        invoiceGroup
+            .MapGet("/{id:guid}/einvoice/status", HandleEInvoiceStatus)
+            .Produces<EInvoiceModels.EInvoiceStatusResult>(200)
+            .ProducesProblem(404)
+            .ProducesProblem(500)
+            .WithDescription("E-Fatura durumu sorgulama");
+
+        invoiceGroup
+            .MapGet("/{id:guid}/einvoice/pdf", HandleEInvoicePdf)
+            .Produces<byte[]>(200, "application/pdf")
+            .ProducesProblem(404)
+            .ProducesProblem(500)
+            .WithDescription("E-Fatura PDF indirme");
+
+        invoiceGroup
+            .MapGet("/{id:guid}/einvoice/xml", HandleEInvoiceXml)
+            .Produces<string>(200, "application/xml")
+            .ProducesProblem(404)
+            .ProducesProblem(500)
+            .WithDescription("E-Fatura UBL XML indirme");
+
+        // GİB Mükellef Sorgulama
+        invoiceGroup
+            .MapGet("/gib-query", HandleGibQuery)
+            .Produces<EInvoiceModels.GibAccount>(200)
+            .ProducesProblem(404)
+            .ProducesProblem(500)
+            .WithDescription("GİB mükellef sorgulama (vergi numarasına göre)");
+
+        // ========== GELEN FATURA İŞLEMLERİ ==========
+
+        // Gelen faturaları senkronize et
+        invoiceGroup
+            .MapPost("/incoming/sync", HandleSyncIncomingInvoices)
+            .Produces<IncomingSyncResult>(200)
+            .ProducesProblem(400)
+            .ProducesProblem(500)
+            .WithDescription("Entegratörden gelen faturaları senkronize eder ve veritabanına kaydeder");
+
+        // Gelen faturayı kabul et
+        invoiceGroup
+            .MapPost("/{id:guid}/einvoice/accept", HandleAcceptIncomingInvoice)
+            .Produces<bool>(200)
+            .ProducesProblem(400)
+            .ProducesProblem(404)
+            .ProducesProblem(500)
+            .WithDescription("Gelen ticari faturayı kabul eder (8 gün içinde yapılmalı)");
+
+        // Gelen faturayı reddet
+        invoiceGroup
+            .MapPost("/{id:guid}/einvoice/reject", HandleRejectIncomingInvoice)
+            .Produces<bool>(200)
+            .ProducesProblem(400)
+            .ProducesProblem(404)
+            .ProducesProblem(500)
+            .WithDescription("Gelen ticari faturayı reddeder (8 gün içinde yapılmalı)");
 
         // Dashboard
         invoiceGroup
@@ -180,7 +248,14 @@ public class FinanceModule : ICarterModule
             request.Currency,
             request.ExchangeRate,
             request.Description,
-            request.Notes);
+            request.EInvoiceScenario,
+            request.PostboxAlias,
+            request.InvoiceTime,
+            request.SeriesPrefix,
+            request.InvoiceSerial,
+            request.ReplacesInvoiceRef,
+            request.RoundingAmount,
+            request.InvoiceSubDiscount);
 
         var result = await sender.Send(command, cancellationToken);
         return Results.Ok(result);
@@ -265,6 +340,78 @@ public class FinanceModule : ICarterModule
         return Results.Ok(result);
     }
 
+    private static async Task<IResult> HandleEInvoiceSend(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await einvoiceService.SendInvoiceAsync(id);
+        if (!result.Success)
+        {
+            return Results.BadRequest(result);
+        }
+        return Results.Ok(result);
+    }
+
+    private static async Task<IResult> HandleEInvoiceStatus(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await einvoiceService.GetStatusAsync(id);
+        if (!result.Success)
+        {
+            return Results.NotFound(result);
+        }
+        return Results.Ok(result);
+    }
+
+    private static async Task<IResult> HandleEInvoicePdf(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var pdfBytes = await einvoiceService.GetPdfAsync(id);
+            return Results.File(pdfBytes, "application/pdf", $"efatura_{id}.pdf");
+        }
+        catch (Exception ex)
+        {
+            return Results.NotFound(new { error = ex.Message });
+        }
+    }
+
+    private static async Task<IResult> HandleEInvoiceXml(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var xml = await einvoiceService.GetXmlAsync(id);
+            return Results.Content(xml, "application/xml");
+        }
+        catch (Exception ex)
+        {
+            return Results.NotFound(new { error = ex.Message });
+        }
+    }
+
+    private static async Task<IResult> HandleGibQuery(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromQuery] Guid companyId,
+        [FromQuery] string taxNumber,
+        CancellationToken cancellationToken)
+    {
+        var result = await einvoiceService.GetGibAccountAsync(companyId, taxNumber);
+        if (result == null)
+        {
+            return Results.NotFound(new { error = "Mükellef bulunamadı" });
+        }
+        return Results.Ok(result);
+    }
+
     private static async Task<IResult> HandleGetDashboard(
         [FromServices] ISender sender,
         [FromQuery] Guid? companyId,
@@ -278,6 +425,47 @@ public class FinanceModule : ICarterModule
         return Results.Ok(result);
     }
 
+    private static async Task<IResult> HandleSyncIncomingInvoices(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromQuery] Guid companyId,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        CancellationToken cancellationToken)
+    {
+        var start = startDate ?? DateTime.Today.AddDays(-30);
+        var end = endDate ?? DateTime.Today;
+
+        var result = await einvoiceService.SyncIncomingInvoicesAsync(companyId, start, end);
+        return Results.Ok(result);
+    }
+
+    private static async Task<IResult> HandleAcceptIncomingInvoice(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await einvoiceService.AcceptIncomingInvoiceAsync(id);
+        if (!result)
+        {
+            return Results.BadRequest(new { error = "Fatura kabul edilemedi" });
+        }
+        return Results.Ok(result);
+    }
+
+    private static async Task<IResult> HandleRejectIncomingInvoice(
+        [FromServices] IEInvoiceService einvoiceService,
+        [FromRoute] Guid id,
+        [FromBody] RejectInvoiceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await einvoiceService.RejectIncomingInvoiceAsync(id, request.Reason);
+        if (!result)
+        {
+            return Results.BadRequest(new { error = "Fatura reddedilemedi" });
+        }
+        return Results.Ok(result);
+    }
+
     #endregion
 
     #region Request DTOs
@@ -288,7 +476,14 @@ public class FinanceModule : ICarterModule
         int Currency,
         decimal ExchangeRate,
         string? Description,
-        string? Notes);
+        int EInvoiceScenario = 0,
+        string? PostboxAlias = null,
+        TimeSpan? InvoiceTime = null,
+        string? SeriesPrefix = null,
+        int? InvoiceSerial = null,
+        bool ReplacesInvoiceRef = false,
+        decimal RoundingAmount = 0,
+        decimal InvoiceSubDiscount = 0);
 
     public record CancelInvoiceRequest(string? Reason);
 
@@ -310,6 +505,8 @@ public class FinanceModule : ICarterModule
         int PaymentMethod = 0,
         string? Reference = null,
         string? Notes = null);
+
+    public record RejectInvoiceRequest(string Reason);
 
     #endregion
 }

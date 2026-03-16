@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AydoganERP.Base.Application\AydoganERP.Base.Application.csproj" />
+      <ProjectReference Include="..\AydoganERP.EInvoice.Abstractions\AydoganERP.EInvoice.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

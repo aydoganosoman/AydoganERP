@@ -38,9 +38,13 @@ export function getInvoicesByCustomer(
   invoiceType?: number,
   unpaidOnly?: boolean
 ): Promise<InvoiceListDto[]> {
-  return http.request<InvoiceListDto[]>("get", `${BASE_URL}/by-customer/${customerId}`, {
-    params: { invoiceType, unpaidOnly }
-  });
+  return http.request<InvoiceListDto[]>(
+    "get",
+    `${BASE_URL}/by-customer/${customerId}`,
+    {
+      params: { invoiceType, unpaidOnly }
+    }
+  );
 }
 
 /** Yeni fatura oluştur */
@@ -49,7 +53,10 @@ export function createInvoice(data: CreateInvoiceCommand): Promise<InvoiceDto> {
 }
 
 /** Fatura güncelle (sadece taslak) */
-export function updateInvoice(id: string, data: UpdateInvoiceCommand): Promise<InvoiceDto> {
+export function updateInvoice(
+  id: string,
+  data: UpdateInvoiceCommand
+): Promise<InvoiceDto> {
   return http.request<InvoiceDto>("put", `${BASE_URL}/${id}`, { data });
 }
 
@@ -59,35 +66,136 @@ export function approveInvoice(id: string): Promise<InvoiceDto> {
 }
 
 /** Fatura iptal */
-export function cancelInvoice(id: string, reason?: string): Promise<InvoiceDto> {
+export function cancelInvoice(
+  id: string,
+  reason?: string
+): Promise<InvoiceDto> {
   return http.request<InvoiceDto>("post", `${BASE_URL}/${id}/cancel`, {
     data: { reason }
   });
 }
 
 /** Fatura satırı ekle */
-export function addInvoiceLine(invoiceId: string, data: AddInvoiceLineCommand): Promise<InvoiceDto> {
-  return http.request<InvoiceDto>("post", `${BASE_URL}/${invoiceId}/lines`, { data });
+export function addInvoiceLine(
+  invoiceId: string,
+  data: AddInvoiceLineCommand
+): Promise<InvoiceDto> {
+  return http.request<InvoiceDto>("post", `${BASE_URL}/${invoiceId}/lines`, {
+    data
+  });
 }
 
 /** Fatura satırı sil */
-export function removeInvoiceLine(invoiceId: string, lineId: string): Promise<InvoiceDto> {
-  return http.request<InvoiceDto>("delete", `${BASE_URL}/${invoiceId}/lines/${lineId}`);
+export function removeInvoiceLine(
+  invoiceId: string,
+  lineId: string
+): Promise<InvoiceDto> {
+  return http.request<InvoiceDto>(
+    "delete",
+    `${BASE_URL}/${invoiceId}/lines/${lineId}`
+  );
 }
 
 /** Ödeme kaydet */
-export function recordPayment(invoiceId: string, data: RecordPaymentCommand): Promise<InvoiceDto> {
-  return http.request<InvoiceDto>("post", `${BASE_URL}/${invoiceId}/payments`, { data });
+export function recordPayment(
+  invoiceId: string,
+  data: RecordPaymentCommand
+): Promise<InvoiceDto> {
+  return http.request<InvoiceDto>("post", `${BASE_URL}/${invoiceId}/payments`, {
+    data
+  });
 }
 
-/** E-Fatura gönder */
-export function sendEInvoice(invoiceId: string): Promise<{
+// ========== E-FATURA İŞLEMLERİ ==========
+
+/** E-Fatura Response */
+export interface EInvoiceResponse {
   success: boolean;
-  eInvoiceLogId?: string;
+  ettn?: string;
   eInvoiceUUID?: string;
   errorMessage?: string;
-}> {
-  return http.request("post", `${BASE_URL}/${invoiceId}/send-einvoice`);
+  rawResponse?: string;
+}
+
+/** E-Fatura Status Result */
+export interface EInvoiceStatusResult {
+  success: boolean;
+  status?: string;
+  statusDescription?: string;
+  errorMessage?: string;
+}
+
+/** E-Fatura gönder (yeni entegratör servisi) */
+export function sendEInvoice(invoiceId: string): Promise<EInvoiceResponse> {
+  return http.request<EInvoiceResponse>(
+    "post",
+    `${BASE_URL}/${invoiceId}/einvoice/send`
+  );
+}
+
+/** E-Fatura durumu sorgula */
+export function getEInvoiceStatus(
+  invoiceId: string
+): Promise<EInvoiceStatusResult> {
+  return http.request<EInvoiceStatusResult>(
+    "get",
+    `${BASE_URL}/${invoiceId}/einvoice/status`
+  );
+}
+
+/** E-Fatura PDF indir */
+export function getEInvoicePdf(invoiceId: string): Promise<Blob> {
+  return http.request<Blob>("get", `${BASE_URL}/${invoiceId}/einvoice/pdf`, {
+    responseType: "blob"
+  });
+}
+
+/** E-Fatura XML indir */
+export function getEInvoiceXml(invoiceId: string): Promise<string> {
+  return http.request<string>("get", `${BASE_URL}/${invoiceId}/einvoice/xml`);
+}
+
+// ========== GELEN FATURA İŞLEMLERİ ==========
+
+/** Gelen fatura senkronizasyon sonucu */
+export interface IncomingSyncResult {
+  syncedCount: number;
+  totalCount: number;
+  failedInvoices: string[];
+  errorMessage?: string;
+}
+
+/** Gelen faturaları senkronize et */
+export function syncIncomingInvoices(params: {
+  companyId: string;
+  startDate?: Date;
+  endDate?: Date;
+}): Promise<IncomingSyncResult> {
+  return http.request<IncomingSyncResult>("post", `${BASE_URL}/incoming/sync`, {
+    params
+  });
+}
+
+/** Gelen faturayı kabul et */
+export function acceptIncomingInvoice(invoiceId: string): Promise<boolean> {
+  return http.request<boolean>(
+    "post",
+    `${BASE_URL}/${invoiceId}/einvoice/accept`
+  );
+}
+
+/** Gelen faturayı reddet */
+export function rejectIncomingInvoice(
+  invoiceId: string,
+  reason: string
+): Promise<boolean> {
+  return http.request<boolean>(
+    "post",
+    `${BASE_URL}/${invoiceId}/einvoice/reject`,
+    {
+      data: { reason }
+    }
+  );
 }
 
 /** Finans Dashboard */
@@ -96,7 +204,9 @@ export function getFinanceDashboard(params?: {
   startDate?: string;
   endDate?: string;
 }): Promise<FinanceDashboardDto> {
-  return http.request<FinanceDashboardDto>("get", `${BASE_URL}/dashboard`, { params });
+  return http.request<FinanceDashboardDto>("get", `${BASE_URL}/dashboard`, {
+    params
+  });
 }
 
 // Dashboard DTO types

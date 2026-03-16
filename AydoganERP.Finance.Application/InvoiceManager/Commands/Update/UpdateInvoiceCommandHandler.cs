@@ -13,7 +13,14 @@ public record UpdateInvoiceCommand(
     int Currency,
     decimal ExchangeRate,
     string? Description,
-    string? Notes) : IRequest<InvoiceDto>;
+    int EInvoiceScenario = 0,
+    string? PostboxAlias = null,
+    TimeSpan? InvoiceTime = null,
+    string? SeriesPrefix = null,
+    int? InvoiceSerial = null,
+    bool ReplacesInvoiceRef = false,
+    decimal RoundingAmount = 0,
+    decimal InvoiceSubDiscount = 0) : IRequest<InvoiceDto>;
 
 public class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceCommand, InvoiceDto>
 {
@@ -48,7 +55,14 @@ public class UpdateInvoiceCommandHandler : IRequestHandler<UpdateInvoiceCommand,
             request.Currency,
             request.ExchangeRate,
             request.Description,
-            request.Notes);
+            request.EInvoiceScenario,
+            request.PostboxAlias,
+            request.InvoiceTime,
+            request.SeriesPrefix,
+            request.InvoiceSerial,
+            request.ReplacesInvoiceRef,
+            request.RoundingAmount,
+            request.InvoiceSubDiscount);
 
         await _domainEventUnitOfWork.CommitAsync(null, cancellationToken);
 

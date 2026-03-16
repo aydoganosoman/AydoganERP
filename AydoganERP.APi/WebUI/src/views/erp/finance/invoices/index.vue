@@ -1,10 +1,14 @@
 <script setup lang="tsx">
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { getInvoices, approveInvoice, cancelInvoice } from "@/api/erp/finance";
+import {
+  getInvoices,
+  approveInvoice,
+  cancelInvoice
+} from "@/api/erp/finance";
 import type { InvoiceListDto, PagedResult } from "@/api/erp/types";
 import { InvoiceTypeEnum, InvoiceStatusEnum } from "@/api/erp/types";
-import { message } from "@/utils/message";
+import { message, confirmBox } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useUserStoreHook } from "@/store/modules/user";
@@ -49,7 +53,10 @@ const invoiceTypeOptions = [
 const statusOptions = [
   { value: InvoiceStatusEnum.Draft, label: "Taslak" },
   { value: InvoiceStatusEnum.Approved, label: "Onaylandı" },
-  { value: InvoiceStatusEnum.Cancelled, label: "İptal" }
+  { value: InvoiceStatusEnum.Cancelled, label: "İptal" },
+  { value: InvoiceStatusEnum.EInvoiceSent, label: "E-Fatura Gönderildi" },
+  { value: InvoiceStatusEnum.EInvoiceAccepted, label: "E-Fatura Kabul Edildi" },
+  { value: InvoiceStatusEnum.EInvoiceRejected, label: "E-Fatura Reddedildi" }
 ];
 
 const columns: TableColumnList = [
@@ -86,18 +93,23 @@ const columns: TableColumnList = [
     minWidth: 140,
     align: "right",
     cellRenderer: ({ row }) => (
-      <span class="font-semibold">{formatCurrency(row.grandTotal, row.currency)}</span>
+      <span class="font-semibold">
+        {formatCurrency(row.grandTotal, row.currency)}
+      </span>
     )
   },
   {
     label: "Ödeme",
     minWidth: 140,
     align: "right",
-    cellRenderer: ({ row }) => (
-      row.isPaid
-        ? <div class="text-green-600">Ödendi</div>
-        : <div class="text-orange-600">Kalan: {formatCurrency(row.remainingAmount, row.currency)}</div>
-    )
+    cellRenderer: ({ row }) =>
+      row.isPaid ? (
+        <div class="text-green-600">Ödendi</div>
+      ) : (
+        <div class="text-orange-600">
+          Kalan: {formatCurrency(row.remainingAmount, row.currency)}
+        </div>
+      )
   },
   {
     label: "Durum",
@@ -112,7 +124,7 @@ const columns: TableColumnList = [
   {
     label: "İşlem",
     fixed: "right",
-    width: 150,
+    width: 250,
     slot: "operation"
   }
 ];
@@ -156,11 +168,11 @@ function handleSizeChange(size: number) {
 }
 
 function goToCreate() {
-  router.push("/erp/finance/invoices/create");
+  router.push("/belge/faturalar/yeni");
 }
 
 function goToDetail(id: string) {
-  router.push(`/erp/finance/invoices/${id}`);
+  router.push(`/belge/faturalar/${id}`);
 }
 
 async function handleApprove(row: InvoiceListDto) {
@@ -183,20 +195,33 @@ async function handleCancel(row: InvoiceListDto) {
   }
 }
 
-function getStatusType(status: number): "success" | "info" | "warning" | "danger" {
+function getStatusType(
+  status: number
+): "success" | "info" | "warning" | "danger" {
   switch (status) {
     case InvoiceStatusEnum.Draft:
       return "info";
     case InvoiceStatusEnum.Approved:
+    case InvoiceStatusEnum.EInvoiceAccepted:
+    case InvoiceStatusEnum.AcceptedByUs:
       return "success";
     case InvoiceStatusEnum.Cancelled:
+    case InvoiceStatusEnum.EInvoiceRejected:
+    case InvoiceStatusEnum.RejectedByUs:
       return "danger";
+    case InvoiceStatusEnum.EInvoiceSent:
+    case InvoiceStatusEnum.PendingApproval:
+      return "warning";
+    case InvoiceStatusEnum.Received:
+      return "info";
     default:
       return "info";
   }
 }
 
-function getInvoiceTypeType(type: number): "success" | "warning" | "info" | "danger" {
+function getInvoiceTypeType(
+  type: number
+): "success" | "warning" | "info" | "danger" {
   switch (type) {
     case InvoiceTypeEnum.SalesInvoice:
       return "success";
@@ -242,7 +267,12 @@ onMounted(() => {
       class="search-form bg-bg_color w-full pl-8 pt-[12px] overflow-auto"
     >
       <el-form-item label="Fatura Tipi:">
-        <el-select v-model="filters.invoiceType" placeholder="Tümü" clearable class="w-[150px]!">
+        <el-select
+          v-model="filters.invoiceType"
+          placeholder="Tümü"
+          clearable
+          class="w-[150px]!"
+        >
           <el-option
             v-for="opt in invoiceTypeOptions"
             :key="opt.value"
@@ -252,7 +282,12 @@ onMounted(() => {
         </el-select>
       </el-form-item>
       <el-form-item label="Durum:">
-        <el-select v-model="filters.status" placeholder="Tümü" clearable class="w-[130px]!">
+        <el-select
+          v-model="filters.status"
+          placeholder="Tümü"
+          clearable
+          class="w-[130px]!"
+        >
           <el-option
             v-for="opt in statusOptions"
             :key="opt.value"
@@ -308,12 +343,12 @@ onMounted(() => {
           :columns="dynamicColumns"
           :pagination="pagination"
           :paginationSmall="size === 'small'"
-          @page-current-change="handlePageChange"
-          @page-size-change="handleSizeChange"
           :header-cell-style="{
             background: 'var(--el-fill-color-light)',
             color: 'var(--el-text-color-primary)'
           }"
+          @page-current-change="handlePageChange"
+          @page-size-change="handleSizeChange"
         >
           <template #operation="{ row }">
             <el-button
@@ -326,6 +361,7 @@ onMounted(() => {
             >
               Detay
             </el-button>
+            <!-- Taslak fatura işlemleri -->
             <el-button
               v-if="row.status === InvoiceStatusEnum.Draft"
               class="reset-margin"

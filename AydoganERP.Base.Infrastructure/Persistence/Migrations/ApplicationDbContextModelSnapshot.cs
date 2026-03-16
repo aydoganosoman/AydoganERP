@@ -268,6 +268,45 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.ToTable("ECommerceIntegrations", (string)null);
                 });
 
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.EInvoiceIntegration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("IntegrationType")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Settings")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "IntegrationType");
+
+                    b.ToTable("EInvoiceIntegrations", (string)null);
+                });
+
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.CompanyModule.Entities.IntegrationDefaults", b =>
                 {
                     b.Property<Guid>("Id")
@@ -716,6 +755,9 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("EInvoiceScenario")
+                        .HasColumnType("integer");
+
                     b.Property<string>("EInvoiceUUID")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -738,6 +780,18 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<int?>("InvoiceSerial")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("InvoiceSubDiscount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<TimeSpan?>("InvoiceTime")
+                        .HasColumnType("interval");
+
                     b.Property<int>("InvoiceType")
                         .HasColumnType("integer");
 
@@ -754,8 +808,31 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<decimal>("PayableAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
                     b.Property<int>("PaymentTermDays")
                         .HasColumnType("integer");
+
+                    b.Property<string>("PostboxAlias")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("ReplacesInvoiceRef")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("RoundingAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("SeriesPrefix")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
@@ -773,6 +850,8 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("EInvoiceUUID");
 
                     b.HasIndex("InvoiceDate");
 
@@ -809,6 +888,10 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Property<float>("DiscountRate")
                         .HasColumnType("real");
 
+                    b.Property<string>("GtipCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<Guid>("InvoiceId")
                         .HasColumnType("uuid");
 
@@ -828,6 +911,11 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("LineTotalWithVat")
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
+
+                    b.Property<int>("LineType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("ProductCode")
                         .IsRequired()
@@ -864,6 +952,11 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Property<float>("VatRate")
                         .HasColumnType("real");
 
+                    b.Property<int>("VatStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
@@ -873,6 +966,193 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.HasIndex("InvoiceId", "LineNumber");
 
                     b.ToTable("InvoiceLines", (string)null);
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoiceNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NoteText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoiceNotes", (string)null);
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoiceOkcInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("FisDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("FisNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<TimeSpan?>("FisTime")
+                        .HasColumnType("interval");
+
+                    b.Property<int?>("FisType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OkcSerialNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ZReportNo")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId")
+                        .IsUnique();
+
+                    b.ToTable("InvoiceOkcInfos", (string)null);
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoiceOrderInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DocumentName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("DocumentPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("OrderDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("OrderNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("WaybillDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("WaybillNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("OrderNumber");
+
+                    b.HasIndex("WaybillNumber");
+
+                    b.ToTable("InvoiceOrderInfos", (string)null);
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoicePartyNumber", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsBuyer")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("NumberType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("InvoiceId", "IsBuyer", "NumberType");
+
+                    b.ToTable("InvoicePartyNumbers", (string)null);
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoicePayment", b =>
@@ -923,6 +1203,56 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.HasIndex("PaymentDate");
 
                     b.ToTable("InvoicePayments", (string)null);
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoicePaymentTerm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("PenaltyAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("numeric(18,4)");
+
+                    b.Property<decimal?>("PenaltyRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoicePaymentTerms", (string)null);
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.IdentityModule.Entities.User", b =>
@@ -1551,6 +1881,62 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.HasIndex("CityId");
 
                     b.ToTable("Districts");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.SharedModule.Entities.Document", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AttachmentType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("RelatedEntityId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttachmentType");
+
+                    b.HasIndex("RelatedEntityId");
+
+                    b.HasIndex("AttachmentType", "RelatedEntityId");
+
+                    b.ToTable("Documents", (string)null);
                 });
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.SharedModule.Entities.Folder", b =>
@@ -2240,10 +2626,65 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                     b.Navigation("SerialNumber");
                 });
 
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoiceNote", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.Invoice", "Invoice")
+                        .WithMany("InvoiceNotes")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoiceOkcInfo", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.Invoice", "Invoice")
+                        .WithOne("OkcInfo")
+                        .HasForeignKey("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoiceOkcInfo", "InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoiceOrderInfo", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.Invoice", "Invoice")
+                        .WithMany("OrderInfos")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoicePartyNumber", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.Invoice", "Invoice")
+                        .WithMany("PartyNumbers")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoicePayment", b =>
                 {
                     b.HasOne("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.Invoice", "Invoice")
                         .WithMany("Payments")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.InvoicePaymentTerm", b =>
+                {
+                    b.HasOne("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.Invoice", "Invoice")
+                        .WithMany("PaymentTerms")
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2490,7 +2931,17 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("AydoganERP.Base.Domain.Modules.FinanceModule.Entities.Invoice", b =>
                 {
+                    b.Navigation("InvoiceNotes");
+
                     b.Navigation("Lines");
+
+                    b.Navigation("OkcInfo");
+
+                    b.Navigation("OrderInfos");
+
+                    b.Navigation("PartyNumbers");
+
+                    b.Navigation("PaymentTerms");
 
                     b.Navigation("Payments");
                 });
