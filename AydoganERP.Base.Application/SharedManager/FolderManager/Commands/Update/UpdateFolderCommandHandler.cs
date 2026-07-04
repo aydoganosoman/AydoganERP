@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AydoganERP.Base.Application.SharedManager.FolderManager.Commands.Update;
 
-public record UpdateFolderCommand(Guid Id, string Code, string Name, string? Color, DocumentTypeEnum DocumentTypes, bool IsActive)
+public record UpdateFolderCommand(Guid Id, string Code, string Name, string? Color, FolderDocumentTypeEnum DocumentTypes, bool IsActive)
     : IRequest<FolderDto>;
 
 public class UpdateFolderCommandHandler : IRequestHandler<UpdateFolderCommand, FolderDto>

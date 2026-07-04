@@ -6,10 +6,11 @@ namespace AydoganERP.EInvoice.MySoft.Models;
 /// <typeparam name="T">Veri tipi</typeparam>
 public class HttpClientResult<T>
 {
-    public bool Succeed { get; set; }
-    public string? Message { get; set; }
     public T? Data { get; set; }
-    public string? ErrorCode { get; set; }
+    public bool Succeed { get; set; }
+    public string Message { get; set; }
+    public string ErrorCode { get; set; }
+    public int AfterValue { get; set; }
 
     public static HttpClientResult<T> Success(T data, string? message = null)
     {

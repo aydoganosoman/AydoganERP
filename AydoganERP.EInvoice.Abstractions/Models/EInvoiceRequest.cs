@@ -64,7 +64,18 @@ public class EInvoiceRequest
 
     /// <summary>Gönderici GB etiketi</summary>
     public string? SenderGbAlias { get; set; }
+    
+    /// <summary>Gönderici Şehir etiketi</summary>
+    public string? SenderCity { get; set; }
+    
+    /// <summary>Gönderici İlçe etiketi</summary>
+    public string? SenderDistrict { get; set; }
+    
+    /// <summary>Gönderici Adres etiketi</summary>
+    public string? SenderAddress { get; set; }
 
+    /// <summary>Gönderici TAPDK</summary>
+    public string SenderTAPDK { get; set; } = default!;
     #endregion
 
     #region Alıcı Bilgileri (Müşteri)
@@ -99,6 +110,8 @@ public class EInvoiceRequest
     /// <summary>Alıcı GB etiketi</summary>
     public string? ReceiverGbAlias { get; set; }
 
+    /// <summary>Müşteri TAPDK</summary>
+    public string ReceiverTAPDK { get; set; } = default!;
     #endregion
 
     #region Tutar Bilgileri

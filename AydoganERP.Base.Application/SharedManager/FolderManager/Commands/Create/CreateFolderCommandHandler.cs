@@ -7,7 +7,7 @@ using MediatR;
 
 namespace AydoganERP.Base.Application.SharedManager.FolderManager.Commands.Create;
 
-public record CreateFolderCommand(Guid CompanyId, string Code, string Name, string? Color, DocumentTypeEnum DocumentTypes)
+public record CreateFolderCommand(Guid CompanyId, string Code, string Name, string? Color, FolderDocumentTypeEnum DocumentTypes)
     : IRequest<FolderDto>;
 
 public class CreateFolderCommandHandler : IRequestHandler<CreateFolderCommand, FolderDto>

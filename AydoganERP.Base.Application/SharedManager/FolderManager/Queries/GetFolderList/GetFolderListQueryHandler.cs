@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AydoganERP.Base.Application.SharedManager.FolderManager.Queries.GetFolderList;
 
-public record GetFolderListQuery(Guid? CompanyId = null, DocumentTypeEnum? DocumentTypes = null, bool? IsActive = null)
+public record GetFolderListQuery(Guid? CompanyId = null, FolderDocumentTypeEnum? DocumentTypes = null, bool? IsActive = null)
     : IRequest<List<FolderDto>>;
 
 public class GetFolderListQueryHandler : IRequestHandler<GetFolderListQuery, List<FolderDto>>

@@ -18,7 +18,7 @@ public class Folder : Entity
     public string Code { get; private set; } = default!;
     public string Name { get; private set; } = default!;
     public string? Color { get; private set; } // HTML Format (#FFFFFF)
-    public DocumentTypeEnum DocumentTypes { get; private set; }
+    public FolderDocumentTypeEnum DocumentTypes { get; private set; }
     public bool IsActive { get; private set; } = true;
 
     public static Folder Create(
@@ -26,7 +26,7 @@ public class Folder : Entity
         Guid companyId,
         string code,
         string name,
-        DocumentTypeEnum documentTypes,
+        FolderDocumentTypeEnum documentTypes,
         string? color = null)
     {
         if (id == Guid.Empty) throw new ArgumentException("Id cannot be empty.");
@@ -46,7 +46,7 @@ public class Folder : Entity
         };
     }
 
-    public void Update(string name, DocumentTypeEnum documentTypes, string? color)
+    public void Update(string name, FolderDocumentTypeEnum documentTypes, string? color)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is required.");
         Name = name.Trim();
@@ -59,6 +59,6 @@ public class Folder : Entity
     /// <summary>
     /// Belge tipinin bu klasöre ait olup olmadığını kontrol eder
     /// </summary>
-    public bool AcceptsDocumentType(DocumentTypeEnum documentType) 
+    public bool AcceptsDocumentType(FolderDocumentTypeEnum documentType) 
         => DocumentTypes.HasFlag(documentType);
 }

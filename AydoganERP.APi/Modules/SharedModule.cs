@@ -186,7 +186,7 @@ public class SharedModule : ICarterModule
         #region Folders
         var folders = app.MapGroup("/api/Folders").WithTags("Folders");
 
-        folders.MapGet("/", async ([FromQuery] Guid? companyId, [FromQuery] DocumentTypeEnum? documentType, [FromQuery] bool? isActive, ISender sender) =>
+        folders.MapGet("/", async ([FromQuery] Guid? companyId, [FromQuery] FolderDocumentTypeEnum? documentType, [FromQuery] bool? isActive, ISender sender) =>
         {
             var result = await sender.Send(new GetFolderListQuery(companyId, documentType, isActive));
             return Results.Ok(result);

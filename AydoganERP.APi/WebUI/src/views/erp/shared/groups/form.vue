@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { UsageAreaEnum } from "@/api/erp/types";
+import { UsageAreaList } from "@/models/const";
 import type { FormRules, FormInstance } from "element-plus";
 
 export interface GroupFormData {
@@ -25,20 +25,13 @@ const rules: FormRules = {
   name: [{ required: true, message: "Grup adı zorunludur", trigger: "blur" }]
 };
 
-const usageOptions = [
-  { label: "Gelir Kartı", value: UsageAreaEnum.IncomeCard },
-  { label: "Gider Kartı", value: UsageAreaEnum.ExpenseCard },
-  { label: "Cari Kartı", value: UsageAreaEnum.CustomerCard },
-  { label: "Stok Kartı", value: UsageAreaEnum.ProductCard }
-];
-
 // Convert flags to array for checkbox group
 const selectedUsageAreas = ref<number[]>([]);
 
 // Initialize selected values
 function initUsageAreas() {
   selectedUsageAreas.value = [];
-  usageOptions.forEach(opt => {
+  UsageAreaList.forEach(opt => {
     if (props.modelValue.usageAreas & opt.value) {
       selectedUsageAreas.value.push(opt.value);
     }
@@ -48,7 +41,10 @@ initUsageAreas();
 
 watch(() => props.modelValue.usageAreas, initUsageAreas);
 
-function updateField<K extends keyof GroupFormData>(key: K, value: GroupFormData[K]) {
+function updateField<K extends keyof GroupFormData>(
+  key: K,
+  value: GroupFormData[K]
+) {
   emit("update:modelValue", { ...props.modelValue, [key]: value });
 }
 
@@ -96,9 +92,12 @@ defineExpose({ validate });
     </el-form-item>
 
     <el-form-item label="Kullanım Yeri">
-      <el-checkbox-group v-model="selectedUsageAreas" @change="updateUsageAreas">
+      <el-checkbox-group
+        v-model="selectedUsageAreas"
+        @change="updateUsageAreas"
+      >
         <el-checkbox
-          v-for="opt in usageOptions"
+          v-for="opt in UsageAreaList"
           :key="opt.value"
           :value="opt.value"
         >

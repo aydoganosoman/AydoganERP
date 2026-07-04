@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import { getProductByBarcode, bulkCreateStockMovements } from "@/api/erp/inventory";
+import {
+  getProductByBarcode,
+  bulkCreateStockMovements
+} from "@/api/erp/inventory";
 import type { ProductWithStockDto } from "@/api/erp/types";
 import { StockMovementTypeEnum } from "@/api/erp/types";
 import { message } from "@/utils/message";
@@ -42,10 +45,14 @@ const form = reactive({
 
 // Özet bilgiler
 const totalItems = computed(() => countList.value.length);
-const foundItems = computed(() => countList.value.filter(r => r.isFound).length);
-const notFoundItems = computed(() => countList.value.filter(r => !r.isFound).length);
-const itemsWithDifference = computed(() =>
-  countList.value.filter(r => r.isFound && r.difference !== 0).length
+const foundItems = computed(
+  () => countList.value.filter(r => r.isFound).length
+);
+const notFoundItems = computed(
+  () => countList.value.filter(r => !r.isFound).length
+);
+const itemsWithDifference = computed(
+  () => countList.value.filter(r => r.isFound && r.difference !== 0).length
 );
 
 async function handleBarcodeEnter() {
@@ -53,7 +60,9 @@ async function handleBarcodeEnter() {
   if (!barcode) return;
 
   // Aynı barkod daha önce tarandı mı?
-  const existingIndex = countList.value.findIndex(r => r.barcode.toLowerCase() === barcode.toLowerCase());
+  const existingIndex = countList.value.findIndex(
+    r => r.barcode.toLowerCase() === barcode.toLowerCase()
+  );
 
   if (existingIndex >= 0) {
     // Varsa miktarı artır
@@ -74,7 +83,10 @@ async function handleBarcodeEnter() {
 async function addNewBarcode(barcode: string) {
   loading.value = true;
   try {
-    const result = await getProductByBarcode(barcode, currentCompanyId.value || undefined);
+    const result = await getProductByBarcode(
+      barcode,
+      currentCompanyId.value || undefined
+    );
 
     if (result) {
       // Ürün bulundu
@@ -132,7 +144,9 @@ function clearAll() {
 
 async function handleComplete() {
   // Sadece bulunan ve farkı olan satırları işle
-  const rowsToProcess = countList.value.filter(r => r.isFound && r.difference !== 0);
+  const rowsToProcess = countList.value.filter(
+    r => r.isFound && r.difference !== 0
+  );
 
   if (rowsToProcess.length === 0) {
     message("İşlenecek fark yok", { type: "info" });
@@ -152,9 +166,14 @@ async function handleComplete() {
     });
 
     if (result.failedCount > 0) {
-      message(`${result.successCount} başarılı, ${result.failedCount} başarısız`, { type: "warning" });
+      message(
+        `${result.successCount} başarılı, ${result.failedCount} başarısız`,
+        { type: "warning" }
+      );
     } else {
-      message(`${result.successCount} stok düzeltmesi yapıldı`, { type: "success" });
+      message(`${result.successCount} stok düzeltmesi yapıldı`, {
+        type: "success"
+      });
       router.push("/erp/inventory/stock-movements");
     }
   } catch {
@@ -215,8 +234,15 @@ function formatDifference(diff: number): string {
           >
             <template #prefix>
               <el-icon class="el-input__icon">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                  <path d="M2 4h2v16H2V4zm4 0h1v16H6V4zm3 0h2v16H9V4zm4 0h1v16h-1V4zm3 0h2v16h-2V4zm4 0h2v16h-2V4z"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="16"
+                  height="16"
+                >
+                  <path
+                    d="M2 4h2v16H2V4zm4 0h1v16H6V4zm3 0h2v16H9V4zm4 0h1v16h-1V4zm3 0h2v16h-2V4zm4 0h2v16h-2V4z"
+                  />
                 </svg>
               </el-icon>
             </template>
@@ -240,11 +266,19 @@ function formatDifference(diff: number): string {
             <span>Sayım Listesi</span>
             <el-tag type="primary">{{ totalItems }} Satır</el-tag>
             <el-tag type="success">{{ foundItems }} Eşleşti</el-tag>
-            <el-tag v-if="notFoundItems > 0" type="danger">{{ notFoundItems }} Bulunamadı</el-tag>
-            <el-tag v-if="itemsWithDifference > 0" type="warning">{{ itemsWithDifference }} Farklı</el-tag>
+            <el-tag v-if="notFoundItems > 0" type="danger"
+              >{{ notFoundItems }} Bulunamadı</el-tag
+            >
+            <el-tag v-if="itemsWithDifference > 0" type="warning"
+              >{{ itemsWithDifference }} Farklı</el-tag
+            >
           </div>
           <div class="flex gap-2">
-            <el-button size="small" :icon="useRenderIcon(DeleteIcon)" @click="clearAll">
+            <el-button
+              size="small"
+              :icon="useRenderIcon(DeleteIcon)"
+              @click="clearAll"
+            >
               Temizle
             </el-button>
             <el-button
@@ -271,7 +305,9 @@ function formatDifference(diff: number): string {
             <el-tooltip v-else content="Ürün bulunamadı" placement="top">
               <el-icon class="text-red-500" size="20">
                 <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+                  />
                 </svg>
               </el-icon>
             </el-tooltip>
@@ -309,19 +345,22 @@ function formatDifference(diff: number): string {
           <template #default="{ row, $index }">
             <el-input-number
               :model-value="row.countedQty"
-              @update:model-value="v => updateCountedQty($index, v ?? 0)"
               size="small"
               :min="0"
               :precision="0"
               controls-position="right"
               :disabled="!row.isFound"
+              @update:model-value="v => updateCountedQty($index, v ?? 0)"
             />
           </template>
         </el-table-column>
 
         <el-table-column label="Fark" width="100" align="right">
           <template #default="{ row }">
-            <span v-if="row.isFound" :class="getDifferenceClass(row.difference)">
+            <span
+              v-if="row.isFound"
+              :class="getDifferenceClass(row.difference)"
+            >
               {{ formatDifference(row.difference) }}
             </span>
             <span v-else>-</span>
@@ -330,7 +369,12 @@ function formatDifference(diff: number): string {
 
         <el-table-column label="" width="60" align="center">
           <template #default="{ $index }">
-            <el-button type="danger" size="small" link @click="removeRow($index)">
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="removeRow($index)"
+            >
               <el-icon><Delete /></el-icon>
             </el-button>
           </template>
@@ -351,7 +395,13 @@ export default {
 </script>
 
 <style scoped>
-.text-green-600 { color: #16a34a; }
-.text-red-600 { color: #dc2626; }
-.text-gray-500 { color: #6b7280; }
+.text-green-600 {
+  color: #16a34a;
+}
+.text-red-600 {
+  color: #dc2626;
+}
+.text-gray-500 {
+  color: #6b7280;
+}
 </style>

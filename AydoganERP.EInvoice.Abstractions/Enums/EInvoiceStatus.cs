@@ -30,5 +30,17 @@ public enum EInvoiceStatus
     Pending = 7,
 
     /// <summary>Alındı (Gelen fatura için)</summary>
-    Received = 8
+    Received = 8,
+
+    /// <summary>Kuyrukta</summary>
+    Queued = 9,
+
+    /// <summary>GİB'e Gönderildi</summary>
+    SentToGIB = 10,
+
+    /// <summary>Yanıt Bekleniyor</summary>
+    WaitingResponse = 11,
+
+    /// <summary>Alıcıya Ulaştı</summary>
+    ReachedBuyer = 12
 }

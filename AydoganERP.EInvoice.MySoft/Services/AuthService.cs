@@ -25,26 +25,24 @@ public class AuthService
     {
         try
         {
-            var request = new
+            var postData = new Dictionary<string, string>
             {
-                UserName = userName,
-                Password = password
+                { "username", userName },
+                { "password", password },
+                { "grant_type", "password" }
             };
 
-            var content = new StringContent(
-                JsonConvert.SerializeObject(request),
-                Encoding.UTF8,
-                "application/json");
+            var content = new FormUrlEncodedContent(postData);
 
-            var response = await _httpClient.PostAsync("/api/Auth/Login", content);
+            var response = await _httpClient.PostAsync("/oauth/token", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
                 var result = JsonConvert.DeserializeObject<LoginResponse>(responseContent);
-                if (result?.Token != null)
+                if (result?.access_token != null)
                 {
-                    _tokenService.SetToken(result.Token);
+                    _tokenService.SetToken(result.access_token);
                     return true;
                 }
             }
@@ -59,7 +57,9 @@ public class AuthService
 
     private class LoginResponse
     {
-        public string? Token { get; set; }
-        public DateTime? ExpireDate { get; set; }
+        public string access_token { get; set; }
+        public string token_type { get; set; }
+        public int expires_in { get; set; }
+        public string refresh_token { get; set; }
     }
 }

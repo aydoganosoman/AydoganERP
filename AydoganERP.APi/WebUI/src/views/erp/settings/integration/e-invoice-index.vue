@@ -10,9 +10,12 @@ import {
   deleteEInvoiceIntegration
 } from "@/api/erp/einvoice-integration";
 import type { EInvoiceIntegrationDto } from "@/api/erp/types";
-import { EInvoiceIntegratorTypeEnum } from "@/api/erp/types";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
+import {
+  IntegratorCompanyTypeEnum,
+  IntegratorCompanyTypeList
+} from "@/models/const";
 import AddFill from "~icons/ri/add-circle-line";
 import EditPen from "~icons/ep/edit-pen";
 import Delete from "~icons/ep/delete";
@@ -62,18 +65,12 @@ const editing = ref<EInvoiceIntegrationDto | null>(null);
 const saving = ref(false);
 const formRef = ref<FormInstance>();
 
-// Entegratör tipleri
-const integratorTypes = [
-  { label: "MySoft", value: EInvoiceIntegratorTypeEnum.MySoft },
-  { label: "Bien", value: EInvoiceIntegratorTypeEnum.Bien }
-];
-
 // Entegratör tipine göre form alanları
 const integratorFieldConfig: Record<
   number,
   { key: string; label: string; type?: string; placeholder?: string }[]
 > = {
-  [EInvoiceIntegratorTypeEnum.MySoft]: [
+  [IntegratorCompanyTypeEnum.Mysoft]: [
     {
       key: "url",
       label: "API URL",
@@ -86,7 +83,7 @@ const integratorFieldConfig: Record<
     { key: "password", label: "Şifre", type: "password" },
     { key: "connectorGuid", label: "Connector GUID (Opsiyonel)" }
   ],
-  [EInvoiceIntegratorTypeEnum.Bien]: [
+  [IntegratorCompanyTypeEnum.Bien]: [
     {
       key: "url",
       label: "API URL",
@@ -102,7 +99,7 @@ const integratorFieldConfig: Record<
 
 // Form data
 const formData = ref({
-  integrationType: EInvoiceIntegratorTypeEnum.MySoft,
+  integrationType: IntegratorCompanyTypeEnum.Mysoft,
   settings: {} as Record<string, string | boolean>,
   isActive: true
 });
@@ -115,9 +112,9 @@ const rules: FormRules = {
 
 function getIntegratorName(type: number): string {
   switch (type) {
-    case EInvoiceIntegratorTypeEnum.MySoft:
+    case IntegratorCompanyTypeEnum.Mysoft:
       return "MySoft";
-    case EInvoiceIntegratorTypeEnum.Bien:
+    case IntegratorCompanyTypeEnum.Bien:
       return "Bien";
     default:
       return "Bilinmiyor";
@@ -136,12 +133,12 @@ watch(
     if (!editing.value) {
       formData.value.settings = { isTestMode: false };
       // Varsayılan URL'leri ayarla
-      if (newType === EInvoiceIntegratorTypeEnum.MySoft) {
+      if (newType === IntegratorCompanyTypeEnum.Mysoft) {
         formData.value.settings.url =
           process.env.NODE_ENV === "production"
             ? "https://edocumentapi.mysoft.com.tr"
             : "https://edocumentapi.mytest.tr";
-      } else if (newType === EInvoiceIntegratorTypeEnum.Bien) {
+      } else if (newType === IntegratorCompanyTypeEnum.Bien) {
         formData.value.settings.url =
           process.env.NODE_ENV === "production"
             ? "https://connect.bienteknoloji.com.tr/Services"
@@ -177,7 +174,7 @@ function openDialog(item?: EInvoiceIntegrationDto) {
   } else {
     dialogTitle.value = "Yeni E-Fatura Entegrasyonu";
     formData.value = {
-      integrationType: EInvoiceIntegratorTypeEnum.MySoft,
+      integrationType: IntegratorCompanyTypeEnum.Mysoft,
       settings: {
         url: "https://edocumentapi.mysoft.com.tr",
         isTestMode: false
@@ -330,7 +327,7 @@ onMounted(() => {
             :disabled="!!editing"
           >
             <el-option
-              v-for="item in integratorTypes"
+              v-for="item in IntegratorCompanyTypeList"
               :key="item.value"
               :label="item.label"
               :value="item.value"

@@ -62,7 +62,7 @@ function switchTab(menu: (typeof integrationMenus)[0]) {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 4px 8px;
   border: 1px solid var(--el-border-color);
   border-radius: 6px;
   background: var(--el-bg-color);

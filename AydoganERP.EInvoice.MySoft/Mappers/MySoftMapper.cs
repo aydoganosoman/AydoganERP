@@ -253,16 +253,37 @@ public static class MySoftMapper
 
     private static EInvoiceStatus ParseInvoiceStatus(string? statusText)
     {
-        return statusText?.ToLowerInvariant() switch
+        return statusText?.ToUpperInvariant() switch
         {
-            "taslak" => EInvoiceStatus.Draft,
-            "gönderiliyor" or "sending" => EInvoiceStatus.Sending,
-            "gönderildi" or "sent" => EInvoiceStatus.Sent,
-            "kabul edildi" or "accepted" => EInvoiceStatus.Accepted,
-            "reddedildi" or "declined" or "rejected" => EInvoiceStatus.Rejected,
-            "iptal edildi" or "cancelled" => EInvoiceStatus.Cancelled,
-            "beklemede" or "pending" => EInvoiceStatus.Pending,
-            "hata" or "error" => EInvoiceStatus.Error,
+            // Temel durumlar
+            "TASLAK" => EInvoiceStatus.Draft,
+            "BOS" => EInvoiceStatus.Draft,
+            "IPTAL_EDILDI" => EInvoiceStatus.Cancelled,
+            "HATA" => EInvoiceStatus.Error,
+            
+            // Gönderim süreci
+            "ARSIV_KAYIT_KUYRUGUNDA" => EInvoiceStatus.Queued,
+            "GIBE_GONDERILECEK" => EInvoiceStatus.Queued,
+            "GIBE_GONDERILDI" => EInvoiceStatus.SentToGIB,
+            "ALICIYA_ULASTI" => EInvoiceStatus.ReachedBuyer,
+            
+            // Onay süreci
+            "YANIT_BEKLENIYOR" => EInvoiceStatus.WaitingResponse,
+            "KABUL_KUYRUGUNDA" => EInvoiceStatus.WaitingResponse,
+            "RED_KUYRUGUNDA" => EInvoiceStatus.WaitingResponse,
+            "KABUL" => EInvoiceStatus.Accepted,
+            "ONAYLANDI" => EInvoiceStatus.Accepted,
+            "RED" => EInvoiceStatus.Rejected,
+            
+            // Eski format (küçük harf)
+            "TASLAK" or "taslak" => EInvoiceStatus.Draft,
+            "GÖNDERİLİYOR" or "gönderiliyor" or "sending" => EInvoiceStatus.Sending,
+            "GÖNDERİLDİ" or "gönderildi" or "sent" => EInvoiceStatus.Sent,
+            "KABUL EDİLDİ" or "kabul edildi" or "accepted" => EInvoiceStatus.Accepted,
+            "REDDEDİLDİ" or "reddedildi" or "declined" or "rejected" => EInvoiceStatus.Rejected,
+            "İPTAL EDİLDİ" or "iptal edildi" or "cancelled" => EInvoiceStatus.Cancelled,
+            "BEKLEMEDE" or "beklemede" or "pending" => EInvoiceStatus.Pending,
+            
             _ => EInvoiceStatus.Draft
         };
     }

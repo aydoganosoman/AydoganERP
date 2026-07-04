@@ -1,8 +1,12 @@
 <script setup lang="tsx">
 import { ref, reactive, onMounted, computed } from "vue";
 import { getFolders, createFolder, updateFolder } from "@/api/erp/shared";
-import type { FolderDto, CreateFolderCommand, UpdateFolderCommand } from "@/api/erp/types";
-import { DocumentTypeEnum } from "@/api/erp/types";
+import type {
+  FolderDto,
+  CreateFolderCommand,
+  UpdateFolderCommand
+} from "@/api/erp/types";
+import { FolderDocumentTypeEnum } from "@/models/const";
 import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
@@ -43,9 +47,12 @@ const columns: TableColumnList = [
     label: "Renk",
     prop: "color",
     minWidth: 80,
-    cellRenderer: ({ row }) => (
-      row.color ? <div class="w-6 h-6 rounded" style={{ backgroundColor: row.color }} /> : <span>-</span>
-    )
+    cellRenderer: ({ row }) =>
+      row.color ? (
+        <div class="w-6 h-6 rounded" style={{ backgroundColor: row.color }} />
+      ) : (
+        <span>-</span>
+      )
   },
   {
     label: "Belge Tipleri",
@@ -73,11 +80,20 @@ const columns: TableColumnList = [
 
 function formatDocumentTypes(value: number): string {
   const types: string[] = [];
-  if (value & DocumentTypeEnum.OutgoingEInvoice) types.push("Giden E-Fatura");
-  if (value & DocumentTypeEnum.IncomingEInvoice) types.push("Gelen E-Fatura");
-  if (value & DocumentTypeEnum.EArchiveInvoice) types.push("E-Arşiv Fatura");
-  if (value & DocumentTypeEnum.OutgoingEWaybill) types.push("Giden E-İrsaliye");
-  if (value & DocumentTypeEnum.IncomingEWaybill) types.push("Gelen E-İrsaliye");
+  if (value & FolderDocumentTypeEnum.OutgoingEInvoice)
+    types.push("Giden E-Fatura");
+  if (value & FolderDocumentTypeEnum.IncomingEInvoice)
+    types.push("Gelen E-Fatura");
+  if (value & FolderDocumentTypeEnum.EArchiveInvoice)
+    types.push("E-Arşiv Fatura");
+  if (value & FolderDocumentTypeEnum.OutgoingEWaybill)
+    types.push("Giden E-İrsaliye");
+  if (value & FolderDocumentTypeEnum.IncomingEWaybill)
+    types.push("Gelen E-İrsaliye");
+  if (value & FolderDocumentTypeEnum.EProducerReceipt)
+    types.push("E-Üretici Makbuzu");
+  if (value & FolderDocumentTypeEnum.ESelfEmployment)
+    types.push("E-Serbest Meslek Makbuzu");
   return types.join(", ") || "-";
 }
 
@@ -102,7 +118,13 @@ function resetForm() {
 
 function openDialog(title = "Yeni Klasör", row?: FolderDto) {
   dialogFormData.value = row
-    ? { code: row.code, name: row.name, color: row.color || "", documentTypes: row.documentTypes, isActive: row.isActive }
+    ? {
+        code: row.code,
+        name: row.name,
+        color: row.color || "",
+        documentTypes: row.documentTypes,
+        isActive: row.isActive
+      }
     : { code: "", name: "", color: "", documentTypes: 0, isActive: true };
 
   addDialog({
@@ -111,12 +133,9 @@ function openDialog(title = "Yeni Klasör", row?: FolderDto) {
     draggable: true,
     closeOnClickModal: false,
     contentRenderer: () => (
-      <FolderForm
-        ref={formRef}
-        v-model={dialogFormData.value}
-      />
+      <FolderForm ref={formRef} v-model={dialogFormData.value} />
     ),
-    beforeSure: async (done) => {
+    beforeSure: async done => {
       const isValid = await formRef.value?.validate();
       if (!isValid) return;
 

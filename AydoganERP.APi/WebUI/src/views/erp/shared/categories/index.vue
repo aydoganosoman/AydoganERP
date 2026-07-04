@@ -1,8 +1,18 @@
 <script setup lang="tsx">
 import { ref, reactive, onMounted, computed } from "vue";
-import { getCategories, createCategory, updateCategory, getGroups } from "@/api/erp/shared";
-import type { CategoryDto, GroupDto, CreateCategoryCommand, UpdateCategoryCommand } from "@/api/erp/types";
-import { ProcessTypeEnum } from "@/api/erp/types";
+import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  getGroups
+} from "@/api/erp/shared";
+import type {
+  CategoryDto,
+  GroupDto,
+  CreateCategoryCommand,
+  UpdateCategoryCommand
+} from "@/api/erp/types";
+import { ProcessTypeEnum } from "@/models/const";
 import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
@@ -47,9 +57,12 @@ const columns: TableColumnList = [
     label: "Renk",
     prop: "color",
     minWidth: 80,
-    cellRenderer: ({ row }) => (
-      row.color ? <div class="w-6 h-6 rounded" style={{ backgroundColor: row.color }} /> : <span>-</span>
-    )
+    cellRenderer: ({ row }) =>
+      row.color ? (
+        <div class="w-6 h-6 rounded" style={{ backgroundColor: row.color }} />
+      ) : (
+        <span>-</span>
+      )
   },
   {
     label: "Süreç Tipleri",
@@ -119,8 +132,22 @@ function resetForm() {
 
 function openDialog(title = "Yeni Kategori", row?: CategoryDto) {
   dialogFormData.value = row
-    ? { code: row.code, name: row.name, groupId: row.groupId, color: row.color || "", processTypes: row.processTypes, isActive: row.isActive }
-    : { code: "", name: "", groupId: "", color: "", processTypes: 0, isActive: true };
+    ? {
+        code: row.code,
+        name: row.name,
+        groupId: row.groupId,
+        color: row.color || "",
+        processTypes: row.processTypes,
+        isActive: row.isActive
+      }
+    : {
+        code: "",
+        name: "",
+        groupId: "",
+        color: "",
+        processTypes: 0,
+        isActive: true
+      };
 
   addDialog({
     title,
@@ -134,7 +161,7 @@ function openDialog(title = "Yeni Kategori", row?: CategoryDto) {
         groups={groupList.value}
       />
     ),
-    beforeSure: async (done) => {
+    beforeSure: async done => {
       const isValid = await formRef.value?.validate();
       if (!isValid) return;
 

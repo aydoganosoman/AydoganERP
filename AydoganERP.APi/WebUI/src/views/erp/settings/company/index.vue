@@ -9,6 +9,7 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Check from "~icons/ep/check";
 import { getCities, getDistricts, getCounties } from "@/api/erp/shared";
 import type { DistrictDto, CountyDto, CityDto } from "@/api/erp/types";
+import { CurrencyOptionList, PartyTypeList } from "@/models/const";
 
 const userStore = useUserStoreHook();
 const companyId = computed(() => userStore.companyId);
@@ -42,7 +43,7 @@ function onCityChange(cityId: number) {
 // Form data
 const formData = ref<UpdateCompanyDetailsCommand>({
   name: "",
-  companyType: 0,
+  companyType: 1,
   shortName: "",
   taxNumber: "",
   taxOffice: "",
@@ -63,18 +64,6 @@ const formData = ref<UpdateCompanyDetailsCommand>({
   districtId: undefined,
   addressLine: ""
 });
-
-const companyTypes = [
-  { label: "Tüzel Kişi", value: 0 },
-  { label: "Gerçek Kişi", value: 1 }
-];
-
-const currencies = [
-  { label: "TRY", value: 0 },
-  { label: "USD", value: 1 },
-  { label: "EUR", value: 2 },
-  { label: "GBP", value: 3 }
-];
 
 // Validasyon kuralları
 const rules: FormRules = {
@@ -120,7 +109,7 @@ async function fetchCompany() {
     // Form'a mevcut değerleri yükle
     formData.value = {
       name: company.value.name || "",
-      companyType: company.value.companyType || 0,
+      companyType: company.value.companyType || 1,
       shortName: company.value.shortName || "",
       taxNumber: company.value.taxNumber || "",
       taxOffice: company.value.taxOffice || "",
@@ -232,7 +221,7 @@ onMounted(() => {
                 <el-form-item label="Firma Tipi">
                   <el-select v-model="formData.companyType" class="w-full">
                     <el-option
-                      v-for="item in companyTypes"
+                      v-for="item in PartyTypeList"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value"
@@ -316,7 +305,7 @@ onMounted(() => {
                     <el-form-item label="Para Birimi">
                       <el-select v-model="formData.currency" class="w-full">
                         <el-option
-                          v-for="item in currencies"
+                          v-for="item in CurrencyOptionList"
                           :key="item.value"
                           :label="item.label"
                           :value="item.value"

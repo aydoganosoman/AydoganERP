@@ -43,19 +43,19 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(x => x.SubTotal)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.VatTotal)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.DiscountTotal)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.GrandTotal)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.ExchangeRate)
-            .HasPrecision(18, 6)
+            .HasPrecision(18, 2)
             .HasDefaultValue(1m);
 
         builder.Property(x => x.Description)
@@ -111,15 +111,15 @@ public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasMaxLength(10);
 
         builder.Property(x => x.RoundingAmount)
-            .HasPrecision(18, 4)
+            .HasPrecision(18, 2)
             .HasDefaultValue(0m);
 
         builder.Property(x => x.PayableAmount)
-            .HasPrecision(18, 4)
+            .HasPrecision(18, 2)
             .HasDefaultValue(0m);
 
         builder.Property(x => x.InvoiceSubDiscount)
-            .HasPrecision(18, 4)
+            .HasPrecision(18, 2)
             .HasDefaultValue(0m);
 
         // Indexes

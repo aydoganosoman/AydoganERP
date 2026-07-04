@@ -244,14 +244,16 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
 
   addDialog({
     title,
-    width: "800px",
+    width: "1024px",
     draggable: true,
     closeOnClickModal: false,
     contentRenderer: () => (
       <ProductForm
         ref={formRef}
         modelValue={dialogFormData.value}
-        onUpdate:modelValue={(val: ProductFormData) => (dialogFormData.value = val)}
+        onUpdate:modelValue={(val: ProductFormData) =>
+          (dialogFormData.value = val)
+        }
         units={unitList.value}
         categories={categoryList.value}
         customers={customerList.value}
@@ -274,8 +276,10 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
             isSerialTracked: dialogFormData.value.isSerialTracked,
             isActive: dialogFormData.value.isActive,
             purchaseUnitPrice: dialogFormData.value.purchaseUnitPrice,
-            purchaseUnitPriceCurrency: dialogFormData.value.purchaseUnitPriceCurrency,
-            purchaseUnitPriceVatInclude: dialogFormData.value.purchaseUnitPriceVatInclude,
+            purchaseUnitPriceCurrency:
+              dialogFormData.value.purchaseUnitPriceCurrency,
+            purchaseUnitPriceVatInclude:
+              dialogFormData.value.purchaseUnitPriceVatInclude,
             purchaseVatRate: dialogFormData.value.purchaseVatRate,
             categoryId: dialogFormData.value.categoryId || undefined,
             unitPrices: dialogFormData.value.unitPrices.map(u => ({
@@ -310,8 +314,10 @@ async function openDialog(title = "Yeni Ürün", row?: ProductDto) {
             unitId: dialogFormData.value.unitId,
             categoryId: dialogFormData.value.categoryId || undefined,
             purchaseUnitPrice: dialogFormData.value.purchaseUnitPrice,
-            purchaseUnitPriceCurrency: dialogFormData.value.purchaseUnitPriceCurrency,
-            purchaseUnitPriceVatInclude: dialogFormData.value.purchaseUnitPriceVatInclude,
+            purchaseUnitPriceCurrency:
+              dialogFormData.value.purchaseUnitPriceCurrency,
+            purchaseUnitPriceVatInclude:
+              dialogFormData.value.purchaseUnitPriceVatInclude,
             purchaseVatRate: dialogFormData.value.purchaseVatRate,
             isLotTracked: dialogFormData.value.isLotTracked,
             isSerialTracked: dialogFormData.value.isSerialTracked,

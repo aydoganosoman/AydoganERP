@@ -27,14 +27,18 @@ import type {
 } from "@/api/erp/types";
 import {
   InvoiceTypeEnum,
-  InvoiceStatusEnum,
-  PaymentMethodEnum,
   EInvoiceScenarioEnum,
-  InvoiceLineTypeEnum,
-  VatStatusEnum,
-  PartyNumberTypeEnum,
-  OkcFisTypeEnum
-} from "@/api/erp/types";
+  InvoiceStatusEnum,
+  CurrencyOptionList,
+  InvoiceTypeList,
+  InvoiceStatusList,
+  PaymentMethodList,
+  EInvoiceScenarioList,
+  InvoiceLineTypeList,
+  VatStatusList,
+  PartyNumberTypeList,
+  OkcFisTypeList
+} from "@/models/const";
 import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useUserStoreHook } from "@/store/modules/user";
@@ -68,14 +72,14 @@ const activeTab = ref("invoice-info");
 const form = reactive({
   invoiceNumber: "",
   invoiceDate: new Date().toISOString().split("T")[0],
-  invoiceTime: "",
+  invoiceTime: null as Date | null,
   invoiceType: InvoiceTypeEnum.SalesInvoice,
   customerId: "",
   currency: 0,
   exchangeRate: 1,
   paymentTermDays: 0,
   description: "",
-  isEInvoice: false,
+  isEInvoice: true,
   eInvoiceScenario: EInvoiceScenarioEnum.Basic,
   postboxAlias: "",
   seriesPrefix: "",
@@ -110,52 +114,6 @@ const okcInfo = reactive<InvoiceOkcInfoItem>({
 const customers = ref<CustomerDto[]>([]);
 const products = ref<ProductDto[]>([]);
 const numberings = ref<DocumentNumberingDto[]>([]);
-
-// Options
-const invoiceTypeOptions = [
-  { value: InvoiceTypeEnum.SalesInvoice, label: "Satış Faturası" },
-  { value: InvoiceTypeEnum.PurchaseInvoice, label: "Alış Faturası" },
-  { value: InvoiceTypeEnum.SalesReturn, label: "Satış İade" },
-  { value: InvoiceTypeEnum.PurchaseReturn, label: "Alış İade" }
-];
-const currencyOptions = [
-  { value: 0, label: "TRY (₺)" },
-  { value: 1, label: "USD ($)" },
-  { value: 2, label: "EUR (€)" }
-];
-const eInvoiceScenarioOptions = [
-  { value: EInvoiceScenarioEnum.Basic, label: "Temel Fatura" },
-  { value: EInvoiceScenarioEnum.Commercial, label: "Ticari Fatura" },
-  { value: EInvoiceScenarioEnum.Export, label: "İhracat Faturası" },
-  { value: EInvoiceScenarioEnum.Public, label: "Kamu Faturası" }
-];
-const lineTypeOptions = [
-  { value: InvoiceLineTypeEnum.Product, label: "Stok" },
-  { value: InvoiceLineTypeEnum.Service, label: "Hizmet" }
-];
-const vatStatusOptions = [
-  { value: VatStatusEnum.Excluded, label: "KDV Hariç" },
-  { value: VatStatusEnum.Included, label: "KDV Dahil" }
-];
-const paymentMethodOptions = [
-  { value: PaymentMethodEnum.Cash, label: "Nakit" },
-  { value: PaymentMethodEnum.BankTransfer, label: "Havale/EFT" },
-  { value: PaymentMethodEnum.CreditCard, label: "Kredi Kartı" },
-  { value: PaymentMethodEnum.Check, label: "Çek" },
-  { value: PaymentMethodEnum.Other, label: "Diğer" }
-];
-const partyNumberTypeOptions = [
-  { value: PartyNumberTypeEnum.SubscriberNo, label: "Abone No" },
-  { value: PartyNumberTypeEnum.DealerNo, label: "Bayi No" },
-  { value: PartyNumberTypeEnum.FarmerNo, label: "Çiftçi No" },
-  { value: PartyNumberTypeEnum.TaxNo, label: "VKN" },
-  { value: PartyNumberTypeEnum.IdNo, label: "TCKN" },
-  { value: PartyNumberTypeEnum.EpdkNo, label: "EPDK No" }
-];
-const okcFisTypeOptions = [
-  { value: OkcFisTypeEnum.Sales, label: "Satış Fişi" },
-  { value: OkcFisTypeEnum.Return, label: "İade Fişi" }
-];
 
 // Totals
 const subTotal = computed(() =>
@@ -232,7 +190,7 @@ async function loadInvoice() {
       invoice.value = result;
       form.invoiceNumber = result.invoiceNumber;
       form.invoiceDate = result.invoiceDate.split("T")[0];
-      form.invoiceTime = result.invoiceTime || "";
+      form.invoiceTime = parseTimeSpan(result.invoiceTime);
       form.invoiceType = result.invoiceType;
       form.customerId = result.customerId;
       form.currency = result.currency;
@@ -419,7 +377,7 @@ async function handleSave() {
         description: form.description || undefined,
         eInvoiceScenario: form.eInvoiceScenario,
         postboxAlias: form.postboxAlias || undefined,
-        invoiceTime: form.invoiceTime || undefined,
+        invoiceTime: formatTimeSpan(form.invoiceTime),
         seriesPrefix: form.seriesPrefix || undefined,
         invoiceSerial: form.invoiceSerial || undefined,
         replacesInvoiceRef: form.replacesInvoiceRef,
@@ -441,7 +399,7 @@ async function handleSave() {
         isEInvoice: form.isEInvoice,
         eInvoiceScenario: form.eInvoiceScenario,
         postboxAlias: form.postboxAlias || undefined,
-        invoiceTime: form.invoiceTime || undefined,
+        invoiceTime: formatTimeSpan(form.invoiceTime),
         seriesPrefix: form.seriesPrefix || undefined,
         invoiceSerial: form.invoiceSerial || undefined,
         replacesInvoiceRef: form.replacesInvoiceRef,
@@ -540,6 +498,29 @@ const isDraft = computed(
 
 function goBack() {
   router.push("/belge/faturalar");
+}
+
+// TimeSpan string'i Date objesine çevir (el-time-picker için)
+function parseTimeSpan(timeStr: string | null | undefined): Date | null {
+  if (!timeStr) return null;
+  const parts = timeStr.split(":");
+  if (parts.length >= 2) {
+    const date = new Date();
+    date.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+    return date;
+  }
+  return null;
+}
+
+// Date objesini TimeSpan formatına çevir (HH:mm:ss) - backend için
+function formatTimeSpan(time: Date | null | undefined): string | undefined {
+  if (!time) return undefined;
+  if (time instanceof Date) {
+    const hours = time.getHours().toString().padStart(2, "0");
+    const minutes = time.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}:00`;
+  }
+  return undefined;
 }
 function formatCurrency(amount: number): string {
   const symbols = ["₺", "$", "€"];
@@ -687,7 +668,7 @@ onMounted(async () => {
                       style="width: 100%"
                       :disabled="isEditMode"
                       ><el-option
-                        v-for="opt in invoiceTypeOptions"
+                        v-for="opt in InvoiceTypeList"
                         :key="opt.value"
                         :label="opt.label"
                         :value="opt.value" /></el-select
@@ -697,7 +678,7 @@ onMounted(async () => {
                       v-model="form.eInvoiceScenario"
                       style="width: 100%"
                       ><el-option
-                        v-for="opt in eInvoiceScenarioOptions"
+                        v-for="opt in EInvoiceScenarioList"
                         :key="opt.value"
                         :label="opt.label"
                         :value="opt.value" /></el-select
@@ -728,7 +709,7 @@ onMounted(async () => {
                   <el-form-item label="Para Birimi"
                     ><el-select v-model="form.currency" style="width: 100%"
                       ><el-option
-                        v-for="opt in currencyOptions"
+                        v-for="opt in CurrencyOptionList"
                         :key="opt.value"
                         :label="opt.label"
                         :value="opt.value" /></el-select
@@ -796,7 +777,7 @@ onMounted(async () => {
 
             <!-- Sekme 2: Ödeme Bilgileri -->
             <el-tab-pane label="Ödeme Bilgileri" name="payment-info">
-              <div class="mb-4">
+              <div v-if="isDraft" class="mb-4">
                 <el-button
                   type="primary"
                   size="small"
@@ -813,7 +794,7 @@ onMounted(async () => {
                       size="small"
                       style="width: 100%"
                       ><el-option
-                        v-for="opt in paymentMethodOptions"
+                        v-for="opt in PaymentMethodList"
                         :key="opt.value"
                         :label="opt.label"
                         :value="opt.value" /></el-select></template
@@ -897,7 +878,7 @@ onMounted(async () => {
                     style="width: 100%"
                     clearable
                     ><el-option
-                      v-for="opt in okcFisTypeOptions"
+                      v-for="opt in OkcFisTypeList"
                       :key="opt.value"
                       :label="opt.label"
                       :value="opt.value" /></el-select
@@ -913,7 +894,7 @@ onMounted(async () => {
 
             <!-- Sekme 3: Sipariş - İrsaliye Bilgileri -->
             <el-tab-pane label="Sipariş - İrsaliye" name="order-info">
-              <div class="mb-4">
+              <div v-if="isDraft" class="mb-4">
                 <el-button
                   type="primary"
                   size="small"
@@ -969,7 +950,7 @@ onMounted(async () => {
 
             <!-- Sekme 4: Alıcı Satıcı Numaraları -->
             <el-tab-pane label="Alıcı Satıcı Numaraları" name="party-numbers">
-              <div class="mb-4 flex gap-2">
+              <div v-if="isDraft" class="mb-4 flex gap-2">
                 <el-button
                   type="primary"
                   size="small"
@@ -1002,7 +983,7 @@ onMounted(async () => {
                       size="small"
                       style="width: 100%"
                       ><el-option
-                        v-for="opt in partyNumberTypeOptions"
+                        v-for="opt in PartyNumberTypeList"
                         :key="opt.value"
                         :label="opt.label"
                         :value="opt.value" /></el-select></template
@@ -1063,7 +1044,7 @@ onMounted(async () => {
                   size="small"
                   style="width: 100%"
                   ><el-option
-                    v-for="opt in lineTypeOptions"
+                    v-for="opt in InvoiceLineTypeList"
                     :key="opt.value"
                     :label="opt.label"
                     :value="opt.value" /></el-select></template
@@ -1116,7 +1097,7 @@ onMounted(async () => {
                   size="small"
                   style="width: 100%"
                   ><el-option
-                    v-for="opt in vatStatusOptions"
+                    v-for="opt in VatStatusList"
                     :key="opt.value"
                     :label="opt.label"
                     :value="opt.value" /></el-select></template

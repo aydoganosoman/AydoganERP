@@ -2,28 +2,28 @@ namespace AydoganERP.Base.Domain.Modules.CompanyModule.Enums;
 
 public static class DocumentTypeEnum
 {
-    public const int EFatura = 0;
-    public const int EArsiv = 1;
-    public const int EIrsaliye = 2;
-    public const int EMustahsil = 3;
-    public const int ESerbest = 4;
+    public const int EInvoice = 0;
+    public const int EArchive = 1;
+    public const int EWaybill = 2;
+    public const int EProducer = 3;
+    public const int ESelfEmployment = 4;
 
     public static string GetName(int type) => type switch
     {
-        EFatura => "E-Fatura",
-        EArsiv => "E-Arşiv Fatura",
-        EIrsaliye => "E-İrsaliye",
-        EMustahsil => "E-Müstahsil",
-        ESerbest => "E-Serbest Meslek",
+        EInvoice => "E-Fatura",
+        EArchive => "E-Arşiv Fatura",
+        EWaybill => "E-İrsaliye",
+        EProducer => "E-Müstahsil",
+        ESelfEmployment => "E-Serbest Meslek",
         _ => "Bilinmiyor"
     };
 
     public static Dictionary<int, string> GetAll() => new()
     {
-        { EFatura, "E-Fatura" },
-        { EArsiv, "E-Arşiv Fatura" },
-        { EIrsaliye, "E-İrsaliye" },
-        { EMustahsil, "E-Müstahsil" },
-        { ESerbest, "E-Serbest Meslek" }
+        { EInvoice, "E-Fatura" },
+        { EArchive, "E-Arşiv Fatura" },
+        { EWaybill, "E-İrsaliye" },
+        { EProducer, "E-Müstahsil" },
+        { ESelfEmployment, "E-Serbest Meslek" }
     };
 }

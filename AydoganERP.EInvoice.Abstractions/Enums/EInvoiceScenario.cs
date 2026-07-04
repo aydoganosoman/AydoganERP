@@ -24,5 +24,8 @@ public enum EInvoiceScenario
     HallType = 5,
 
     /// <summary>E-Arşiv</summary>
-    EArchive = 6
+    EArchive = 6,
+    
+    /// <summary>İstisna</summary>
+    Except = 6
 }

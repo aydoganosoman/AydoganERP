@@ -16,6 +16,7 @@ using AydoganERP.Identity.Infrastructure;
 using AydoganERP.Inventory.Application;
 using AydoganERP.Inventory.Infrastructure;
 using AydoganERP.Finance.Application;
+using AydoganERP.Finance.Infrastructure;
 using AydoganERP.Identity.Infrastructure.Models;
 using AydoganERP.Identity.Infrastructure.Persistence;
 using Carter;
@@ -60,6 +61,7 @@ builder.Services.AddInventoryApplication(builder.Configuration);
 builder.Services.AddInventoryInfrastructure(builder.Configuration);
 
 builder.Services.AddFinanceApplication(builder.Configuration);
+builder.Services.AddFinanceInfrastructure(builder.Configuration);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

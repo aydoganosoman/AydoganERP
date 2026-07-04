@@ -28,6 +28,9 @@ public class EInvoiceResponse
     /// <summary>Hata kodu</summary>
     public string? ErrorCode { get; set; }
 
+    /// <summary>Entegratör Fatura (JSON)</summary>
+    public string? RawRequest { get; set; }
+    
     /// <summary>Entegratör ham yanıtı (JSON)</summary>
     public string? RawResponse { get; set; }
 
@@ -37,7 +40,7 @@ public class EInvoiceResponse
     /// <summary>Referans anahtar (ERP fatura ID)</summary>
     public string? ReferenceKey { get; set; }
 
-    public static EInvoiceResponse CreateSuccess(string ettn, string invoiceNumber, string? rawResponse = null)
+    public static EInvoiceResponse CreateSuccess(string ettn, string invoiceNumber, string? rawRequest, string? rawResponse = null)
     {
         return new EInvoiceResponse
         {
@@ -46,11 +49,12 @@ public class EInvoiceResponse
             InvoiceNumber = invoiceNumber,
             Status = EInvoiceStatus.Sent,
             SentAt = DateTime.UtcNow,
+            RawRequest = rawRequest,
             RawResponse = rawResponse
         };
     }
 
-    public static EInvoiceResponse CreateError(string errorMessage, string? errorCode = null, string? rawResponse = null)
+    public static EInvoiceResponse CreateError(string errorMessage, string? errorCode = null, string? rawRequest = null, string? rawResponse = null)
     {
         return new EInvoiceResponse
         {
@@ -58,6 +62,7 @@ public class EInvoiceResponse
             Status = EInvoiceStatus.Error,
             ErrorMessage = errorMessage,
             ErrorCode = errorCode,
+            RawRequest = rawRequest,
             RawResponse = rawResponse
         };
     }

@@ -1,11 +1,12 @@
-using System.Text;
 using AydoganERP.EInvoice.Abstractions.Enums;
+using AydoganERP.EInvoice.Abstractions.Helpers;
 using AydoganERP.EInvoice.Abstractions.Interfaces;
 using AydoganERP.EInvoice.Abstractions.Models;
 using AydoganERP.EInvoice.Abstractions.Models.Settings;
 using AydoganERP.EInvoice.Bien.Integration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace AydoganERP.EInvoice.Bien.Services;
 
@@ -79,6 +80,7 @@ public class BienInvoiceService : IEInvoiceIntegrator
                 _logger.LogError("Bien fatura gönderim hatası: {Message}", response.Message);
                 return EInvoiceResponse.CreateError(
                     response.Message ?? "Fatura gönderilemedi",
+                    rawRequest: JsonConvert.SerializeObject(invoiceInfo),
                     rawResponse: JsonConvert.SerializeObject(response));
             }
 
@@ -99,6 +101,7 @@ public class BienInvoiceService : IEInvoiceIntegrator
                 Status = EInvoiceStatus.Sent,
                 SentAt = DateTime.UtcNow,
                 ReferenceKey = request.InvoiceId,
+                RawRequest = JsonConvert.SerializeObject(invoiceInfo),
                 RawResponse = JsonConvert.SerializeObject(response)
             };
         }
@@ -113,19 +116,805 @@ public class BienInvoiceService : IEInvoiceIntegrator
     {
         // UBL XML oluşturma yerine basit bir fatura bilgisi
         // Gerçek implementasyonda UBL XML builder kullanılmalı
-        var invoiceInfo = new InvoiceInfo
-        {
-            LocalDocumentId = request.InvoiceId,
-            CreateDateUtc = DateTime.UtcNow,
-            Scenario = BienMapper.ToInvoiceScenarioChoosen(request.Scenario, request.DocumentType),
-            TargetCustomer = new CustomerInfo
-            {
-                VknTckn = request.ReceiverTaxNumber,
-                Title = request.ReceiverTitle
-            }
-        };
+        // var invoiceInfo = new InvoiceInfo
+        // {
+        //     LocalDocumentId = request.InvoiceId,
+        //     CreateDateUtc = DateTime.UtcNow,
+        //     Scenario = BienMapper.ToInvoiceScenarioChoosen(request.Scenario, request.DocumentType),
+        //     TargetCustomer = new CustomerInfo
+        //     {
+        //         VknTckn = request.ReceiverTaxNumber,
+        //         Title = request.ReceiverTitle
+        //     }
+        // };
+        
+        InvoiceType invoiceOutbox = new InvoiceType();
 
-        return invoiceInfo;
+        try
+        {
+            string[] partsCustomer =
+                request.ReceiverTitle.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            PersonType personCustomer = new PersonType
+            {
+                FamilyName =
+                    new FamilyNameType
+                    {
+                        Value = partsCustomer.Length > 1 ? string.Join(" ", partsCustomer.Skip(1)) : "."
+                    },
+                FirstName = new FirstNameType { Value = partsCustomer.Length > 0 ? partsCustomer[0] : "." }
+            };
+
+            string[] partsSupplier =
+                request.SenderTitle.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            PersonType personSupplier = new PersonType
+            {
+                FamilyName =
+                    new FamilyNameType
+                    {
+                        Value = partsSupplier.Length > 1 ? string.Join(" ", partsSupplier.Skip(1)) : "."
+                    },
+                FirstName = new FirstNameType { Value = partsSupplier.Length > 0 ? partsSupplier[0] : "." }
+            };
+
+            invoiceOutbox.Signature = new SignatureType1[]
+            {
+                new SignatureType1
+                {
+                    ID = new IDType { schemeID = "VKN_TCKN", Value = request.SenderTaxNumber },
+                    SignatoryParty = new PartyType
+                    {
+                        PartyIdentification =
+                            new PartyIdentificationType[]
+                            {
+                                new PartyIdentificationType()
+                                {
+                                    ID = new IDType
+                                    {
+                                        Value = request.SenderTaxNumber,
+                                        schemeID =
+                                            request.SenderTaxNumber.Length == 10
+                                                ? "VKN"
+                                                : "TCKN"
+                                    }
+                                }
+                            },
+                        WebsiteURI = new WebsiteURIType { },
+                        PartyName =
+                            request.SenderTaxNumber.Length == 10
+                                ? new PartyNameType { Name = new NameType1 { Value = request.SenderTitle } }
+                                : null,
+                        PostalAddress =
+                            new AddressType
+                            {
+                                Room = new RoomType { },
+                                BuildingNumber = new BuildingNumberType { },
+                                BuildingName = new BuildingNameType { },
+                                CityName = new CityNameType { Value = request.SenderCity },
+                                PostalZone = new PostalZoneType { },
+                                Region = new RegionType { },
+                                Country =
+                                    new CountryType { Name = new NameType1 { Value = "TÜRKİYE" } },
+                                CitySubdivisionName = new CitySubdivisionNameType { Value = request.SenderDistrict },
+                                StreetName = new StreetNameType { Value = request.SenderAddress }
+                            },
+                        PartyTaxScheme =
+                            new PartyTaxSchemeType
+                            {
+                                TaxScheme = new TaxSchemeType
+                                {
+                                    Name = new NameType1 { Value = request.SenderTaxOffice }
+                                }
+                            },
+                        Contact = new ContactType
+                        {
+                            Telephone = new TelephoneType { },
+                            Telefax = new TelefaxType { },
+                            ElectronicMail = new ElectronicMailType { }
+                        },
+                        Person = request.SenderTaxNumber.Length == 11 ? personSupplier : null
+                    }
+                }
+            };
+
+            invoiceOutbox.ProfileID = new ProfileIDType { Value = EnumService.GetProfileType(request.Scenario) };
+            invoiceOutbox.InvoiceTypeCode =
+                new InvoiceTypeCodeType { Value = EnumService.GetInvoiceType(request.InvoiceType) };
+
+            invoiceOutbox.IssueDate = new IssueDateType { Value = request.InvoiceDate };
+            invoiceOutbox.IssueTime = new IssueTimeType { Value = request.InvoiceDate };
+
+            invoiceOutbox.CopyIndicator = new CopyIndicatorType { Value = false };
+
+            invoiceOutbox.ID = new IDType { Value = request.Prefix };
+
+            List<NoteType> notes = new List<NoteType>();
+
+            if (request.Notes.Count > 0)
+            {
+                if (!string.IsNullOrEmpty(request.Description))
+                    notes.Add(new NoteType { Value = request.Description });
+
+                request.Notes.Select(x => new NoteType { Value = x }).ToList().ForEach(x => notes.Add(x));
+            }
+
+            invoiceOutbox.DocumentCurrencyCode = new DocumentCurrencyCodeType
+            {
+                Value = Enum.GetName<CurrencyType>(request.Currency)
+            };
+            invoiceOutbox.TaxCurrencyCode = new TaxCurrencyCodeType
+            {
+                Value = Enum.GetName<CurrencyType>(request.Currency)
+            };
+            invoiceOutbox.PricingCurrencyCode = new PricingCurrencyCodeType
+            {
+                Value = Enum.GetName<CurrencyType>(request.Currency)
+            };
+            invoiceOutbox.PaymentCurrencyCode = new PaymentCurrencyCodeType
+            {
+                Value = Enum.GetName<CurrencyType>(request.Currency)
+            };
+            invoiceOutbox.PaymentAlternativeCurrencyCode = new PaymentAlternativeCurrencyCodeType
+            {
+                Value = Enum.GetName<CurrencyType>(request.Currency)
+            };
+
+            invoiceOutbox.LineCountNumeric = new LineCountNumericType { Value = request.Lines.Count };
+
+            invoiceOutbox.InvoicePeriod = new PeriodType
+            {
+                StartDate = new StartDateType { Value = request.InvoiceDate },
+                EndDate = new EndDateType { Value = request.InvoiceDate }
+            };
+
+            if (request.Scenario == EInvoiceScenario.Public)
+            {
+                invoiceOutbox.PaymentMeans = new PaymentMeansType[]
+                {
+                    new PaymentMeansType
+                    {
+                        PaymentMeansCode = new PaymentMeansCodeType { Value = "42" },
+                        PaymentChannelCode = new PaymentChannelCodeType { Value = "BANKA" },
+                        PayeeFinancialAccount = new FinancialAccountType
+                        {
+                            CurrencyCode =
+                                new CurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                            ID = new IDType { Value = request.BankIBAN }
+                        }
+                    }
+                };
+            }
+
+            if (!string.IsNullOrEmpty(request.OrderNumber))
+            {
+                invoiceOutbox.OrderReference = new OrderReferenceType
+                {
+                    ID = new IDType { Value = request.OrderNumber },
+                    IssueDate = new IssueDateType { Value = request.OrderDate.Value }
+                };
+            }
+
+            if (!string.IsNullOrEmpty(request.WaybillNumber))
+            {
+                invoiceOutbox.DespatchDocumentReference = new DocumentReferenceType[]
+                {
+                    new DocumentReferenceType
+                    {
+                        ID = new IDType { Value = request.WaybillNumber },
+                        IssueDate = new IssueDateType { Value = request.WaybillDate.Value }
+                    }
+                };
+            }
+
+            invoiceOutbox.AccountingSupplierParty = new SupplierPartyType
+            {
+                Party = new PartyType
+                {
+                    WebsiteURI = new WebsiteURIType { },
+                    PartyName =
+                        request.SenderTaxNumber.Length == 10
+                            ? new PartyNameType { Name = new NameType1 { Value = request.SenderTitle } }
+                            : null,
+                    PartyIdentification =
+                        new PartyIdentificationType[]
+                        {
+                            new PartyIdentificationType()
+                            {
+                                ID = new IDType
+                                {
+                                    Value = request.SenderTaxNumber,
+                                    schemeID = request.SenderTaxNumber.Length == 10 ? "VKN" : "TCKN"
+                                }
+                            },
+                            !string.IsNullOrEmpty(request.SenderTAPDK)
+                                ? new PartyIdentificationType()
+                                {
+                                    ID = new IDType { Value = request.SenderTAPDK, schemeID = "TAPDKNO" }
+                                }
+                                : null
+                        },
+                    PostalAddress =
+                        new AddressType
+                        {
+                            Room = new RoomType { },
+                            BuildingNumber = new BuildingNumberType { },
+                            BuildingName = new BuildingNameType { },
+                            CityName = new CityNameType { Value = request.SenderCity },
+                            PostalZone = new PostalZoneType { },
+                            Region = new RegionType { },
+                            Country = new CountryType { Name = new NameType1 { Value = "TÜRKİYE" } },
+                            CitySubdivisionName = new CitySubdivisionNameType { Value = request.SenderDistrict },
+                            StreetName = new StreetNameType { Value = request.SenderAddress }
+                        },
+                    PartyTaxScheme =
+                        new PartyTaxSchemeType
+                        {
+                            TaxScheme = new TaxSchemeType
+                            {
+                                Name = new NameType1 { Value = request.SenderTaxOffice }
+                            }
+                        },
+                    Contact = new ContactType
+                    {
+                        Telephone = new TelephoneType { },
+                        Telefax = new TelefaxType { },
+                        ElectronicMail = new ElectronicMailType { }
+                    },
+                    Person = request.SenderTaxNumber.Length == 11 ? personSupplier : null
+                }
+            };
+
+            invoiceOutbox.AccountingCustomerParty = new CustomerPartyType
+            {
+                Party = new PartyType
+                {
+                    WebsiteURI = new WebsiteURIType { },
+                    PartyName =
+                        request.ReceiverTaxNumber.Length == 10
+                            ? new PartyNameType { Name = new NameType1 { Value = request.ReceiverTitle } }
+                            : null,
+                    PartyIdentification =
+                        new PartyIdentificationType[]
+                        {
+                            new PartyIdentificationType()
+                            {
+                                ID = new IDType
+                                {
+                                    Value = request.ReceiverTaxNumber,
+                                    schemeID =
+                                        request.ReceiverTaxNumber.Length == 10 ? "VKN" : "TCKN"
+                                }
+                            },
+                            !string.IsNullOrEmpty(request.ReceiverTAPDK)
+                                ? new PartyIdentificationType()
+                                {
+                                    ID = new IDType { Value = request.ReceiverTAPDK, schemeID = "TAPDKNO" }
+                                }
+                                : null
+                        },
+                    PostalAddress = new AddressType
+                    {
+                        Room = new RoomType { },
+                        BuildingNumber = new BuildingNumberType { },
+                        BuildingName = new BuildingNameType { },
+                        CityName = new CityNameType { Value = request.ReceiverCity },
+                        PostalZone = new PostalZoneType { },
+                        Region = new RegionType { },
+                        StreetName = new StreetNameType { Value = request.ReceiverAddress },
+                        Country = new CountryType { Name = new NameType1 { Value = "TÜRKİYE" } },
+                        CitySubdivisionName = new CitySubdivisionNameType { Value = request.ReceiverDistrict },
+                    },
+                    PartyTaxScheme =
+                        new PartyTaxSchemeType
+                        {
+                            TaxScheme = new TaxSchemeType
+                            {
+                                Name = new NameType1 { Value = request.ReceiverTaxOffice }
+                            }
+                        },
+                    Contact = new ContactType
+                    {
+                        Telephone = new TelephoneType { },
+                        Telefax = new TelefaxType { },
+                        ElectronicMail = new ElectronicMailType { Value = request.ReceiverEmail }
+                    },
+                    Person = request.ReceiverTaxNumber.Length == 11 ? personCustomer : null
+                }
+            };
+
+            #region Invoice Taxes
+
+            var groupedByVat = request.Lines
+                .GroupBy(x => x.VatRate);
+
+            var groupByExamptionCode = request.Lines
+                .GroupBy(x => x.VatExemptionCode);
+
+            var groupByWithholdingTaxCode = request.Lines
+                .GroupBy(x => x.WithholdingTaxCode);
+
+            #endregion
+            
+            List<TaxTotalType> taxTotalTypes = new List<TaxTotalType>();
+
+            invoiceOutbox.TaxTotal = new TaxTotalType[]
+            {
+                new TaxTotalType
+                {
+                    TaxAmount = new TaxAmountType
+                    {
+                        Value = request.Lines.Sum(x => x.VatAmount),
+                        currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                    TaxSubtotal = groupedByVat.Select((vatItem, index) =>
+                        new TaxSubtotalType
+                        {
+                            Percent = new PercentType1 { Value = Math.Round(Convert.ToDecimal(vatItem.Key), 2) },
+                            TaxCategory =
+                                new TaxCategoryType
+                                {
+                                    TaxScheme =
+                                        new TaxSchemeType
+                                        {
+                                            TaxTypeCode = new TaxTypeCodeType { Value = "0015" },
+                                            Name = new NameType1 { Value = "KDV" },
+                                        },
+                                    TaxExemptionReasonCode =
+                                        request.Lines.Any(x =>
+                                            x.VatRate == vatItem.Key &&
+                                            !string.IsNullOrEmpty(x.VatExemptionCode))
+                                            ? new TaxExemptionReasonCodeType
+                                            {
+                                                Value = request.Lines.First()
+                                                    .VatExemptionCode
+                                            }
+                                            : null,
+                                    TaxExemptionReason =
+                                        request.Lines.Any(x =>
+                                            x.VatRate == vatItem.Key &&
+                                            !string.IsNullOrEmpty(x.VatExemptionCode))
+                                            ? new TaxExemptionReasonType
+                                            {
+                                                Value = request.Lines.First()
+                                                    .VatExemptionReason
+                                            }
+                                            : null
+                                },
+                            TaxableAmount =
+                                new TaxableAmountType
+                                {
+                                    Value = vatItem.Sum(y => y.LineTotal),
+                                    currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                                },
+                            TaxAmount = new TaxAmountType
+                            {
+                                Value = vatItem.Sum(y => y.VatAmount),
+                                currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                            }
+                        }
+                    ).ToArray()
+                }
+            };
+
+            invoiceOutbox.LegalMonetaryTotal = new MonetaryTotalType
+            {
+                LineExtensionAmount =
+                    new LineExtensionAmountType
+                    {
+                        Value = Convert.ToDecimal(request.Lines.Sum(x => x.LineTotal)),
+                        currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                TaxExclusiveAmount =
+                    new TaxExclusiveAmountType
+                    {
+                        Value = Convert.ToDecimal(request.Lines.Sum(x => x.LineTotal) - request.DiscountTotal),
+                        currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                TaxInclusiveAmount =
+                    new TaxInclusiveAmountType
+                    {
+                        Value = Convert.ToDecimal(request.Lines.Sum(x => x.LineTotalWithVat)),
+                        currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                AllowanceTotalAmount =
+                    new AllowanceTotalAmountType
+                    {
+                        Value = Convert.ToDecimal(request.DiscountTotal),
+                        currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                PayableAmount = new PayableAmountType
+                {
+                    Value = Convert.ToDecimal(request.GrandTotal),
+                    currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                },
+            };
+
+            notes.Add(new NoteType
+            {
+                Value =
+                    $"YALNIZ {TurkishLiraConverter.ConvertToTurkishLira(Convert.ToDecimal(request.GrandTotal))}"
+            });
+
+            invoiceOutbox.InvoiceLine = new InvoiceLineType[request.Lines.Count];
+
+            for (int i = 0; i < request.Lines.Count; i++)
+            {
+                EInvoiceRequestLine detailItem = request.Lines[i];
+                invoiceOutbox.InvoiceLine[i] = new InvoiceLineType
+                {
+                    ID = new IDType { Value = (i + 1).ToString() },
+                    Item =
+                        new ItemType
+                        {
+                            Name = new NameType1
+                            {
+                                Value = !string.IsNullOrEmpty(detailItem.Description)
+                                    ? detailItem.Description
+                                    : detailItem.ProductName
+                            },
+                            Description = new DescriptionType { Value = detailItem.Description },
+                            SellersItemIdentification =
+                                new ItemIdentificationType { ID = new IDType { Value = detailItem.ProductCode } },
+                        },
+                    InvoicedQuantity =
+                        new InvoicedQuantityType
+                        {
+                            unitCode = detailItem.UnitCode,
+                            Value = Math.Round(Convert.ToDecimal(detailItem.Quantity), 2)
+                        },
+                    LineExtensionAmount =
+                        new LineExtensionAmountType
+                        {
+                            Value = Math.Round(Convert.ToDecimal(detailItem.LineTotalWithVat), 2),
+                            currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                        },
+                    Price = new PriceType
+                    {
+                        PriceAmount = new PriceAmountType
+                        {
+                            Value = Convert.ToDecimal(detailItem.UnitPrice),
+                            currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                        }
+                    },
+                    Note = new NoteType[] { }
+                };
+
+                if (detailItem.DiscountAmount > 0)
+                {
+                    invoiceOutbox.InvoiceLine[i].AllowanceCharge = new AllowanceChargeType[]
+                    {
+                        new AllowanceChargeType
+                        {
+                            SequenceNumeric = new SequenceNumericType { Value = 1 },
+                            ChargeIndicator = new ChargeIndicatorType { Value = false },
+                            Amount =
+                                new AmountType2
+                                {
+                                    Value = detailItem.DiscountAmount,
+                                    currencyID =
+                                        Enum.GetName<CurrencyType>(request.Currency)
+                                },
+                            MultiplierFactorNumeric =
+                                new MultiplierFactorNumericType
+                                {
+                                    Value = Convert.ToDecimal(detailItem.DiscountRate / 100)
+                                },
+                            BaseAmount = new BaseAmountType
+                            {
+                                Value = Convert.ToDecimal(detailItem.LineTotal),
+                                currencyID =
+                                    Enum.GetName<CurrencyType>(request.Currency)
+                            }
+                        }
+                    };
+                }
+
+                List<TaxSubtotalType> taxSubtotals = new List<TaxSubtotalType>();
+                List<TaxSubtotalType> taxWithholdingSubtotals = new List<TaxSubtotalType>();
+
+                var taxSubTotal = new TaxSubtotalType
+                {
+                    Percent = new PercentType1 { Value = detailItem.VatRate },
+                    TaxableAmount =
+                        new TaxableAmountType
+                        {
+                            Value = detailItem.LineTotal, currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                        },
+                    TaxAmount = new TaxAmountType
+                    {
+                        Value = detailItem.VatAmount, currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                    TaxCategory = new TaxCategoryType
+                    {
+                        TaxScheme = new TaxSchemeType
+                        {
+                            TaxTypeCode = new TaxTypeCodeType { Value = "0015" },
+                            Name = new NameType1 { Value = "Katma Değer Vergisi" }
+                        }
+                    },
+                };
+
+                if (!string.IsNullOrEmpty(detailItem.VatExemptionCode))
+                {
+                    taxSubTotal.TaxCategory.TaxExemptionReasonCode = new TaxExemptionReasonCodeType
+                    {
+                        Value = detailItem.VatExemptionCode
+                    };
+                    taxSubTotal.TaxCategory.TaxExemptionReason = new TaxExemptionReasonType
+                    {
+                        Value = detailItem.VatExemptionReason
+                    };
+                }
+
+                invoiceOutbox.InvoiceLine[i].TaxTotal = new TaxTotalType
+                {
+                    TaxAmount = new TaxAmountType
+                    {
+                        Value = detailItem.VatAmount, currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                    TaxSubtotal = new TaxSubtotalType[] { taxSubTotal }
+                };
+
+                if (!string.IsNullOrEmpty(detailItem.WithholdingTaxCode))
+                {
+                    taxWithholdingSubtotals.Add(new TaxSubtotalType
+                    {
+                        Percent =
+                            new PercentType1
+                            {
+                                Value = Math.Round(
+                                    Convert.ToDecimal(detailItem.WithholdingTaxRate.Value), 0)
+                            },
+                        TaxableAmount =
+                            new TaxableAmountType
+                            {
+                                Value = detailItem.LineTotal,
+                                currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                            },
+                        TaxAmount = new TaxAmountType
+                        {
+                            Value = detailItem.WithholdingTaxAmount.Value,
+                            currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                        },
+                        TaxCategory = new TaxCategoryType
+                        {
+                            TaxScheme = new TaxSchemeType
+                            {
+                                TaxTypeCode =
+                                    new TaxTypeCodeType { Value = detailItem.WithholdingTaxCode },
+                                Name = new NameType1 { Value = detailItem.WithholdingTaxName }
+                            },
+                        },
+                    });
+
+                    invoiceOutbox.InvoiceLine[i].WithholdingTaxTotal = new TaxTotalType[]
+                    {
+                        new TaxTotalType
+                        {
+                            TaxAmount = new TaxAmountType
+                            {
+                                Value = detailItem.WithholdingTaxAmount.Value,
+                                currencyID =
+                                    Enum.GetName<CurrencyType>(request.Currency)
+                            },
+                            TaxSubtotal = taxWithholdingSubtotals.ToArray()
+                        }
+                    };
+                }
+            }
+
+            if (request.Lines.Any(x => !string.IsNullOrEmpty(x.WithholdingTaxCode)))
+            {
+                invoiceOutbox.WithholdingTaxTotal = new TaxTotalType[]
+                {
+                    new TaxTotalType
+                    {
+                        TaxAmount = new TaxAmountType
+                        {
+                            Value = request.Lines.Sum(x => x.WithholdingTaxAmount.Value),
+                            currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                        },
+                        TaxSubtotal = groupByWithholdingTaxCode.Select((vatItem, index) =>
+                            new TaxSubtotalType
+                            {
+                                Percent =
+                                    new PercentType1
+                                    {
+                                        Value = Math.Round(
+                                            Convert.ToDecimal(vatItem.First()
+                                                .WithholdingTaxRate), 0)
+                                    },
+                                TaxCategory =
+                                    new TaxCategoryType
+                                    {
+                                        TaxScheme = new TaxSchemeType
+                                        {
+                                            TaxTypeCode =
+                                                new TaxTypeCodeType { Value = vatItem.Key.ToString() },
+                                            Name =
+                                                new NameType1
+                                                {
+                                                    Value = vatItem.First()
+                                                        .WithholdingTaxName
+                                                },
+                                        },
+                                    },
+                                TaxableAmount = new TaxableAmountType
+                                {
+                                    Value = vatItem.Sum(y => y.VatAmount),
+                                    currencyID =
+                                        Enum.GetName<CurrencyType>(request.Currency)
+                                },
+                                TaxAmount = new TaxAmountType
+                                {
+                                    Value = vatItem.Sum(y => y.WithholdingTaxAmount.Value),
+                                    currencyID =
+                                        Enum.GetName<CurrencyType>(request.Currency)
+                                }
+                            }
+                        ).ToArray()
+                    }
+                };
+
+                invoiceOutbox.LegalMonetaryTotal.ChargeTotalAmount = new ChargeTotalAmountType
+                {
+                    Value = 0, currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                };
+
+                invoiceOutbox.PaymentTerms = new PaymentTermsType
+                {
+                    Amount = new AmountType2
+                    {
+                        Value = 0, currencyID = Enum.GetName<CurrencyType>(request.Currency)
+                    },
+                    PenaltySurchargePercent = new PenaltySurchargePercentType { Value = 0 },
+                    Note = new NoteType { }
+                };
+
+                invoiceOutbox.TaxExchangeRate = new ExchangeRateType
+                {
+                    SourceCurrencyCode =
+                        new SourceCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    TargetCurrencyCode =
+                        new TargetCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    CalculationRate = new CalculationRateType { Value = 0 },
+                    Date = new DateType1 { Value = DateTime.Now }
+                };
+
+                invoiceOutbox.PricingExchangeRate = new ExchangeRateType
+                {
+                    SourceCurrencyCode =
+                        new SourceCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    TargetCurrencyCode =
+                        new TargetCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    CalculationRate = new CalculationRateType { Value = 0 },
+                    Date = new DateType1 { Value = DateTime.Now }
+                };
+
+                invoiceOutbox.PaymentExchangeRate = new ExchangeRateType
+                {
+                    SourceCurrencyCode =
+                        new SourceCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    TargetCurrencyCode =
+                        new TargetCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    CalculationRate = new CalculationRateType { Value = 0 },
+                    Date = new DateType1 { Value = DateTime.Now }
+                };
+
+                invoiceOutbox.PaymentAlternativeExchangeRate = new ExchangeRateType
+                {
+                    SourceCurrencyCode =
+                        new SourceCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    TargetCurrencyCode =
+                        new TargetCurrencyCodeType { Value = Enum.GetName<CurrencyType>(request.Currency) },
+                    CalculationRate = new CalculationRateType { Value = 0 },
+                    Date = new DateType1 { Value = DateTime.Now }
+                };
+            }
+
+            //Fatura Senoryosu İhracaat ise Fatura Tipi İstisna olucak
+            if (request.Scenario == EInvoiceScenario.Export)
+            {
+                invoiceOutbox.InvoiceTypeCode = new InvoiceTypeCodeType
+                {
+                    Value = EnumService.GetInvoiceType(EInvoiceType.Exception)
+                };
+                invoiceOutbox.AccountingCustomerParty = null;
+                invoiceOutbox.BuyerCustomerParty = new CustomerPartyType
+                {
+                    Party = new PartyType
+                    {
+                        PartyName =
+                            new PartyNameType { Name = new NameType1 { Value = request.ReceiverTitle } },
+                        PartyIdentification =
+                            new PartyIdentificationType[]
+                            {
+                                new PartyIdentificationType()
+                                {
+                                    ID = new IDType { Value = "EXPORT", schemeID = "PARTYTYPE" }
+                                }
+                            },
+                        PartyLegalEntity =
+                            new PartyLegalEntityType[]
+                            {
+                                new PartyLegalEntityType
+                                {
+                                    RegistrationName =
+                                        new RegistrationNameType { Value = request.ReceiverTitle },
+                                    CompanyID = new CompanyIDType { Value = request.ReceiverTaxNumber }
+                                }
+                            },
+                        PostalAddress = new AddressType
+                        {
+                            CityName = new CityNameType { Value = request.ReceiverCity },
+                            StreetName = new StreetNameType { Value = request.ReceiverAddress },
+                            Country = new CountryType { Name = new NameType1 { Value = "TÜRKİYE" } },
+                            CitySubdivisionName = new CitySubdivisionNameType { Value = request.ReceiverDistrict },
+                        },
+                        PartyTaxScheme = new PartyTaxSchemeType
+                        {
+                            TaxScheme = new TaxSchemeType
+                            {
+                                Name = new NameType1 { Value = request.ReceiverTaxOffice }
+                            }
+                        },
+                        Contact = new ContactType
+                        {
+                            ElectronicMail = new ElectronicMailType { Value = request.ReceiverEmail }
+                        }
+                    }
+                };
+            }
+
+            //Fatura Tipi İade ise Fatura Senoryosu Temel Fatura olucak
+            if (request.InvoiceType == EInvoiceType.Return)
+            {
+                invoiceOutbox.ProfileID = new ProfileIDType
+                {
+                    Value = EnumService.GetProfileType(EInvoiceScenario.Basic)
+                };
+                invoiceOutbox.BillingReference = new BillingReferenceType[]
+                {
+                    new BillingReferenceType
+                    {
+                        InvoiceDocumentReference = new DocumentReferenceType
+                        {
+                            ID = new IDType { Value = request.ReturnInvoiceNumber },
+                            IssueDate = new IssueDateType { Value = request.ReturnInvoiceDate.Value },
+                            DocumentTypeCode = new DocumentTypeCodeType { Value = "IADE" },
+                            DocumentType = new DocumentTypeType { Value = "İade Edilen Fatura" }
+                        }
+                    }
+                };
+            }
+
+            invoiceOutbox.Note = notes.ToArray();
+            
+            InvoiceInfo invoiceInfo = new InvoiceInfo
+            {
+                Scenario = InvoiceScenarioChoosen.Automated,
+                Invoice = invoiceOutbox,
+                LocalDocumentId = request.InvoiceNumber,
+                TargetCustomer =
+                    new CustomerInfo
+                    {
+                        Title = request.ReceiverTitle,
+                        VknTckn = request.ReceiverTaxNumber,
+                        Alias = request.ReceiverPkAlias
+                    },
+                EArchiveInvoiceInfo =
+                    new EArchiveInvoiceInformation { DeliveryType = InvoiceDeliveryType.Electronic },
+                Notification = new NotificationInformation
+                {
+                    Mailing = new MailingInformation[] { new MailingInformation { EnableNotification = false } }
+                }
+            };
+            
+            return invoiceInfo;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 
     #endregion
@@ -282,9 +1071,7 @@ public class BienInvoiceService : IEInvoiceIntegrator
             {
                 return new EInvoiceStatusResult
                 {
-                    Success = false,
-                    ETTN = uuid,
-                    ErrorMessage = "Durum bilgisi bulunamadı"
+                    Success = false, ETTN = uuid, ErrorMessage = "Durum bilgisi bulunamadı"
                 };
             }
 
@@ -295,12 +1082,7 @@ public class BienInvoiceService : IEInvoiceIntegrator
         catch (Exception ex)
         {
             _logger.LogError(ex, "Bien durum sorgulama hatası: {UUID}", uuid);
-            return new EInvoiceStatusResult
-            {
-                Success = false,
-                ETTN = uuid,
-                ErrorMessage = ex.Message
-            };
+            return new EInvoiceStatusResult { Success = false, ETTN = uuid, ErrorMessage = ex.Message };
         }
     }
 
@@ -330,9 +1112,7 @@ public class BienInvoiceService : IEInvoiceIntegrator
             using var client = await _tokenService.CreateAuthenticatedClientAsync();
             var responseInfo = new DocumentResponseInfo
             {
-                InvoiceId = uuid,
-                ResponseStatus = responseStatus,
-                Reason = reason
+                InvoiceId = uuid, ResponseStatus = responseStatus, Reason = reason
             };
 
             var response = await client.SendDocumentResponseAsync(new[] { responseInfo });
@@ -388,11 +1168,7 @@ public class BienInvoiceService : IEInvoiceIntegrator
         try
         {
             using var client = await _tokenService.CreateAuthenticatedClientAsync();
-            var cancelRequest = new EArchiveCancelInvoiceContext
-            {
-                InvoiceId = uuid,
-                CancelDate = date
-            };
+            var cancelRequest = new EArchiveCancelInvoiceContext { InvoiceId = uuid, CancelDate = date };
 
             var response = await client.CancelEArchiveInvoiceAsync(cancelRequest);
 

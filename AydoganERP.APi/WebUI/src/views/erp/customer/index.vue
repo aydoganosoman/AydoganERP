@@ -16,6 +16,7 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { addDialog } from "@/components/ReDialog";
 import { useUserStoreHook } from "@/store/modules/user";
+import { CustomerTypeList } from "@/models/const";
 import CustomerForm, { type CustomerFormData } from "./form.vue";
 
 import Refresh from "~icons/ep/refresh";
@@ -61,11 +62,11 @@ const emptyFormData = (): CustomerFormData => ({
 const dialogFormData = ref<CustomerFormData>(emptyFormData());
 const formRef = ref<InstanceType<typeof CustomerForm>>();
 
-const customerTypes = [
-  { label: "Müşteri", value: 0 },
-  { label: "Tedarikçi", value: 1 },
-  { label: "Müşteri & Tedarikçi", value: 2 }
-];
+// const customerTypes = [
+//   { label: "Müşteri", value: 0 },
+//   { label: "Tedarikçi", value: 1 },
+//   { label: "Müşteri & Tedarikçi", value: 2 }
+// ];
 
 const columns: TableColumnList = [
   { label: "Kod", prop: "code", minWidth: 100 },
@@ -75,7 +76,11 @@ const columns: TableColumnList = [
     prop: "type",
     minWidth: 120,
     cellRenderer: ({ row }) => {
-      const typeLabels: Record<number, string> = { 0: "Müşteri", 1: "Tedarikçi", 2: "Müşteri & Tedarikçi" };
+      const typeLabels: Record<number, string> = {
+        0: "Müşteri",
+        1: "Tedarikçi",
+        2: "Müşteri & Tedarikçi"
+      };
       return <span>{typeLabels[row.type] || "-"}</span>;
     }
   },
@@ -227,7 +232,10 @@ async function openDialog(title = "Yeni Cari", row?: CustomerDto) {
       <CustomerForm
         ref={formRef}
         modelValue={dialogFormData.value}
-        {...{ "onUpdate:modelValue": (val: CustomerFormData) => (dialogFormData.value = val) }}
+        {...{
+          "onUpdate:modelValue": (val: CustomerFormData) =>
+            (dialogFormData.value = val)
+        }}
         isEdit={!!row}
         companyId={currentCompanyId.value || undefined}
         customerId={row?.id}
@@ -324,9 +332,14 @@ onMounted(() => {
         />
       </el-form-item>
       <el-form-item label="Tür:" prop="type">
-        <el-select v-model="form.type" placeholder="Seçiniz" clearable class="w-[180px]!">
+        <el-select
+          v-model="form.type"
+          placeholder="Seçiniz"
+          clearable
+          class="w-[180px]!"
+        >
           <el-option
-            v-for="t in customerTypes"
+            v-for="t in CustomerTypeList"
             :key="t.value"
             :label="t.label"
             :value="t.value"
@@ -342,13 +355,19 @@ onMounted(() => {
         >
           Ara
         </el-button>
-        <el-button :icon="useRenderIcon(Refresh)" @click="resetForm"> Sıfırla </el-button>
+        <el-button :icon="useRenderIcon(Refresh)" @click="resetForm">
+          Sıfırla
+        </el-button>
       </el-form-item>
     </el-form>
 
     <PureTableBar title="Cariler" :columns="columns" @refresh="onSearch">
       <template #buttons>
-        <el-button type="primary" :icon="useRenderIcon(AddFill)" @click="openDialog()">
+        <el-button
+          type="primary"
+          :icon="useRenderIcon(AddFill)"
+          @click="openDialog()"
+        >
           Yeni Cari
         </el-button>
       </template>

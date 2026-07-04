@@ -10,6 +10,12 @@ import type {
 } from "@/api/erp/types";
 import { checkCustomerCode, getNextCustomerCode } from "@/api/erp/customer";
 import { ElMessage } from "element-plus";
+import {
+  CustomerTypeList,
+  PartyTypeList,
+  CurrencyOptionList,
+  NumberTypeList
+} from "@/models/const";
 
 export interface CustomerFormData {
   code: string;
@@ -64,33 +70,18 @@ const rules: FormRules = {
       trigger: "blur"
     }
   ],
-  customerName: [{ required: true, message: "Cari adı zorunludur", trigger: "blur" }],
-  type: [{ required: true, message: "Tür seçimi zorunludur", trigger: "change" }]
+  customerName: [
+    { required: true, message: "Cari adı zorunludur", trigger: "blur" }
+  ],
+  type: [
+    { required: true, message: "Tür seçimi zorunludur", trigger: "change" }
+  ]
 };
 
-const customerTypes = [
-  { label: "Müşteri", value: 0 },
-  { label: "Tedarikçi", value: 1 },
-  { label: "Müşteri & Tedarikçi", value: 2 }
-];
-
-const partyTypes = [
-  { label: "Gerçek Kişi", value: 0 },
-  { label: "Tüzel Kişi", value: 1 }
-];
-
-const currencyTypes = [
-  { label: "TRY", value: 0 },
-  { label: "USD", value: 1 },
-  { label: "EUR", value: 2 }
-];
-
-const numberTypes = [
-  { label: "Alıcı Numarası", value: 0 },
-  { label: "Satıcı Numarası", value: 1 }
-];
-
-function updateField<K extends keyof CustomerFormData>(key: K, value: CustomerFormData[K]) {
+function updateField<K extends keyof CustomerFormData>(
+  key: K,
+  value: CustomerFormData[K]
+) {
   emit("update:modelValue", { ...props.modelValue, [key]: value });
 }
 
@@ -145,13 +136,19 @@ async function generateCode() {
 }
 
 // Kod değiştiğinde hata mesajını temizle
-watch(() => props.modelValue.code, () => {
-  codeError.value = "";
-});
+watch(
+  () => props.modelValue.code,
+  () => {
+    codeError.value = "";
+  }
+);
 
 // Banka Hesabı işlemleri
 function addBankAccount() {
-  const newItems = [...props.modelValue.bankAccounts, { iban: "", bankName: "", currencyType: 0, sortOrder: 0 }];
+  const newItems = [
+    ...props.modelValue.bankAccounts,
+    { iban: "", bankName: "", currencyType: 0, sortOrder: 0 }
+  ];
   updateField("bankAccounts", newItems);
 }
 
@@ -160,7 +157,11 @@ function removeBankAccount(index: number) {
   updateField("bankAccounts", newItems);
 }
 
-function updateBankAccount(index: number, field: keyof CustomerBankAccountItem, value: any) {
+function updateBankAccount(
+  index: number,
+  field: keyof CustomerBankAccountItem,
+  value: any
+) {
   const newItems = [...props.modelValue.bankAccounts];
   newItems[index] = { ...newItems[index], [field]: value };
   updateField("bankAccounts", newItems);
@@ -168,7 +169,10 @@ function updateBankAccount(index: number, field: keyof CustomerBankAccountItem, 
 
 // Şube işlemleri
 function addBranch() {
-  const newItems = [...props.modelValue.branches, { name: "", email: "", phone: "", addressLine: "" }];
+  const newItems = [
+    ...props.modelValue.branches,
+    { name: "", email: "", phone: "", addressLine: "" }
+  ];
   updateField("branches", newItems);
 }
 
@@ -177,7 +181,11 @@ function removeBranch(index: number) {
   updateField("branches", newItems);
 }
 
-function updateBranch(index: number, field: keyof CustomerBranchItem, value: any) {
+function updateBranch(
+  index: number,
+  field: keyof CustomerBranchItem,
+  value: any
+) {
   const newItems = [...props.modelValue.branches];
   newItems[index] = { ...newItems[index], [field]: value };
   updateField("branches", newItems);
@@ -185,7 +193,10 @@ function updateBranch(index: number, field: keyof CustomerBranchItem, value: any
 
 // Yetkili Kişi işlemleri
 function addContact() {
-  const newItems = [...props.modelValue.contacts, { name: "", surname: "", title: "", gsm: "", email: "" }];
+  const newItems = [
+    ...props.modelValue.contacts,
+    { name: "", surname: "", title: "", gsm: "", email: "" }
+  ];
   updateField("contacts", newItems);
 }
 
@@ -194,7 +205,11 @@ function removeContact(index: number) {
   updateField("contacts", newItems);
 }
 
-function updateContact(index: number, field: keyof CustomerContactItem, value: any) {
+function updateContact(
+  index: number,
+  field: keyof CustomerContactItem,
+  value: any
+) {
   const newItems = [...props.modelValue.contacts];
   newItems[index] = { ...newItems[index], [field]: value };
   updateField("contacts", newItems);
@@ -202,7 +217,10 @@ function updateContact(index: number, field: keyof CustomerContactItem, value: a
 
 // Numara işlemleri
 function addNumber() {
-  const newItems = [...props.modelValue.numbers, { numberType: 0, description: "" }];
+  const newItems = [
+    ...props.modelValue.numbers,
+    { numberType: 0, description: "" }
+  ];
   updateField("numbers", newItems);
 }
 
@@ -211,7 +229,11 @@ function removeNumber(index: number) {
   updateField("numbers", newItems);
 }
 
-function updateNumber(index: number, field: keyof CustomerNumberItem, value: any) {
+function updateNumber(
+  index: number,
+  field: keyof CustomerNumberItem,
+  value: any
+) {
   const newItems = [...props.modelValue.numbers];
   newItems[index] = { ...newItems[index], [field]: value };
   updateField("numbers", newItems);
@@ -219,7 +241,10 @@ function updateNumber(index: number, field: keyof CustomerNumberItem, value: any
 
 // Not işlemleri
 function addNote() {
-  const newItems = [...props.modelValue.notes, { date: new Date().toISOString().split("T")[0], note: "" }];
+  const newItems = [
+    ...props.modelValue.notes,
+    { date: new Date().toISOString().split("T")[0], note: "" }
+  ];
   updateField("notes", newItems);
 }
 
@@ -251,27 +276,32 @@ defineExpose({ validate });
   <el-tabs v-model="activeTab" class="customer-tabs">
     <!-- Temel Bilgiler -->
     <el-tab-pane label="Temel Bilgiler" name="basic">
-      <el-form ref="ruleFormRef" :model="modelValue" :rules="rules" label-width="130px">
+      <el-form
+        ref="ruleFormRef"
+        :model="modelValue"
+        :rules="rules"
+        label-width="130px"
+      >
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="Kod" prop="code">
               <div class="flex gap-2 w-full">
                 <el-input
                   :model-value="modelValue.code"
-                  @update:model-value="v => updateField('code', v)"
-                  @blur="checkCodeUniqueness"
                   placeholder="Cari kodu"
                   :disabled="isEdit"
                   :loading="codeChecking"
                   clearable
                   class="flex-1"
+                  @update:model-value="v => updateField('code', v)"
+                  @blur="checkCodeUniqueness"
                 />
                 <el-button
                   v-if="!isEdit"
                   type="primary"
                   :loading="codeGenerating"
-                  @click="generateCode"
                   title="Otomatik Kod Üret"
+                  @click="generateCode"
                 >
                   Oto
                 </el-button>
@@ -282,9 +312,9 @@ defineExpose({ validate });
             <el-form-item label="Cari Adı" prop="customerName">
               <el-input
                 :model-value="modelValue.customerName"
-                @update:model-value="v => updateField('customerName', v)"
                 placeholder="Cari adı"
                 clearable
+                @update:model-value="v => updateField('customerName', v)"
               />
             </el-form-item>
           </el-col>
@@ -295,9 +325,9 @@ defineExpose({ validate });
             <el-form-item label="Ad">
               <el-input
                 :model-value="modelValue.name"
-                @update:model-value="v => updateField('name', v)"
                 placeholder="Ad"
                 clearable
+                @update:model-value="v => updateField('name', v)"
               />
             </el-form-item>
           </el-col>
@@ -305,9 +335,9 @@ defineExpose({ validate });
             <el-form-item label="Soyad">
               <el-input
                 :model-value="modelValue.surName"
-                @update:model-value="v => updateField('surName', v)"
                 placeholder="Soyad"
                 clearable
+                @update:model-value="v => updateField('surName', v)"
               />
             </el-form-item>
           </el-col>
@@ -318,11 +348,11 @@ defineExpose({ validate });
             <el-form-item label="Tür" prop="type">
               <el-select
                 :model-value="modelValue.type"
-                @update:model-value="v => updateField('type', v)"
                 class="w-full"
+                @update:model-value="v => updateField('type', v)"
               >
                 <el-option
-                  v-for="t in customerTypes"
+                  v-for="t in CustomerTypeList"
                   :key="t.value"
                   :label="t.label"
                   :value="t.value"
@@ -334,11 +364,11 @@ defineExpose({ validate });
             <el-form-item label="Kişi Tipi">
               <el-select
                 :model-value="modelValue.partyType"
-                @update:model-value="v => updateField('partyType', v)"
                 class="w-full"
+                @update:model-value="v => updateField('partyType', v)"
               >
                 <el-option
-                  v-for="p in partyTypes"
+                  v-for="p in PartyTypeList"
                   :key="p.value"
                   :label="p.label"
                   :value="p.value"
@@ -355,9 +385,9 @@ defineExpose({ validate });
             <el-form-item label="Vergi No / TCKN">
               <el-input
                 :model-value="modelValue.taxNumber"
-                @update:model-value="v => updateField('taxNumber', v)"
                 placeholder="Vergi numarası"
                 clearable
+                @update:model-value="v => updateField('taxNumber', v)"
               />
             </el-form-item>
           </el-col>
@@ -365,9 +395,9 @@ defineExpose({ validate });
             <el-form-item label="Vergi Dairesi">
               <el-input
                 :model-value="modelValue.taxOffice"
-                @update:model-value="v => updateField('taxOffice', v)"
                 placeholder="Vergi dairesi"
                 clearable
+                @update:model-value="v => updateField('taxOffice', v)"
               />
             </el-form-item>
           </el-col>
@@ -380,9 +410,9 @@ defineExpose({ validate });
             <el-form-item label="E-posta">
               <el-input
                 :model-value="modelValue.email"
-                @update:model-value="v => updateField('email', v)"
                 placeholder="E-posta adresi"
                 clearable
+                @update:model-value="v => updateField('email', v)"
               />
             </el-form-item>
           </el-col>
@@ -390,9 +420,9 @@ defineExpose({ validate });
             <el-form-item label="Telefon">
               <el-input
                 :model-value="modelValue.phone"
-                @update:model-value="v => updateField('phone', v)"
                 placeholder="Telefon numarası"
                 clearable
+                @update:model-value="v => updateField('phone', v)"
               />
             </el-form-item>
           </el-col>
@@ -401,10 +431,10 @@ defineExpose({ validate });
         <el-form-item label="Adres">
           <el-input
             :model-value="modelValue.addressLine"
-            @update:model-value="v => updateField('addressLine', v)"
             type="textarea"
             :rows="2"
             placeholder="Adres"
+            @update:model-value="v => updateField('addressLine', v)"
           />
         </el-form-item>
       </el-form>
@@ -424,8 +454,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.iban"
-              @update:model-value="v => updateBankAccount($index, 'iban', v)"
               placeholder="IBAN"
+              @update:model-value="v => updateBankAccount($index, 'iban', v)"
             />
           </template>
         </el-table-column>
@@ -433,8 +463,10 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.bankName"
-              @update:model-value="v => updateBankAccount($index, 'bankName', v)"
               placeholder="Banka adı"
+              @update:model-value="
+                v => updateBankAccount($index, 'bankName', v)
+              "
             />
           </template>
         </el-table-column>
@@ -442,23 +474,38 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-select
               :model-value="row.currencyType || 0"
-              @update:model-value="v => updateBankAccount($index, 'currencyType', v)"
               class="w-full"
+              @update:model-value="
+                v => updateBankAccount($index, 'currencyType', v)
+              "
             >
-              <el-option v-for="c in currencyTypes" :key="c.value" :label="c.label" :value="c.value" />
+              <el-option
+                v-for="c in CurrencyOptionList"
+                :key="c.value"
+                :label="c.label"
+                :value="c.value"
+              />
             </el-select>
           </template>
         </el-table-column>
         <el-table-column label="İşlem" width="80" align="center">
           <template #default="{ $index }">
-            <el-button type="danger" size="small" link @click="removeBankAccount($index)">
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="removeBankAccount($index)"
+            >
               <el-icon><Delete /></el-icon>
             </el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-empty v-if="!modelValue.bankAccounts.length" description="Henüz banka hesabı eklenmedi" />
+      <el-empty
+        v-if="!modelValue.bankAccounts.length"
+        description="Henüz banka hesabı eklenmedi"
+      />
     </el-tab-pane>
 
     <!-- Şubeler -->
@@ -475,8 +522,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.name"
-              @update:model-value="v => updateBranch($index, 'name', v)"
               placeholder="Şube adı"
+              @update:model-value="v => updateBranch($index, 'name', v)"
             />
           </template>
         </el-table-column>
@@ -484,8 +531,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.phone"
-              @update:model-value="v => updateBranch($index, 'phone', v)"
               placeholder="Telefon"
+              @update:model-value="v => updateBranch($index, 'phone', v)"
             />
           </template>
         </el-table-column>
@@ -493,8 +540,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.email"
-              @update:model-value="v => updateBranch($index, 'email', v)"
               placeholder="E-posta"
+              @update:model-value="v => updateBranch($index, 'email', v)"
             />
           </template>
         </el-table-column>
@@ -502,21 +549,29 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.addressLine"
-              @update:model-value="v => updateBranch($index, 'addressLine', v)"
               placeholder="Adres"
+              @update:model-value="v => updateBranch($index, 'addressLine', v)"
             />
           </template>
         </el-table-column>
         <el-table-column label="İşlem" width="80" align="center">
           <template #default="{ $index }">
-            <el-button type="danger" size="small" link @click="removeBranch($index)">
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="removeBranch($index)"
+            >
               <el-icon><Delete /></el-icon>
             </el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-empty v-if="!modelValue.branches.length" description="Henüz şube eklenmedi" />
+      <el-empty
+        v-if="!modelValue.branches.length"
+        description="Henüz şube eklenmedi"
+      />
     </el-tab-pane>
 
     <!-- Yetkili Kişiler -->
@@ -533,8 +588,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.name"
-              @update:model-value="v => updateContact($index, 'name', v)"
               placeholder="Ad"
+              @update:model-value="v => updateContact($index, 'name', v)"
             />
           </template>
         </el-table-column>
@@ -542,8 +597,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.surname"
-              @update:model-value="v => updateContact($index, 'surname', v)"
               placeholder="Soyad"
+              @update:model-value="v => updateContact($index, 'surname', v)"
             />
           </template>
         </el-table-column>
@@ -551,8 +606,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.title"
-              @update:model-value="v => updateContact($index, 'title', v)"
               placeholder="Ünvan"
+              @update:model-value="v => updateContact($index, 'title', v)"
             />
           </template>
         </el-table-column>
@@ -560,8 +615,8 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.gsm"
-              @update:model-value="v => updateContact($index, 'gsm', v)"
               placeholder="GSM"
+              @update:model-value="v => updateContact($index, 'gsm', v)"
             />
           </template>
         </el-table-column>
@@ -569,21 +624,29 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.email"
-              @update:model-value="v => updateContact($index, 'email', v)"
               placeholder="E-posta"
+              @update:model-value="v => updateContact($index, 'email', v)"
             />
           </template>
         </el-table-column>
         <el-table-column label="İşlem" width="80" align="center">
           <template #default="{ $index }">
-            <el-button type="danger" size="small" link @click="removeContact($index)">
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="removeContact($index)"
+            >
               <el-icon><Delete /></el-icon>
             </el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-empty v-if="!modelValue.contacts.length" description="Henüz yetkili kişi eklenmedi" />
+      <el-empty
+        v-if="!modelValue.contacts.length"
+        description="Henüz yetkili kişi eklenmedi"
+      />
     </el-tab-pane>
 
     <!-- Alıcı Numaraları -->
@@ -600,10 +663,15 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-select
               :model-value="row.numberType"
-              @update:model-value="v => updateNumber($index, 'numberType', v)"
               class="w-full"
+              @update:model-value="v => updateNumber($index, 'numberType', v)"
             >
-              <el-option v-for="n in numberTypes" :key="n.value" :label="n.label" :value="n.value" />
+              <el-option
+                v-for="n in NumberTypeList"
+                :key="n.value"
+                :label="n.label"
+                :value="n.value"
+              />
             </el-select>
           </template>
         </el-table-column>
@@ -611,21 +679,29 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.description"
-              @update:model-value="v => updateNumber($index, 'description', v)"
               placeholder="Numara / Açıklama"
+              @update:model-value="v => updateNumber($index, 'description', v)"
             />
           </template>
         </el-table-column>
         <el-table-column label="İşlem" width="80" align="center">
           <template #default="{ $index }">
-            <el-button type="danger" size="small" link @click="removeNumber($index)">
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="removeNumber($index)"
+            >
               <el-icon><Delete /></el-icon>
             </el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-empty v-if="!modelValue.numbers.length" description="Henüz alıcı numarası eklenmedi" />
+      <el-empty
+        v-if="!modelValue.numbers.length"
+        description="Henüz alıcı numarası eklenmedi"
+      />
     </el-tab-pane>
 
     <!-- Notlar -->
@@ -642,12 +718,12 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-date-picker
               :model-value="row.date"
-              @update:model-value="v => updateNote($index, 'date', v)"
               type="date"
               format="DD.MM.YYYY"
               value-format="YYYY-MM-DD"
               placeholder="Tarih"
               class="w-full"
+              @update:model-value="v => updateNote($index, 'date', v)"
             />
           </template>
         </el-table-column>
@@ -655,23 +731,31 @@ defineExpose({ validate });
           <template #default="{ row, $index }">
             <el-input
               :model-value="row.note"
-              @update:model-value="v => updateNote($index, 'note', v)"
               type="textarea"
               :rows="2"
               placeholder="Not"
+              @update:model-value="v => updateNote($index, 'note', v)"
             />
           </template>
         </el-table-column>
         <el-table-column label="İşlem" width="80" align="center">
           <template #default="{ $index }">
-            <el-button type="danger" size="small" link @click="removeNote($index)">
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="removeNote($index)"
+            >
               <el-icon><Delete /></el-icon>
             </el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-empty v-if="!modelValue.notes.length" description="Henüz not eklenmedi" />
+      <el-empty
+        v-if="!modelValue.notes.length"
+        description="Henüz not eklenmedi"
+      />
     </el-tab-pane>
   </el-tabs>
 </template>

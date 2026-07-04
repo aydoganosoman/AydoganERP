@@ -697,6 +697,9 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("ProviderRequest")
+                        .HasColumnType("text");
+
                     b.Property<string>("ProviderResponse")
                         .HasColumnType("text");
 
@@ -749,8 +752,8 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<decimal>("DiscountTotal")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp without time zone");
@@ -764,13 +767,13 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("ExchangeRate")
                         .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 6)
-                        .HasColumnType("numeric(18,6)")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
                         .HasDefaultValue(1m);
 
                     b.Property<decimal>("GrandTotal")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTime>("InvoiceDate")
                         .HasColumnType("timestamp without time zone");
@@ -785,8 +788,8 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("InvoiceSubDiscount")
                         .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
                         .HasDefaultValue(0m);
 
                     b.Property<TimeSpan?>("InvoiceTime")
@@ -810,8 +813,8 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("PayableAmount")
                         .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
                         .HasDefaultValue(0m);
 
                     b.Property<int>("PaymentTermDays")
@@ -826,8 +829,8 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("RoundingAmount")
                         .ValueGeneratedOnAdd()
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
                         .HasDefaultValue(0m);
 
                     b.Property<string>("SeriesPrefix")
@@ -840,12 +843,12 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasDefaultValue(0);
 
                     b.Property<decimal>("SubTotal")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<decimal>("VatTotal")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.HasKey("Id");
 
@@ -882,8 +885,8 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<decimal>("DiscountAmount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<float>("DiscountRate")
                         .HasColumnType("real");
@@ -905,12 +908,12 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("LineTotal")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<decimal>("LineTotalWithVat")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<int>("LineType")
                         .ValueGeneratedOnAdd()
@@ -931,8 +934,8 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<Guid?>("SerialNumberId")
                         .HasColumnType("uuid");
@@ -942,12 +945,12 @@ namespace AydoganERP.Base.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<decimal>("VatAmount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<float>("VatRate")
                         .HasColumnType("real");

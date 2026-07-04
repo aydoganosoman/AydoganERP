@@ -46,7 +46,7 @@ public class InvoiceService
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PostAsync("/api/InvoiceOutbox/Send", content);
+            var response = await _httpClient.PostAsync("/api/InvoiceOutbox/invoiceOutbox", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)

@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from "vue";
-import { getSerialNumberByCode, updateSerialNumberStatus } from "@/api/erp/inventory";
+import {
+  getSerialNumberByCode,
+  updateSerialNumberStatus
+} from "@/api/erp/inventory";
 import type { SerialNumberDetailDto } from "@/api/erp/types";
 import { SerialNumberStatusEnum } from "@/api/erp/types";
 import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useUserStoreHook } from "@/store/modules/user";
+import { SerialNumberStatusOptionList } from "@/models/const";
 
 defineOptions({
   name: "SerialInventory"
@@ -21,21 +25,13 @@ const editNotes = ref<string>("");
 const userStore = useUserStoreHook();
 const currentCompanyId = computed(() => userStore.companyId);
 
-// Durum seçenekleri
-const statusOptions = [
-  { value: SerialNumberStatusEnum.InStock, label: "Stokta", type: "success" },
-  { value: SerialNumberStatusEnum.Sold, label: "Satıldı", type: "info" },
-  { value: SerialNumberStatusEnum.InService, label: "Serviste", type: "warning" },
-  { value: SerialNumberStatusEnum.Returned, label: "İade Edildi", type: "info" },
-  { value: SerialNumberStatusEnum.Defective, label: "Arızalı", type: "danger" },
-  { value: SerialNumberStatusEnum.Scrapped, label: "Hurda", type: "danger" }
-];
-
 function getStatusLabel(status: number): string {
   return statusOptions.find(s => s.value === status)?.label || "Bilinmiyor";
 }
 
-function getStatusType(status: number): "success" | "info" | "warning" | "danger" {
+function getStatusType(
+  status: number
+): "success" | "info" | "warning" | "danger" {
   return (statusOptions.find(s => s.value === status)?.type as any) || "info";
 }
 
@@ -45,13 +41,18 @@ async function handleSerialEnter() {
 
   loading.value = true;
   try {
-    const result = await getSerialNumberByCode(serial, currentCompanyId.value || undefined);
+    const result = await getSerialNumberByCode(
+      serial,
+      currentCompanyId.value || undefined
+    );
 
     if (result) {
       currentSerial.value = result;
       editStatus.value = result.status;
       editNotes.value = result.notes || "";
-      message(`${result.productCode} - ${result.productName}`, { type: "success" });
+      message(`${result.productCode} - ${result.productName}`, {
+        type: "success"
+      });
     } else {
       currentSerial.value = null;
       message("Seri numarası bulunamadı", { type: "warning" });
@@ -112,7 +113,9 @@ function formatPrice(price?: number): string {
     <!-- Başlık -->
     <div class="mb-4">
       <h2 class="text-lg font-semibold">Seri Numarası Envanteri</h2>
-      <p class="text-gray-500 text-sm">Seri numarası ile ürün durumunu sorgulayın ve güncelleyin</p>
+      <p class="text-gray-500 text-sm">
+        Seri numarası ile ürün durumunu sorgulayın ve güncelleyin
+      </p>
     </div>
 
     <!-- Arama -->
@@ -132,13 +135,23 @@ function formatPrice(price?: number): string {
           >
             <template #prefix>
               <el-icon class="el-input__icon">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                  <path d="M7 5h2v14H7V5zm4 0h1v14h-1V5zm3 0h2v14h-2V5zM3 5h2v14H3V5zm14 0h1v14h-1V5zm3 0h1v14h-1V5z"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="16"
+                  height="16"
+                >
+                  <path
+                    d="M7 5h2v14H7V5zm4 0h1v14h-1V5zm3 0h2v14h-2V5zM3 5h2v14H3V5zm14 0h1v14h-1V5zm3 0h1v14h-1V5z"
+                  />
                 </svg>
               </el-icon>
             </template>
             <template #append>
-              <el-button :icon="useRenderIcon('ri/search-line')" @click="handleSerialEnter" />
+              <el-button
+                :icon="useRenderIcon('ri/search-line')"
+                @click="handleSerialEnter"
+              />
             </template>
           </el-input>
         </el-form-item>
@@ -150,7 +163,9 @@ function formatPrice(price?: number): string {
       <template #header>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <span class="font-semibold text-lg">{{ currentSerial.serialNumber }}</span>
+            <span class="font-semibold text-lg">{{
+              currentSerial.serialNumber
+            }}</span>
             <el-tag :type="getStatusType(currentSerial.status)" size="large">
               {{ getStatusLabel(currentSerial.status) }}
             </el-tag>
@@ -216,12 +231,14 @@ function formatPrice(price?: number): string {
               <el-form-item label="Yeni Durum">
                 <el-select v-model="editStatus" style="width: 100%">
                   <el-option
-                    v-for="opt in statusOptions"
+                    v-for="opt in SerialNumberStatusOptionList"
                     :key="opt.value"
                     :label="opt.label"
                     :value="opt.value"
                   >
-                    <el-tag :type="opt.type" size="small" class="mr-2">{{ opt.label }}</el-tag>
+                    <el-tag :type="opt.type" size="small" class="mr-2">{{
+                      opt.label
+                    }}</el-tag>
                   </el-option>
                 </el-select>
               </el-form-item>

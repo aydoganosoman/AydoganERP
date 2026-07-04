@@ -120,6 +120,7 @@ public class InvoiceListDto
     public decimal RemainingAmount { get; set; }
     public bool IsPaid { get; set; }
     public bool IsEInvoice { get; set; }
+    public string? EInvoiceUUID { get; set; }
     public int EInvoiceScenario { get; set; }
 }
 

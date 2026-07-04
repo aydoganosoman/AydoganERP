@@ -34,22 +34,22 @@ public class InvoiceLineConfiguration : IEntityTypeConfiguration<InvoiceLine>
             .HasMaxLength(50);
 
         builder.Property(x => x.Quantity)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.UnitPrice)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.LineTotal)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.DiscountAmount)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.VatAmount)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.LineTotalWithVat)
-            .HasPrecision(18, 4);
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.Description)
             .HasMaxLength(500);

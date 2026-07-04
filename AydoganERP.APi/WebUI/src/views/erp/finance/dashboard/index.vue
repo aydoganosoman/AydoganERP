@@ -32,14 +32,20 @@
             <el-icon class="card-icon"><Money /></el-icon>
             <span>Toplam Satış</span>
           </div>
-          <div class="card-value">{{ formatCurrency(data?.totalSalesAmount) }}</div>
+          <div class="card-value">
+            {{ formatCurrency(data?.totalSalesAmount) }}
+          </div>
           <div class="card-sub">
             <span class="label">Tahsil Edilen:</span>
-            <span class="value success">{{ formatCurrency(data?.totalSalesCollected) }}</span>
+            <span class="value success">{{
+              formatCurrency(data?.totalSalesCollected)
+            }}</span>
           </div>
           <div class="card-sub">
             <span class="label">Bekleyen:</span>
-            <span class="value warning">{{ formatCurrency(data?.totalSalesOutstanding) }}</span>
+            <span class="value warning">{{
+              formatCurrency(data?.totalSalesOutstanding)
+            }}</span>
           </div>
         </el-card>
       </el-col>
@@ -51,14 +57,20 @@
             <el-icon class="card-icon"><ShoppingCart /></el-icon>
             <span>Toplam Alış</span>
           </div>
-          <div class="card-value">{{ formatCurrency(data?.totalPurchaseAmount) }}</div>
+          <div class="card-value">
+            {{ formatCurrency(data?.totalPurchaseAmount) }}
+          </div>
           <div class="card-sub">
             <span class="label">Ödenen:</span>
-            <span class="value success">{{ formatCurrency(data?.totalPurchasePaid) }}</span>
+            <span class="value success">{{
+              formatCurrency(data?.totalPurchasePaid)
+            }}</span>
           </div>
           <div class="card-sub">
             <span class="label">Bekleyen:</span>
-            <span class="value warning">{{ formatCurrency(data?.totalPurchaseOutstanding) }}</span>
+            <span class="value warning">{{
+              formatCurrency(data?.totalPurchaseOutstanding)
+            }}</span>
           </div>
         </el-card>
       </el-col>
@@ -70,7 +82,9 @@
             <el-icon class="card-icon"><Warning /></el-icon>
             <span>Vadesi Geçmiş Alacak</span>
           </div>
-          <div class="card-value danger">{{ formatCurrency(data?.overdueSalesAmount) }}</div>
+          <div class="card-value danger">
+            {{ formatCurrency(data?.overdueSalesAmount) }}
+          </div>
           <div class="card-sub">
             <span class="label">Fatura Sayısı:</span>
             <span class="value">{{ data?.overdueSalesCount || 0 }}</span>
@@ -88,19 +102,27 @@
           <div class="status-grid">
             <div class="status-item">
               <span class="label">Taslak:</span>
-              <el-tag type="info" size="small">{{ data?.draftCount || 0 }}</el-tag>
+              <el-tag type="info" size="small">{{
+                data?.draftCount || 0
+              }}</el-tag>
             </div>
             <div class="status-item">
               <span class="label">Onaylı:</span>
-              <el-tag type="success" size="small">{{ data?.approvedCount || 0 }}</el-tag>
+              <el-tag type="success" size="small">{{
+                data?.approvedCount || 0
+              }}</el-tag>
             </div>
             <div class="status-item">
               <span class="label">E-Fatura:</span>
-              <el-tag type="primary" size="small">{{ data?.eInvoiceSentCount || 0 }}</el-tag>
+              <el-tag type="primary" size="small">{{
+                data?.eInvoiceSentCount || 0
+              }}</el-tag>
             </div>
             <div class="status-item">
               <span class="label">İptal:</span>
-              <el-tag type="danger" size="small">{{ data?.cancelledCount || 0 }}</el-tag>
+              <el-tag type="danger" size="small">{{
+                data?.cancelledCount || 0
+              }}</el-tag>
             </div>
           </div>
         </el-card>
@@ -117,16 +139,31 @@
               <span>En Çok Borçlu Müşteriler</span>
             </div>
           </template>
-          <el-table :data="data?.topDebtors || []" stripe size="small" max-height="300">
+          <el-table
+            :data="data?.topDebtors || []"
+            stripe
+            size="small"
+            max-height="300"
+          >
             <el-table-column prop="customerName" label="Müşteri" />
             <el-table-column prop="totalDebt" label="Borç" align="right">
               <template #default="{ row }">
-                <span class="text-danger font-bold">{{ formatCurrency(row.totalDebt) }}</span>
+                <span class="text-danger font-bold">{{
+                  formatCurrency(row.totalDebt)
+                }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="invoiceCount" label="Fatura" align="center" width="80" />
+            <el-table-column
+              prop="invoiceCount"
+              label="Fatura"
+              align="center"
+              width="80"
+            />
           </el-table>
-          <el-empty v-if="!data?.topDebtors?.length" description="Borçlu müşteri yok" />
+          <el-empty
+            v-if="!data?.topDebtors?.length"
+            description="Borçlu müşteri yok"
+          />
         </el-card>
       </el-col>
 
@@ -143,17 +180,27 @@
             <el-table-column prop="period" label="Dönem" width="120" />
             <el-table-column prop="salesAmount" label="Satış" align="right">
               <template #default="{ row }">
-                <span class="text-success">{{ formatCurrency(row.salesAmount) }}</span>
+                <span class="text-success">{{
+                  formatCurrency(row.salesAmount)
+                }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="purchaseAmount" label="Alış" align="right">
               <template #default="{ row }">
-                <span class="text-warning">{{ formatCurrency(row.purchaseAmount) }}</span>
+                <span class="text-warning">{{
+                  formatCurrency(row.purchaseAmount)
+                }}</span>
               </template>
             </el-table-column>
             <el-table-column label="Kar/Zarar" align="right">
               <template #default="{ row }">
-                <span :class="row.salesAmount - row.purchaseAmount >= 0 ? 'text-success' : 'text-danger'">
+                <span
+                  :class="
+                    row.salesAmount - row.purchaseAmount >= 0
+                      ? 'text-success'
+                      : 'text-danger'
+                  "
+                >
                   {{ formatCurrency(row.salesAmount - row.purchaseAmount) }}
                 </span>
               </template>
@@ -168,8 +215,19 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { getFinanceDashboard, type FinanceDashboardDto } from "@/api/erp/finance";
-import { Refresh, Money, ShoppingCart, Warning, Document, User, TrendCharts } from "@element-plus/icons-vue";
+import {
+  getFinanceDashboard,
+  type FinanceDashboardDto
+} from "@/api/erp/finance";
+import {
+  Refresh,
+  Money,
+  ShoppingCart,
+  Warning,
+  Document,
+  User,
+  TrendCharts
+} from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 
 const loading = ref(false);
@@ -178,9 +236,12 @@ const dateRange = ref<[string, string] | null>(null);
 
 const monthlyData = computed(() => {
   if (!data.value) return [];
-  
-  const months = new Map<string, { salesAmount: number; purchaseAmount: number }>();
-  
+
+  const months = new Map<
+    string,
+    { salesAmount: number; purchaseAmount: number }
+  >();
+
   // Satışları ekle
   for (const item of data.value.monthlySales || []) {
     const key = `${item.year}-${String(item.month).padStart(2, "0")}`;
@@ -189,7 +250,7 @@ const monthlyData = computed(() => {
     }
     months.get(key)!.salesAmount = item.amount;
   }
-  
+
   // Alışları ekle
   for (const item of data.value.monthlyPurchases || []) {
     const key = `${item.year}-${String(item.month).padStart(2, "0")}`;
@@ -198,7 +259,7 @@ const monthlyData = computed(() => {
     }
     months.get(key)!.purchaseAmount = item.amount;
   }
-  
+
   return Array.from(months.entries())
     .map(([period, values]) => ({
       period: formatPeriod(period),
@@ -209,7 +270,20 @@ const monthlyData = computed(() => {
 
 function formatPeriod(period: string): string {
   const [year, month] = period.split("-");
-  const monthNames = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+  const monthNames = [
+    "Oca",
+    "Şub",
+    "Mar",
+    "Nis",
+    "May",
+    "Haz",
+    "Tem",
+    "Ağu",
+    "Eyl",
+    "Eki",
+    "Kas",
+    "Ara"
+  ];
   return `${monthNames[parseInt(month) - 1]} ${year}`;
 }
 
@@ -255,49 +329,49 @@ onMounted(() => {
     color: #666;
     font-size: 14px;
     margin-bottom: 12px;
-    
+
     .card-icon {
       font-size: 20px;
     }
   }
-  
+
   .card-value {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 12px;
-    
+
     &.danger {
       color: #f56c6c;
     }
   }
-  
+
   .card-sub {
     display: flex;
     justify-content: space-between;
     font-size: 13px;
     margin-bottom: 4px;
-    
+
     .label {
       color: #999;
     }
-    
+
     .value {
       font-weight: 500;
-      
+
       &.success {
         color: #67c23a;
       }
-      
+
       &.warning {
         color: #e6a23c;
       }
     }
   }
-  
+
   &.sales .card-value {
     color: #409eff;
   }
-  
+
   &.purchase .card-value {
     color: #e6a23c;
   }
@@ -307,12 +381,12 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  
+
   .status-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
+
     .label {
       color: #666;
       font-size: 13px;

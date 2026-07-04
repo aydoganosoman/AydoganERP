@@ -4,7 +4,7 @@ using AydoganERP.Base.Domain.Modules.FinanceModule.Entities;
 using AydoganERP.EInvoice.Abstractions.Enums;
 using AydoganERP.EInvoice.Abstractions.Models;
 
-namespace AydoganERP.Base.Infrastructure.EInvoice;
+namespace AydoganERP.Finance.Infrastructure.EInvoice;
 
 /// <summary>
 /// Invoice entity'sini EInvoiceRequest'e dönüştürür
@@ -34,9 +34,12 @@ public static class InvoiceMapper
             ExchangeRate = invoice.ExchangeRate,
 
             // Gönderici (Firma)
-            SenderTaxNumber = company.TaxInfo?.TaxNumber ?? string.Empty,
             SenderTitle = company.Name,
+            SenderTaxNumber = company.TaxInfo?.TaxNumber ?? string.Empty,
             SenderTaxOffice = company.TaxInfo?.TaxOffice,
+            SenderCity = company.Address?.City?.ToString(),
+            SenderDistrict = company.Address?.District?.ToString(),
+            SenderAddress = company.Address?.Line,
 
             // Alıcı (Müşteri)
             ReceiverTaxNumber = customer.TaxInfo?.TaxNumber ?? string.Empty,
@@ -47,7 +50,8 @@ public static class InvoiceMapper
             ReceiverAddress = customer.Address?.Line,
             ReceiverEmail = customer.Contact?.Email,
             ReceiverPhone = customer.Contact?.Phone,
-
+            ReceiverTAPDK = customer.Numbers.FirstOrDefault(n => n.NumberType == 1)?.Description, // TAPDK numarası
+            
             // Tutarlar
             SubTotal = invoice.SubTotal,
             DiscountTotal = invoice.DiscountTotal,
@@ -57,7 +61,17 @@ public static class InvoiceMapper
             PayableAmount = invoice.GrandTotal,
 
             // Açıklama
-            Description = invoice.Description
+            Description = invoice.Description,
+            
+            BankName = customer.BankAccounts.FirstOrDefault()?.BankName,
+            BankIBAN = customer.BankAccounts.FirstOrDefault()?.IBAN,
+            
+            OrderNumber = invoice.OrderInfos.FirstOrDefault()?.OrderNumber,
+            OrderDate = invoice.OrderInfos.FirstOrDefault()?.OrderDate,
+            WaybillNumber = invoice.OrderInfos.FirstOrDefault()?.WaybillNumber,
+            WaybillDate = invoice.OrderInfos.FirstOrDefault()?.WaybillDate
+            
+            
         };
 
         // Notlar

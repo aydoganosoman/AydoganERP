@@ -21,6 +21,7 @@ import EditPen from "~icons/ep/edit-pen";
 import Delete from "~icons/ep/delete";
 import Refresh from "~icons/ep/refresh";
 import { Warning } from "@element-plus/icons-vue";
+import { IntegrationTypeList } from "@/models/const";
 
 defineOptions({
   name: "ECommerceIntegration"
@@ -69,15 +70,6 @@ const saving = ref(false);
 const formRef = ref<FormInstance>();
 const defaultsFormRef = ref<FormInstance>();
 
-// Entegrasyon tipleri
-const integrationTypes = [
-  { label: "Trendyol", value: 0 },
-  { label: "Trendyol Yemek", value: 1 },
-  { label: "N11", value: 2 },
-  { label: "Hepsiburada", value: 3 },
-  { label: "Shopier", value: 4 }
-];
-
 // Entegrasyon tipine göre form alanları
 const integrationFieldConfig: Record<
   number,
@@ -115,7 +107,7 @@ const integrationFieldConfig: Record<
 
 // Form data
 const formData = ref({
-  integrationType: 0,
+  integrationType: 1,
   storeName: "",
   integrationUrl: "",
   username: "",
@@ -222,7 +214,7 @@ function openDialog(item?: ECommerceIntegrationDto) {
   } else {
     dialogTitle.value = "Yeni E-Ticaret Entegrasyonu";
     formData.value = {
-      integrationType: 0,
+      integrationType: 1,
       storeName: "",
       integrationUrl: "",
       username: "",
@@ -408,7 +400,7 @@ onMounted(() => {
                 :disabled="!!editing"
               >
                 <el-option
-                  v-for="item in integrationTypes"
+                  v-for="item in IntegrationTypeList"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"

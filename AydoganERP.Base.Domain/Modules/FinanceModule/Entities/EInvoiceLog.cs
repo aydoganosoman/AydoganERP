@@ -23,6 +23,9 @@ public class EInvoiceLog : AuditableEntity
     /// <summary>Yanıt tarihi</summary>
     public DateTime? ResponseAt { get; private set; }
 
+    /// <summary>Entegratör isteği</summary>
+    public string? ProviderRequest { get; private set; }
+    
     /// <summary>Entegratör yanıtı</summary>
     public string? ProviderResponse { get; private set; }
 
@@ -57,6 +60,8 @@ public class EInvoiceLog : AuditableEntity
         };
     }
 
+    public void SetRequest(string providerRequest) => ProviderRequest = providerRequest;
+    
     public void MarkAsSending(string ublXml)
     {
         Status = EInvoiceStatusEnum.Sending;

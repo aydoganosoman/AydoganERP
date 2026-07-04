@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 // Alias for disambiguation
 using EInvoiceModels = AydoganERP.EInvoice.Abstractions.Models;
 
-namespace AydoganERP.Base.Infrastructure.EInvoice;
+namespace AydoganERP.Finance.Infrastructure.EInvoice;
 
 /// <summary>
 /// E-Fatura servis implementasyonu
@@ -40,6 +40,7 @@ public class EInvoiceService : IEInvoiceService
             .Include(i => i.Lines)
             .Include(i => i.Company)
             .Include(i => i.Customer)
+            .Include(i=>i.Customer.Numbers)
             .FirstOrDefaultAsync(i => i.Id == invoiceId);
 
         if (invoice == null)
@@ -99,6 +100,8 @@ public class EInvoiceService : IEInvoiceService
 
             var response = await integrator.SendInvoiceAsync(request);
 
+            log.SetRequest(response.RawRequest ?? string.Empty);
+            
             if (response.Success)
             {
                 // 8. Başarılı - Invoice ve Log güncelle

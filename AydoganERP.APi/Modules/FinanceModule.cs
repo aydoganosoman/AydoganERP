@@ -7,7 +7,6 @@ using AydoganERP.Finance.Application.InvoiceManager.Commands.Cancel;
 using AydoganERP.Finance.Application.InvoiceManager.Commands.AddLine;
 using AydoganERP.Finance.Application.InvoiceManager.Commands.RemoveLine;
 using AydoganERP.Finance.Application.InvoiceManager.Commands.RecordPayment;
-using AydoganERP.Finance.Application.InvoiceManager.Commands.SendEInvoice;
 using AydoganERP.Finance.Application.InvoiceManager.Queries.GetById;
 using AydoganERP.Finance.Application.InvoiceManager.Queries.GetList;
 using AydoganERP.Finance.Application.InvoiceManager.Queries.GetByCustomer;
@@ -97,14 +96,6 @@ public class FinanceModule : ICarterModule
         invoiceGroup
             .MapPost("/{id:guid}/payments", HandleRecordPayment)
             .Produces<InvoiceDto>(200)
-            .ProducesProblem(400)
-            .ProducesProblem(404)
-            .ProducesProblem(500);
-
-        // Send E-Invoice (Legacy - MediatR Command)
-        invoiceGroup
-            .MapPost("/{id:guid}/send-einvoice", HandleSendEInvoice)
-            .Produces<SendEInvoiceResult>(200)
             .ProducesProblem(400)
             .ProducesProblem(404)
             .ProducesProblem(500);
@@ -328,15 +319,6 @@ public class FinanceModule : ICarterModule
             request.Notes);
 
         var result = await sender.Send(command, cancellationToken);
-        return Results.Ok(result);
-    }
-
-    private static async Task<IResult> HandleSendEInvoice(
-        [FromServices] ISender sender,
-        [FromRoute] Guid id,
-        CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new SendEInvoiceCommand(id), cancellationToken);
         return Results.Ok(result);
     }
 

@@ -24,12 +24,21 @@ const emit = defineEmits<{
 const ruleFormRef = ref<FormInstance>();
 
 const rules: FormRules = {
-  productId: [{ required: true, message: "Ürün seçimi zorunludur", trigger: "change" }],
+  productId: [
+    { required: true, message: "Ürün seçimi zorunludur", trigger: "change" }
+  ],
   date: [{ required: true, message: "Tarih zorunludur", trigger: "change" }],
-  type: [{ required: true, message: "Hareket tipi zorunludur", trigger: "change" }],
+  type: [
+    { required: true, message: "Hareket tipi zorunludur", trigger: "change" }
+  ],
   quantityDelta: [
     { required: true, message: "Miktar zorunludur", trigger: "blur" },
-    { type: "number", min: 0.01, message: "Miktar 0'dan büyük olmalıdır", trigger: "blur" }
+    {
+      type: "number",
+      min: 0.01,
+      message: "Miktar 0'dan büyük olmalıdır",
+      trigger: "blur"
+    }
   ]
 };
 
@@ -43,7 +52,10 @@ const selectedProduct = computed(() =>
   props.products.find(p => p.id === props.modelValue.productId)
 );
 
-function updateField<K extends keyof StockMovementFormData>(key: K, value: StockMovementFormData[K]) {
+function updateField<K extends keyof StockMovementFormData>(
+  key: K,
+  value: StockMovementFormData[K]
+) {
   emit("update:modelValue", { ...props.modelValue, [key]: value });
 }
 
@@ -70,11 +82,11 @@ defineExpose({ validate });
     <el-form-item label="Ürün" prop="productId">
       <el-select
         :model-value="modelValue.productId"
-        @update:model-value="v => updateField('productId', v)"
         placeholder="Ürün seçiniz"
         filterable
         clearable
         class="w-full"
+        @update:model-value="v => updateField('productId', v)"
       >
         <el-option
           v-for="product in products"
@@ -92,21 +104,21 @@ defineExpose({ validate });
     <el-form-item label="Tarih" prop="date">
       <el-date-picker
         :model-value="modelValue.date"
-        @update:model-value="v => updateField('date', v as string)"
         type="date"
         placeholder="Tarih seçiniz"
         format="DD.MM.YYYY"
         value-format="YYYY-MM-DD"
         class="w-full"
+        @update:model-value="v => updateField('date', v as string)"
       />
     </el-form-item>
 
     <el-form-item label="Hareket Tipi" prop="type">
       <el-select
         :model-value="modelValue.type"
-        @update:model-value="v => updateField('type', v)"
         placeholder="Hareket tipi seçiniz"
         class="w-full"
+        @update:model-value="v => updateField('type', v)"
       >
         <el-option
           v-for="mt in movementTypes"
@@ -120,11 +132,11 @@ defineExpose({ validate });
     <el-form-item label="Miktar" prop="quantityDelta">
       <el-input-number
         :model-value="modelValue.quantityDelta"
-        @update:model-value="v => updateField('quantityDelta', v ?? 0)"
         :precision="2"
         :min="0"
         class="w-full"
         controls-position="right"
+        @update:model-value="v => updateField('quantityDelta', v ?? 0)"
       />
       <div class="text-xs text-gray-500 mt-1">
         Pozitif değer: Stok artışı | Negatif değer: Stok azalışı
@@ -134,10 +146,10 @@ defineExpose({ validate });
     <el-form-item label="Açıklama">
       <el-input
         :model-value="modelValue.description"
-        @update:model-value="v => updateField('description', v)"
         type="textarea"
         :rows="3"
         placeholder="Hareket açıklaması"
+        @update:model-value="v => updateField('description', v)"
       />
     </el-form-item>
   </el-form>

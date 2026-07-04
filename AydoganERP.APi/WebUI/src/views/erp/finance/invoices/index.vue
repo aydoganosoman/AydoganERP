@@ -4,11 +4,14 @@ import { useRouter } from "vue-router";
 import {
   getInvoices,
   approveInvoice,
-  cancelInvoice
+  cancelInvoice,
+  sendEInvoice,
+  getEInvoiceStatus
 } from "@/api/erp/finance";
 import type { InvoiceListDto, PagedResult } from "@/api/erp/types";
-import { InvoiceTypeEnum, InvoiceStatusEnum } from "@/api/erp/types";
-import { message, confirmBox } from "@/utils/message";
+import { InvoiceTypeList, InvoiceStatusList } from "@/models/const";
+import { InvoiceTypeEnum, InvoiceStatusEnum } from "@/models/const";
+import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useUserStoreHook } from "@/store/modules/user";
@@ -18,6 +21,8 @@ import Refresh from "~icons/ep/refresh";
 import View from "~icons/ep/view";
 import Check from "~icons/ep/check";
 import Close from "~icons/ep/close";
+import Document from "~icons/ep/document";
+import RefreshRight from "~icons/ep/refresh-right";
 
 defineOptions({
   name: "InvoiceList"
@@ -42,22 +47,6 @@ const filters = reactive({
   startDate: null as string | null,
   endDate: null as string | null
 });
-
-const invoiceTypeOptions = [
-  { value: InvoiceTypeEnum.SalesInvoice, label: "Satış Faturası" },
-  { value: InvoiceTypeEnum.PurchaseInvoice, label: "Alış Faturası" },
-  { value: InvoiceTypeEnum.SalesReturn, label: "Satış İade" },
-  { value: InvoiceTypeEnum.PurchaseReturn, label: "Alış İade" }
-];
-
-const statusOptions = [
-  { value: InvoiceStatusEnum.Draft, label: "Taslak" },
-  { value: InvoiceStatusEnum.Approved, label: "Onaylandı" },
-  { value: InvoiceStatusEnum.Cancelled, label: "İptal" },
-  { value: InvoiceStatusEnum.EInvoiceSent, label: "E-Fatura Gönderildi" },
-  { value: InvoiceStatusEnum.EInvoiceAccepted, label: "E-Fatura Kabul Edildi" },
-  { value: InvoiceStatusEnum.EInvoiceRejected, label: "E-Fatura Reddedildi" }
-];
 
 const columns: TableColumnList = [
   { label: "Fatura No", prop: "invoiceNumber", minWidth: 140 },
@@ -195,6 +184,52 @@ async function handleCancel(row: InvoiceListDto) {
   }
 }
 
+async function handleSendEInvoice(row: InvoiceListDto) {
+  try {
+    const result = await sendEInvoice(row.id);
+    if (result.success) {
+      message(`E-Fatura gönderildi. ETTN: ${result.eInvoiceUUID}`, {
+        type: "success"
+      });
+      loadInvoices();
+    } else {
+      message(result.errorMessage || "E-Fatura gönderilemedi", {
+        type: "error"
+      });
+    }
+  } catch {
+    message("E-Fatura gönderim hatası", { type: "error" });
+  }
+}
+
+function canSendEInvoice(row: InvoiceListDto): boolean {
+  return (
+    row.status === InvoiceStatusEnum.Approved &&
+    row.isEInvoice &&
+    !row.eInvoiceUUID
+  );
+}
+
+function canCheckEInvoiceStatus(row: InvoiceListDto): boolean {
+  return row.status === InvoiceStatusEnum.EInvoiceSent && !!row.eInvoiceUUID;
+}
+
+async function handleCheckEInvoiceStatus(row: InvoiceListDto) {
+  try {
+    const result = await getEInvoiceStatus(row.id);
+    if (result.success) {
+      message(`Durum: ${result.statusDescription || result.status}`, {
+        type: "info"
+      });
+      loadInvoices();
+    } else {
+      message(result.errorMessage || "Durum sorgulanamadı", { type: "error" });
+    }
+  } catch {
+    message("Durum sorgulama hatası", { type: "error" });
+  }
+}
+
 function getStatusType(
   status: number
 ): "success" | "info" | "warning" | "danger" {
@@ -274,7 +309,7 @@ onMounted(() => {
           class="w-[150px]!"
         >
           <el-option
-            v-for="opt in invoiceTypeOptions"
+            v-for="opt in InvoiceTypeList"
             :key="opt.value"
             :label="opt.label"
             :value="opt.value"
@@ -289,7 +324,7 @@ onMounted(() => {
           class="w-[130px]!"
         >
           <el-option
-            v-for="opt in statusOptions"
+            v-for="opt in InvoiceStatusList"
             :key="opt.value"
             :label="opt.label"
             :value="opt.value"
@@ -383,6 +418,30 @@ onMounted(() => {
               @click="handleCancel(row)"
             >
               İptal
+            </el-button>
+            <!-- E-Fatura Gönder -->
+            <el-button
+              v-if="canSendEInvoice(row)"
+              class="reset-margin"
+              link
+              type="warning"
+              :size="size"
+              :icon="useRenderIcon(Document)"
+              @click="handleSendEInvoice(row)"
+            >
+              E-Fatura Gönder
+            </el-button>
+            <!-- Durumu Güncelle -->
+            <el-button
+              v-if="canCheckEInvoiceStatus(row)"
+              class="reset-margin"
+              link
+              type="info"
+              :size="size"
+              :icon="useRenderIcon(RefreshRight)"
+              @click="handleCheckEInvoiceStatus(row)"
+            >
+              Durumu Güncelle
             </el-button>
           </template>
         </pure-table>

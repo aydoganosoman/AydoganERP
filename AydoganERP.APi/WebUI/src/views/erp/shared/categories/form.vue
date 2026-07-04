@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { ProcessTypeEnum } from "@/api/erp/types";
+import { ProcessTypeList } from "@/models/const";
 import type { FormRules, FormInstance } from "element-plus";
 import type { GroupDto } from "@/api/erp/types";
 
@@ -26,28 +26,19 @@ const ruleFormRef = ref<FormInstance>();
 
 const rules: FormRules = {
   code: [{ required: true, message: "Kod zorunludur", trigger: "blur" }],
-  name: [{ required: true, message: "Kategori adı zorunludur", trigger: "blur" }],
-  groupId: [{ required: true, message: "Grup seçimi zorunludur", trigger: "change" }]
+  name: [
+    { required: true, message: "Kategori adı zorunludur", trigger: "blur" }
+  ],
+  groupId: [
+    { required: true, message: "Grup seçimi zorunludur", trigger: "change" }
+  ]
 };
-
-const processOptions = [
-  { label: "Alış Faturası", value: ProcessTypeEnum.PurchaseInvoice },
-  { label: "Satış Faturası", value: ProcessTypeEnum.SalesInvoice },
-  { label: "Alış İrsaliyesi", value: ProcessTypeEnum.PurchaseWaybill },
-  { label: "Satış İrsaliyesi", value: ProcessTypeEnum.SalesWaybill },
-  { label: "Serbest Meslek Makbuzu", value: ProcessTypeEnum.FreelancerReceipt },
-  { label: "Müstahsil Makbuzu", value: ProcessTypeEnum.ProducerReceipt },
-  { label: "Gelir Kartı", value: ProcessTypeEnum.IncomeCard },
-  { label: "Gider Kartı", value: ProcessTypeEnum.ExpenseCard },
-  { label: "Cari Kartı", value: ProcessTypeEnum.CustomerCard },
-  { label: "Stok Kartı", value: ProcessTypeEnum.ProductCard }
-];
 
 const selectedProcessTypes = ref<number[]>([]);
 
 function initProcessTypes() {
   selectedProcessTypes.value = [];
-  processOptions.forEach(opt => {
+  ProcessTypeList.forEach(opt => {
     if (props.modelValue.processTypes & opt.value) {
       selectedProcessTypes.value.push(opt.value);
     }
@@ -57,12 +48,18 @@ initProcessTypes();
 
 watch(() => props.modelValue.processTypes, initProcessTypes);
 
-function updateField<K extends keyof CategoryFormData>(key: K, value: CategoryFormData[K]) {
+function updateField<K extends keyof CategoryFormData>(
+  key: K,
+  value: CategoryFormData[K]
+) {
   emit("update:modelValue", { ...props.modelValue, [key]: value });
 }
 
 function updateProcessTypes() {
-  const newValue = selectedProcessTypes.value.reduce((acc, val) => acc | val, 0);
+  const newValue = selectedProcessTypes.value.reduce(
+    (acc, val) => acc | val,
+    0
+  );
   updateField("processTypes", newValue);
 }
 
@@ -89,28 +86,28 @@ defineExpose({ validate });
     <el-form-item label="Kod" prop="code">
       <el-input
         :model-value="modelValue.code"
-        @update:model-value="v => updateField('code', v)"
         placeholder="Kategori kodu"
         clearable
+        @update:model-value="v => updateField('code', v)"
       />
     </el-form-item>
 
     <el-form-item label="Kategori Adı" prop="name">
       <el-input
         :model-value="modelValue.name"
-        @update:model-value="v => updateField('name', v)"
         placeholder="Kategori adı"
         clearable
+        @update:model-value="v => updateField('name', v)"
       />
     </el-form-item>
 
     <el-form-item label="Grup" prop="groupId">
       <el-select
         :model-value="modelValue.groupId"
-        @update:model-value="v => updateField('groupId', v)"
         placeholder="Grup seçiniz"
         clearable
         class="w-full"
+        @update:model-value="v => updateField('groupId', v)"
       >
         <el-option
           v-for="group in groups"
@@ -129,9 +126,12 @@ defineExpose({ validate });
     </el-form-item>
 
     <el-form-item label="Süreç Tipleri">
-      <el-checkbox-group v-model="selectedProcessTypes" @change="updateProcessTypes">
+      <el-checkbox-group
+        v-model="selectedProcessTypes"
+        @change="updateProcessTypes"
+      >
         <el-checkbox
-          v-for="opt in processOptions"
+          v-for="opt in ProcessTypeList"
           :key="opt.value"
           :value="opt.value"
         >

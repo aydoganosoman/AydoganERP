@@ -2,9 +2,18 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import * as XLSX from "xlsx";
-import { getProducts, bulkCreateStockMovements, createProduct, getNextProductCode } from "@/api/erp/inventory";
+import {
+  getProducts,
+  bulkCreateStockMovements,
+  createProduct,
+  getNextProductCode
+} from "@/api/erp/inventory";
 import { getProductUnits } from "@/api/erp/shared";
-import type { ProductDto, CreateProductCommand, ProductUnitDto } from "@/api/erp/types";
+import type {
+  ProductDto,
+  CreateProductCommand,
+  ProductUnitDto
+} from "@/api/erp/types";
 import { StockMovementTypeEnum } from "@/api/erp/types";
 import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
@@ -39,9 +48,11 @@ const userStore = useUserStoreHook();
 const currentCompanyId = computed(() => userStore.companyId);
 
 // Varsayılan birim (ADET)
-const defaultUnit = computed(() =>
-    unitList.value.find(u => u.code?.toUpperCase() === "ADET" || u.name?.toUpperCase() === "ADET") ||
-    unitList.value[0]
+const defaultUnit = computed(
+  () =>
+    unitList.value.find(
+      u => u.code?.toUpperCase() === "ADET" || u.name?.toUpperCase() === "ADET"
+    ) || unitList.value[0]
 );
 
 const form = reactive({
@@ -73,11 +84,15 @@ const barcodeMap = computed(() => {
 });
 
 // Geçerli ve geçersiz satır sayıları
-const validCount = computed(() => importData.value.filter(r => r.isValid).length);
-const invalidCount = computed(() => importData.value.filter(r => !r.isValid).length);
+const validCount = computed(
+  () => importData.value.filter(r => r.isValid).length
+);
+const invalidCount = computed(
+  () => importData.value.filter(r => !r.isValid).length
+);
 // Sadece ürün bulunamayan (miktar hataları hariç) satırlar
 const notFoundRows = computed(() =>
-    importData.value.filter(r => !r.isValid && !r.productId && r.productCode)
+  importData.value.filter(r => !r.isValid && !r.productId && r.productCode)
 );
 
 // ========== Hızlı Ürün Ekleme Modal ==========
@@ -85,103 +100,116 @@ const quickAddVisible = ref(false);
 const quickAddLoading = ref(false);
 const quickAddRowIndex = ref<number | null>(null);
 const quickAddForm = reactive<{
-    code: string;
-    name: string;
-    barcode: string;
-    purchasePrice: number;
-    purchaseCurrency: string;
-}>({ code: "", name: "", barcode: "", purchasePrice: 0, purchaseCurrency: "TRY" });
+  code: string;
+  name: string;
+  barcode: string;
+  purchasePrice: number;
+  purchaseCurrency: string;
+}>({
+  code: "",
+  name: "",
+  barcode: "",
+  purchasePrice: 0,
+  purchaseCurrency: "TRY"
+});
 
 function openQuickAdd(row: ImportRow) {
-    quickAddRowIndex.value = row.rowIndex;
-    // Girilen kodu barkod olarak ata, ürün kodunu otomatik al
-    quickAddForm.barcode = row.productCode;
-    quickAddForm.name = "";
-    quickAddForm.purchasePrice = 0;
-    quickAddForm.purchaseCurrency = "TRY";
-    // Otomatik kod al
-    loadNextCode();
-    quickAddVisible.value = true;
+  quickAddRowIndex.value = row.rowIndex;
+  // Girilen kodu barkod olarak ata, ürün kodunu otomatik al
+  quickAddForm.barcode = row.productCode;
+  quickAddForm.name = "";
+  quickAddForm.purchasePrice = 0;
+  quickAddForm.purchaseCurrency = "TRY";
+  // Otomatik kod al
+  loadNextCode();
+  quickAddVisible.value = true;
 }
 
 async function loadNextCode() {
-    if (!currentCompanyId.value) return;
-    try {
-        const nextCode = await getNextProductCode(currentCompanyId.value);
-        quickAddForm.code = nextCode;
-    } catch {
-        quickAddForm.code = "";
-    }
+  if (!currentCompanyId.value) return;
+  try {
+    const nextCode = await getNextProductCode(currentCompanyId.value);
+    quickAddForm.code = nextCode;
+  } catch {
+    quickAddForm.code = "";
+  }
 }
 
 async function saveQuickProduct() {
-    if (!quickAddForm.code || !quickAddForm.name) {
-        message("Ürün kodu ve adı zorunlu", { type: "warning" });
-        return;
-    }
+  if (!quickAddForm.code || !quickAddForm.name) {
+    message("Ürün kodu ve adı zorunlu", { type: "warning" });
+    return;
+  }
 
-    if (!defaultUnit.value) {
-        message("Varsayılan birim bulunamadı", { type: "error" });
-        return;
-    }
+  if (!defaultUnit.value) {
+    message("Varsayılan birim bulunamadı", { type: "error" });
+    return;
+  }
 
-    quickAddLoading.value = true;
-    try {
-        const command: CreateProductCommand = {
-            companyId: currentCompanyId.value!,
-            code: quickAddForm.code,
-            name: quickAddForm.name,
-            unitId: defaultUnit.value.id,
-            purchaseUnitPrice: quickAddForm.purchasePrice,
-            purchaseUnitPriceCurrency: quickAddForm.purchaseCurrency === "TRY" ? 0 : quickAddForm.purchaseCurrency === "USD" ? 1 : 2,
-            unitPrices: quickAddForm.barcode
-                ? [
-                      {
-                          unitId: defaultUnit.value.id,
-                          conversionRate: 1,
-                          barcode: quickAddForm.barcode,
-                          saleUnitPrice: 0,
-                          saleUnitPriceCurrency: 0,
-                          isBaseUnit: true
-                      }
-                  ]
-                : []
-        };
-
-        const newProduct = await createProduct(command);
-        productList.value.push(newProduct);
-        message(`"${newProduct.name}" oluşturuldu`, { type: "success" });
-
-        // İlgili satırı yeniden doğrula
-        const row = importData.value.find(r => r.rowIndex === quickAddRowIndex.value);
-        if (row) {
-            revalidateRow(row);
-        }
-
-        // Aynı kod/barkod ile diğer satırları da kontrol et
-        importData.value.forEach(r => {
-            if (
-                !r.isValid &&
-                !r.productId &&
-                (r.productCode.toUpperCase() === quickAddForm.code.toUpperCase() ||
-                    r.productCode.toUpperCase() === quickAddForm.barcode.toUpperCase())
-            ) {
-                revalidateRow(r);
+  quickAddLoading.value = true;
+  try {
+    const command: CreateProductCommand = {
+      companyId: currentCompanyId.value!,
+      code: quickAddForm.code,
+      name: quickAddForm.name,
+      unitId: defaultUnit.value.id,
+      purchaseUnitPrice: quickAddForm.purchasePrice,
+      purchaseUnitPriceCurrency:
+        quickAddForm.purchaseCurrency === "TRY"
+          ? 0
+          : quickAddForm.purchaseCurrency === "USD"
+            ? 1
+            : 2,
+      unitPrices: quickAddForm.barcode
+        ? [
+            {
+              unitId: defaultUnit.value.id,
+              conversionRate: 1,
+              barcode: quickAddForm.barcode,
+              saleUnitPrice: 0,
+              saleUnitPriceCurrency: 0,
+              isBaseUnit: true
             }
-        });
+          ]
+        : []
+    };
 
-        quickAddVisible.value = false;
-    } catch (e: any) {
-        message(e?.message || "Ürün oluşturulamadı", { type: "error" });
-    } finally {
-        quickAddLoading.value = false;
+    const newProduct = await createProduct(command);
+    productList.value.push(newProduct);
+    message(`"${newProduct.name}" oluşturuldu`, { type: "success" });
+
+    // İlgili satırı yeniden doğrula
+    const row = importData.value.find(
+      r => r.rowIndex === quickAddRowIndex.value
+    );
+    if (row) {
+      revalidateRow(row);
     }
+
+    // Aynı kod/barkod ile diğer satırları da kontrol et
+    importData.value.forEach(r => {
+      if (
+        !r.isValid &&
+        !r.productId &&
+        (r.productCode.toUpperCase() === quickAddForm.code.toUpperCase() ||
+          r.productCode.toUpperCase() === quickAddForm.barcode.toUpperCase())
+      ) {
+        revalidateRow(r);
+      }
+    });
+
+    quickAddVisible.value = false;
+  } catch (e: any) {
+    message(e?.message || "Ürün oluşturulamadı", { type: "error" });
+  } finally {
+    quickAddLoading.value = false;
+  }
 }
 
 // Bulunamayan satırları atla
 function skipNotFoundRows() {
-    importData.value = importData.value.filter(r => r.isValid || r.productId);
-    message(`${notFoundRows.value.length} satır atlandı`, { type: "info" });
+  importData.value = importData.value.filter(r => r.isValid || r.productId);
+  message(`${notFoundRows.value.length} satır atlandı`, { type: "info" });
 }
 
 async function loadProducts() {
@@ -216,7 +244,9 @@ function handleFileChange(uploadFile: any) {
       const workbook = XLSX.read(data, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+        header: 1
+      }) as any[][];
 
       parseExcelData(jsonData);
     } catch (err) {
@@ -290,7 +320,7 @@ function validateRow(
     if (!product) {
       product = barcodeMap.value.get(upperCode);
     }
-    
+
     if (product) {
       productId = product.id;
       productName = product.name;
@@ -317,7 +347,12 @@ function validateRow(
 }
 
 function revalidateRow(row: ImportRow) {
-  const validated = validateRow(row.rowIndex, row.productCode, row.quantity, row.description);
+  const validated = validateRow(
+    row.rowIndex,
+    row.productCode,
+    row.quantity,
+    row.description
+  );
   Object.assign(row, validated);
 }
 
@@ -350,10 +385,15 @@ async function handleSave() {
     });
 
     if (result.failedCount > 0) {
-      message(`${result.successCount} başarılı, ${result.failedCount} başarısız`, { type: "warning" });
+      message(
+        `${result.successCount} başarılı, ${result.failedCount} başarısız`,
+        { type: "warning" }
+      );
       console.error("Errors:", result.errors);
     } else {
-      message(`${result.successCount} stok hareketi oluşturuldu`, { type: "success" });
+      message(`${result.successCount} stok hareketi oluşturuldu`, {
+        type: "success"
+      });
       router.push("/erp/inventory/stock-movements");
     }
   } catch {
@@ -397,8 +437,14 @@ onMounted(async () => {
         </el-form-item>
         <el-form-item label="Hareket Tipi">
           <el-select v-model="form.type" style="width: 180px">
-            <el-option label="Açılış Fişi" :value="StockMovementTypeEnum.Opening" />
-            <el-option label="Sayım / Düzeltme" :value="StockMovementTypeEnum.Adjustment" />
+            <el-option
+              label="Açılış Fişi"
+              :value="StockMovementTypeEnum.Opening"
+            />
+            <el-option
+              label="Sayım / Düzeltme"
+              :value="StockMovementTypeEnum.Adjustment"
+            />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -409,7 +455,11 @@ onMounted(async () => {
             accept=".xlsx,.xls,.csv"
             :on-change="handleFileChange"
           >
-            <el-button type="primary" :icon="useRenderIcon(Upload)" :loading="loading">
+            <el-button
+              type="primary"
+              :icon="useRenderIcon(Upload)"
+              :loading="loading"
+            >
               Excel Dosyası Seç
             </el-button>
           </el-upload>
@@ -418,7 +468,9 @@ onMounted(async () => {
 
       <el-alert type="info" :closable="false" class="mt-2">
         <template #title>
-          Excel formatı: <strong>Barkod veya Ürün Kodu | Miktar | Açıklama</strong> (ilk satır başlık)
+          Excel formatı:
+          <strong>Barkod veya Ürün Kodu | Miktar | Açıklama</strong> (ilk satır
+          başlık)
         </template>
       </el-alert>
     </el-card>
@@ -429,8 +481,12 @@ onMounted(async () => {
         <div class="flex items-center justify-between">
           <span>
             Önizleme
-            <el-tag type="success" class="ml-2">{{ validCount }} Geçerli</el-tag>
-            <el-tag v-if="invalidCount > 0" type="danger" class="ml-2">{{ invalidCount }} Hatalı</el-tag>
+            <el-tag type="success" class="ml-2"
+              >{{ validCount }} Geçerli</el-tag
+            >
+            <el-tag v-if="invalidCount > 0" type="danger" class="ml-2"
+              >{{ invalidCount }} Hatalı</el-tag
+            >
           </span>
           <div class="flex gap-2">
             <el-button
@@ -442,7 +498,11 @@ onMounted(async () => {
             >
               Bulunamayanları Atla ({{ notFoundRows.length }})
             </el-button>
-            <el-button size="small" :icon="useRenderIcon(DeleteIcon)" @click="clearAll">
+            <el-button
+              size="small"
+              :icon="useRenderIcon(DeleteIcon)"
+              @click="clearAll"
+            >
               Temizle
             </el-button>
             <el-button
@@ -463,7 +523,9 @@ onMounted(async () => {
         border
         max-height="500"
         style="width: 100%"
-        :row-class-name="({ row }) => (!row.isValid && !row.productId ? 'row-not-found' : '')"
+        :row-class-name="
+          ({ row }) => (!row.isValid && !row.productId ? 'row-not-found' : '')
+        "
       >
         <el-table-column label="#" width="60" align="center">
           <template #default="{ row }">{{ row.rowIndex }}</template>
@@ -479,7 +541,9 @@ onMounted(async () => {
             <el-tooltip v-else :content="row.errorMessage" placement="top">
               <el-icon class="text-red-500" size="20">
                 <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                  <path
+                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                  />
                 </svg>
               </el-icon>
             </el-tooltip>
@@ -491,8 +555,8 @@ onMounted(async () => {
             <el-input
               v-model="row.productCode"
               size="small"
-              @blur="revalidateRow(row)"
               :class="{ 'border-red-500': !row.isValid && !row.productId }"
+              @blur="revalidateRow(row)"
             />
           </template>
         </el-table-column>
@@ -546,7 +610,12 @@ onMounted(async () => {
 
         <el-table-column label="" width="60" align="center">
           <template #default="{ $index }">
-            <el-button type="danger" size="small" link @click="removeRow($index)">
+            <el-button
+              type="danger"
+              size="small"
+              link
+              @click="removeRow($index)"
+            >
               <el-icon><Delete /></el-icon>
             </el-button>
           </template>
@@ -558,13 +627,21 @@ onMounted(async () => {
     <el-empty v-else description="Excel dosyası yükleyin" />
 
     <!-- Hızlı Ürün Ekleme Modal -->
-    <el-dialog v-model="quickAddVisible" title="Hızlı Ürün Ekle" width="450px" destroy-on-close>
+    <el-dialog
+      v-model="quickAddVisible"
+      title="Hızlı Ürün Ekle"
+      width="450px"
+      destroy-on-close
+    >
       <el-form :model="quickAddForm" label-width="100px">
         <el-form-item label="Ürün Kodu" required>
           <el-input v-model="quickAddForm.code" placeholder="Otomatik atandı" />
         </el-form-item>
         <el-form-item label="Ürün Adı" required>
-          <el-input v-model="quickAddForm.name" placeholder="Ürün adını girin" />
+          <el-input
+            v-model="quickAddForm.name"
+            placeholder="Ürün adını girin"
+          />
         </el-form-item>
         <el-form-item label="Barkod">
           <el-input v-model="quickAddForm.barcode" placeholder="Barkod" />
@@ -577,7 +654,10 @@ onMounted(async () => {
             controls-position="right"
             style="width: 150px"
           />
-          <el-select v-model="quickAddForm.purchaseCurrency" style="width: 80px; margin-left: 8px">
+          <el-select
+            v-model="quickAddForm.purchaseCurrency"
+            style="width: 80px; margin-left: 8px"
+          >
             <el-option label="TRY" value="TRY" />
             <el-option label="USD" value="USD" />
             <el-option label="EUR" value="EUR" />
@@ -586,7 +666,11 @@ onMounted(async () => {
       </el-form>
       <template #footer>
         <el-button @click="quickAddVisible = false">İptal</el-button>
-        <el-button type="primary" :loading="quickAddLoading" @click="saveQuickProduct">
+        <el-button
+          type="primary"
+          :loading="quickAddLoading"
+          @click="saveQuickProduct"
+        >
           Oluştur ve Eşleştir
         </el-button>
       </template>

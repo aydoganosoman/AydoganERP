@@ -499,40 +499,6 @@ export interface BulkCreateStockMovementResult {
 
 // ============== Enums ==============
 
-/** Usage Areas - Kullanım Yeri */
-export enum UsageAreaEnum {
-  None = 0,
-  IncomeCard = 1,
-  ExpenseCard = 2,
-  CustomerCard = 4,
-  ProductCard = 8
-}
-
-/** Process Types - Süreç Tipleri */
-export enum ProcessTypeEnum {
-  None = 0,
-  PurchaseInvoice = 1,
-  SalesInvoice = 2,
-  PurchaseWaybill = 4,
-  SalesWaybill = 8,
-  FreelancerReceipt = 16,
-  ProducerReceipt = 32,
-  IncomeCard = 64,
-  ExpenseCard = 128,
-  CustomerCard = 256,
-  ProductCard = 512
-}
-
-/** Document Types - Belge Tipleri */
-export enum DocumentTypeEnum {
-  None = 0,
-  OutgoingEInvoice = 1,
-  IncomingEInvoice = 2,
-  EArchiveInvoice = 4,
-  OutgoingEWaybill = 8,
-  IncomingEWaybill = 16
-}
-
 /** Party Type - Cari Tipi */
 export enum PartyTypeEnum {
   Customer = 0,
@@ -574,74 +540,6 @@ export enum SerialNumberStatusEnum {
 }
 
 // ============== Finance Module ==============
-
-/** Invoice Type - Fatura Tipi */
-export enum InvoiceTypeEnum {
-  SalesInvoice = 0,
-  PurchaseInvoice = 1,
-  SalesReturn = 2,
-  PurchaseReturn = 3
-}
-
-/** Invoice Status - Fatura Durumu */
-export enum InvoiceStatusEnum {
-  Draft = 0,
-  Approved = 1,
-  Cancelled = 2,
-  EInvoiceSent = 3,
-  EInvoiceAccepted = 4,
-  EInvoiceRejected = 5,
-  // Gelen Fatura Durumları
-  Received = 6,         // Gelen fatura alındı
-  PendingApproval = 7,  // Gelen ticari fatura - kabul bekleniyor
-  AcceptedByUs = 8,     // Bizim tarafımızdan kabul edildi
-  RejectedByUs = 9      // Bizim tarafımızdan reddedildi
-}
-
-/** E-Invoice Scenario - E-Fatura Senaryosu */
-export enum EInvoiceScenarioEnum {
-  Basic = 1,
-  Commercial = 2,
-  Export = 3,
-  Public = 4
-}
-
-/** Invoice Line Type - Fatura Satır Tipi */
-export enum InvoiceLineTypeEnum {
-  Product = 0,
-  Service = 1
-}
-
-/** VAT Status - KDV Durumu */
-export enum VatStatusEnum {
-  Excluded = 0,
-  Included = 1
-}
-
-/** Party Number Type - Alıcı/Satıcı Numara Tipi */
-export enum PartyNumberTypeEnum {
-  SubscriberNo = 1,
-  DealerNo = 2,
-  FarmerNo = 3,
-  TaxNo = 4,
-  IdNo = 5,
-  EpdkNo = 6
-}
-
-/** OKC Fis Type - ÖKC Fiş Tipi */
-export enum OkcFisTypeEnum {
-  Sales = 1,
-  Return = 2
-}
-
-/** Payment Method - Ödeme Yöntemi */
-export enum PaymentMethodEnum {
-  Cash = 0,
-  BankTransfer = 1,
-  CreditCard = 2,
-  Check = 3,
-  Other = 4
-}
 
 /** InvoiceLine - Fatura Satırı */
 export interface InvoiceLineDto {
@@ -815,6 +713,7 @@ export interface InvoiceListDto {
   remainingAmount: number;
   isPaid: boolean;
   isEInvoice: boolean;
+  eInvoiceUUID?: string;
   eInvoiceScenario: number;
 }
 
@@ -1185,12 +1084,6 @@ export interface UpdateIntegrationDefaultsCommand {
 }
 
 // ============== E-Invoice Integration ==============
-
-/** E-Fatura Entegratör Tipi */
-export enum EInvoiceIntegratorTypeEnum {
-  MySoft = 1,
-  Bien = 2
-}
 
 /** E-Fatura Entegrasyonu */
 export interface EInvoiceIntegrationDto {

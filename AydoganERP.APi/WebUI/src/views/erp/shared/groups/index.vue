@@ -6,7 +6,7 @@ import type {
   CreateGroupCommand,
   UpdateGroupCommand
 } from "@/api/erp/types";
-import { UsageAreaEnum } from "@/api/erp/types";
+import { UsageAreaEnum } from "@/models/const";
 import { message } from "@/utils/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { PureTableBar } from "@/components/RePureTableBar";

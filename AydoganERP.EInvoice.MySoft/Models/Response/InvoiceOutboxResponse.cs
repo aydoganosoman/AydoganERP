@@ -5,11 +5,9 @@ namespace AydoganERP.EInvoice.MySoft.Models.Response;
 /// </summary>
 public class InvoiceOutboxResponse
 {
-    public int Id { get; set; }
-    public string? InvoiceETTN { get; set; }
-    public string? DocNo { get; set; }
-    public string? Message { get; set; }
-    public bool Succeed { get; set; }
+    public string InvoiceId { get; set; }
+    public string InvoiceETTN { get; set; }
+    public string DocNo { get; set; }
 }
 
 /// <summary>
